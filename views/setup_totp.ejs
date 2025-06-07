@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Two-Factor Authentication - Financial AI Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .setup-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            max-width: 500px;
+            width: 100%;
+        }
+        .qr-code-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-code-image {
+            max-width: 200px;
+            height: auto;
+        }
+        .secret-key {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            font-family: monospace;
+            word-break: break-all;
+            font-size: 0.9rem;
+            margin: 10px 0;
+        }
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 10px;
+        }
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #fff;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+        }
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .text-white {
+            color: white !important;
+        }
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .steps {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="text-center mb-4">
+            <i class="fas fa-shield-alt fa-3x text-white mb-3"></i>
+            <h2 class="text-white mb-2">Setup Two-Factor Authentication</h2>
+            <p class="text-white opacity-75">Secure your account with 2FA</p>
+        </div>
+
+        <% if (error) { %>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <%= error %>
+            </div>
+        <% } %>
+
+        <div class="steps mb-4">
+            <div class="mb-3">
+                <span class="step-number">1</span>
+                <strong>Install an authenticator app</strong> on your phone (Google Authenticator, Authy, or Microsoft Authenticator)
+            </div>
+            <div class="mb-3">
+                <span class="step-number">2</span>
+                <strong>Scan the QR code</strong> below with your authenticator app
+            </div>
+            <div class="mb-3">
+                <span class="step-number">3</span>
+                <strong>Enter the 6-digit code</strong> from your authenticator app
+            </div>
+        </div>
+
+        <% if (qr_code_image) { %>
+            <div class="qr-code-container">
+                <h5 class="mb-3">Scan this QR Code</h5>
+                <img src="data:image/png;base64,<%= qr_code_image %>" 
+                     alt="QR Code for TOTP Setup" 
+                     class="qr-code-image">
+            </div>
+        <% } %>
+
+        <% if (secret) { %>
+            <div class="text-center mb-4">
+                <p class="text-white mb-2">
+                    <small>Or enter this secret key manually:</small>
+                </p>
+                <div class="secret-key text-white">
+                    <%= secret %>
+                </div>
+                <button class="btn btn-sm btn-outline-light mt-2" onclick="copySecret()">
+                    <i class="fas fa-copy me-1"></i>Copy Secret
+                </button>
+            </div>
+        <% } %>
+
+        <form method="POST" action="/setup_totp">
+            <div class="mb-4">
+                <label for="totp" class="form-label text-white">
+                    <i class="fas fa-key me-2"></i>Enter 6-digit code from your authenticator app
+                </label>
+                <input type="text" 
+                       class="form-control form-control-lg text-center" 
+                       id="totp" 
+                       name="totp" 
+                       placeholder="000000" 
+                       maxlength="6" 
+                       pattern="[0-9]{6}" 
+                       required 
+                       autocomplete="off">
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-check me-2"></i>Verify & Complete Setup
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-4">
+            <a href="/register" class="text-white opacity-75 text-decoration-none">
+                <i class="fas fa-arrow-left me-1"></i>Back to Registration
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-format TOTP input
+        document.getElementById('totp').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Copy secret key function
+        function copySecret() {
+            const secretText = '<%= secret %>';
+            navigator.clipboard.writeText(secretText).then(function() {
+                // Show success feedback
+                const btn = event.target.closest('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+                btn.classList.add('btn-success');
+                btn.classList.remove('btn-outline-light');
+                
+                setTimeout(function() {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-light');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Failed to copy secret. Please copy manually.');
+            });
+        }
+
+        // Auto-submit when 6 digits are entered
+        document.getElementById('totp').addEventListener('input', function(e) {
+            if (this.value.length === 6) {
+                // Small delay to let user see the complete code
+                setTimeout(() => {
+                    if (this.value.length === 6) {
+                        this.form.submit();
+                    }
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

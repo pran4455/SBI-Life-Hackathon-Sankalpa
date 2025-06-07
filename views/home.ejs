@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial AI Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .welcome-text {
+            color: white;
+            font-weight: 500;
+            font-size: 1.15rem;
+            margin-right: 20px;
+            margin-bottom: 2px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .page-title {
+            text-align: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            position: relative;
+            height: 250px;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-decoration: none;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.3;
+            transition: all 0.4s ease;
+            z-index: 1;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+            z-index: 2;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.6;
+            transform: scale(1.1);
+        }
+
+        .feature-card:hover::after {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.6), rgba(118, 75, 162, 0.6));
+        }
+
+        .feature-content {
+            position: relative;
+            z-index: 3;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            color: white;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2) rotate(5deg);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            transition: all 0.4s ease;
+        }
+
+        .feature-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.4;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover .feature-title,
+        .feature-card:hover .feature-description {
+            transform: translateY(-5px);
+        }
+
+        /* Background images for each card */
+        .card-policy::before { background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500'); }
+        .card-analytics::before { background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500'); }
+        .card-chatbot::before { background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500'); }
+        .card-upselling::before { background-image: url('https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500'); }
+        .card-fraud::before { background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500'); }
+        .card-tools::before { background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500'); }
+        .card-finchat::before { background-image: url('https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=500'); }
+
+        /* Language Dropdown */
+        .language-dropdown {
+            position: fixed;
+            top: 6rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .language-dropdown img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .language-dropdown select {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .language-dropdown select option {
+            background: #333;
+            color: white;
+        }
+
+        /* Chat Button */
+        .chat-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .chat-button:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .chat-button img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+            
+            .page-title {
+                font-size: 2.5rem;
+            }
+            
+            .main-container {
+                padding: 2rem 1rem;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .language-dropdown {
+                top: 8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .feature-card {
+                height: 200px;
+            }
+            
+            .feature-icon {
+                font-size: 2.5rem;
+            }
+            
+            .feature-title {
+                font-size: 1.1rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Dialogflow Messenger Styling */
+        df-messenger {
+            position: fixed;
+            right: 2rem;
+            bottom: 2rem;
+            z-index: 999;
+            --df-messenger-button-border-radius: 50%;
+            --df-messenger-button-width: 60px;
+            --df-messenger-button-height: 60px;
+            display: none;
+            --df-messenger-chat-window-height: 500px;
+            --df-messenger-chat-window-width: 350px;
+            --df-messenger-chat-window-border-radius: 20px;
+            --df-messenger-chat-window-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Loading Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .feature-card:nth-child(6) { animation-delay: 0.6s; }
+        .feature-card:nth-child(7) { animation-delay: 0.7s; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                Financial AI Hub
+            </div>
+            <div class="user-section">
+                <span class="welcome-text">Welcome, <%= username %>!</span>
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <h1 class="page-title">AI-Powered Financial Solutions</h1>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <a href="/policy-recommendation" class="feature-card card-policy">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Policy Recommendation and Upselling</h3>
+                    <p class="feature-description">AI-driven policy suggestions with explainable insights and AI-based policy upselling</p>
+                </div>
+            </a>
+
+            <a href="/tia-chatbot" class="feature-card card-chatbot">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">TIA Assistant</h3>
+                    <p class="feature-description">Intelligent conversational AI for instant support</p>
+                </div>
+            </a>
+
+            <a href="/fraud-detection" class="feature-card card-fraud">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Fraud Detection</h3>
+                    <p class="feature-description">Advanced ML algorithms for fraud prevention</p>
+                </div>
+            </a>
+
+            <a href="" class="feature-card">
+                <div class="feature-content">
+                    <div class="feature-icon"></div>
+                    <h3 class="feature-title"></h3>
+                    <p class="feature-description"></p>
+                </div>
+            </a>
+
+            <a href="/financial-chatbot" class="feature-card card-finchat">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="feature-title">FinChat Bot</h3>
+                    <p class="feature-description">General financial guidance and support</p>
+                </div>
+            </a>
+
+            <a href="/games" class="feature-card card-tools">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3 class="feature-title">Games</h3>
+                    <p class="feature-description">Interactive games related to finance and money management</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Language Selection -->
+    <div class="language-dropdown">
+        <img src="https://cdn-icons-png.flaticon.com/512/484/484531.png" alt="Language">
+        <select id="language-selector">
+            <option value="en" selected>English</option>
+            <option value="ta">தமிழ்</option>
+        </select>
+    </div>
+
+    <!-- Chat Button -->
+    <div class="chat-button" id="chat-btn">
+        <img src="https://sbilife-chatbot.allincall.in/files/f9443504-0ae6-4ba2-9d1e-075f9207927b_compressed.png" alt="Chat">
+    </div>
+
+    <!-- Dialogflow Messenger -->
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+        id="chatbot"
+        intent="WELCOME"
+        chat-title="Chat with TIA!"
+        agent-id="f1dd1169-3f26-46be-a02c-0a202af1d420"
+        language-code="en">
+    </df-messenger>
+
+    <script>
+        // Chat button functionality
+        document.getElementById("chat-btn").addEventListener("click", function() {
+            const chatbox = document.querySelector("df-messenger");
+            chatbox.style.display = "block";
+            
+            setTimeout(() => {
+                const dfButton = document.querySelector("df-messenger").shadowRoot.querySelector("df-messenger-button");
+                if (dfButton) {
+                    dfButton.style.display = "none";
+                }
+            }, 500);
+        });
+
+        // Hide default Dialogflow button
+        const observer = new MutationObserver(() => {
+            const dfButton = document.querySelector("df-messenger").shadowRoot.querySelector("df-messenger-button");
+            if (dfButton) {
+                dfButton.style.display = "none";
+            }
+        });
+
+        observer.observe(document.querySelector("df-messenger"), { 
+            childList: true, 
+            subtree: true 
+        });
+
+        // Language change functionality
+        document.getElementById("language-selector").addEventListener("change", function() {
+            const selectedLang = this.value;
+            const chatbot = document.getElementById("chatbot");
+            const chatTitle = selectedLang === "ta" ? "TIA உடன் அரட்டை!" : "Chat with TIA!";
+            
+            chatbot.remove();
+            
+            const newChatbot = document.createElement("df-messenger");
+            newChatbot.setAttribute("id", "chatbot");
+            newChatbot.setAttribute("intent", "WELCOME");
+            newChatbot.setAttribute("chat-title", chatTitle);
+            newChatbot.setAttribute("agent-id", "f1dd1169-3f26-46be-a02c-0a202af1d420");
+            newChatbot.setAttribute("language-code", selectedLang);
+            
+            document.body.appendChild(newChatbot);
+        });
+
+        // Add smooth scrolling and entrance animations
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.feature-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile - Financial AI Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .welcome-text {
+            color: white;
+            font-weight: 500;
+            font-size: 1.15rem;
+            margin-right: 20px;
+            margin-bottom: 2px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            padding: 0;
+            width: 100%;
+            max-width: 1000px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        /* Profile Header Section */
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .profile-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .question-counter {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff, #f8fafc);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        /* Chat Container - Fixed Layout */
+        .chatbot-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 2px solid #f1f5f9;
+            border-radius: 15px;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+            min-height: 300px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 15px;
+            max-width: 85%;
+            animation: slideIn 0.4s ease;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            color: #374151;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .input-section {
+            display: flex;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+            resize: none;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-message {
+            color: #dc2626;
+            padding: 1rem;
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border: 2px solid #fecaca;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .completion-message h2 {
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .completion-message p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(15px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            max-width: 80px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6366f1;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { 
+                transform: translateY(0); 
+                background: #6366f1;
+            }
+            30% { 
+                transform: translateY(-10px); 
+                background: #8b5cf6;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                margin: 1rem;
+                border-radius: 15px;
+                height: calc(100vh - 140px);
+            }
+
+            .profile-header {
+                padding: 1.5rem;
+            }
+
+            .profile-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .chatbot-container {
+                padding: 1.5rem;
+            }
+
+            .input-section {
+                flex-direction: column;
+            }
+
+            .send-btn {
+                padding: 1rem;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                Financial AI Hub
+            </div>
+            <div class="user-section">
+                <span class="welcome-text">Welcome, <%= username %>!</span>
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="profile-header">
+            <h1>Complete Your Profile</h1>
+            <p>Welcome! Let's gather some information to personalize your experience.</p>
+            <div class="question-counter">
+                Question <span id="currentQuestion">1</span> of <span id="totalQuestions">12</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="chatbot-container">
+            <div class="chat-messages" id="chatMessages"></div>
+            
+            <div class="input-section" id="inputSection">
+                <input type="text" class="input-field" id="userInput" placeholder="Type your answer here...">
+                <button class="send-btn" id="sendBtn">Send</button>
+            </div>
+        </div>
+
+        <div class="completion-message hidden" id="completionMessage">
+            <h2>🎉 Profile Complete!</h2>
+            <p>Thank you for providing your information. Redirecting to your dashboard...</p>
+        </div>
+    </div>
+
+    <script>
+        const CHATBOT_QUESTIONS = {
+            'credit_score': {
+                'question': "What's your credit score? (Please enter a number between 300-850)",
+                'field': 'credit_score',
+                'type': 'int',
+                'validation': (x) => {
+                    const num = parseInt(x);
+                    return !isNaN(num) && num >= 300 && num <= 850;
+                },
+                'error_msg': "Please enter a valid credit score between 300 and 850."
+            },
+            'geography': {
+                'question': "Which country are you from? (France, Germany, Spain)",
+                'field': 'geography',
+                'type': 'str',
+                'validation': (x) => ['France', 'Germany', 'Spain'].includes(x.trim()),
+                'error_msg': "Please choose from: France, Germany, or Spain."
+            },
+            'gender': {
+                'question': "What's your gender? (Male/Female)",
+                'field': 'gender',
+                'type': 'str',
+                'validation': (x) => ['Male', 'Female'].includes(x.trim()),
+                'error_msg': "Please enter either Male or Female."
+            },
+            'age': {
+                'question': "What's your age? (Please enter a number between 18-100)",
+                'field': 'age',
+                'type': 'int',
+                'validation': (x) => {
+                    const num = parseInt(x);
+                    return !isNaN(num) && num >= 18 && num <= 100;
+                },
+                'error_msg': "Please enter a valid age between 18 and 100."
+            },
+            'marital_status': {
+                'question': "What's your marital status? (Married/Single)",
+                'field': 'marital_status',
+                'type': 'str',
+                'validation': (x) => ['Married', 'Single'].includes(x.trim()),
+                'error_msg': "Please enter either Married or Single."
+            },
+            'salary': {
+                'question': "What's your estimated annual salary?",
+                'field': 'salary',
+                'type': 'float',
+                'validation': (x) => {
+                    const num = parseFloat(x);
+                    return !isNaN(num) && num >= 0;
+                },
+                'error_msg': "Please enter a valid positive salary amount."
+            },
+            'tenure': {
+                'question': "How many years have you been with the bank? (0-20 years)",
+                'field': 'tenure',
+                'type': 'int',
+                'validation': (x) => {
+                    const num = parseInt(x);
+                    return !isNaN(num) && num >= 0 && num <= 20;
+                },
+                'error_msg': "Please enter tenure between 0 and 20 years."
+            },
+            'balance': {
+                'question': "What's your account balance? (Enter amount in currency)",
+                'field': 'balance',
+                'type': 'float',
+                'validation': (x) => {
+                    const num = parseFloat(x);
+                    return !isNaN(num) && num >= 0;
+                },
+                'error_msg': "Please enter a valid positive balance amount."
+            },
+            'num_products': {
+                'question': "How many bank products do you currently have? (1-4)",
+                'field': 'num_products',
+                'type': 'int',
+                'validation': (x) => {
+                    const num = parseInt(x);
+                    return !isNaN(num) && num >= 1 && num <= 4;
+                },
+                'error_msg': "Please enter a number between 1 and 4."
+            },
+            'has_credit_card': {
+                'question': "Do you have a credit card with us? (Yes/No)",
+                'field': 'has_credit_card',
+                'type': 'bool',
+                'validation': (x) => ['yes', 'no', 'y', 'n'].includes(x.toLowerCase()),
+                'error_msg': "Please answer Yes or No."
+            },
+            'is_active': {
+                'question': "Are you an active member? (Yes/No)",
+                'field': 'is_active',
+                'type': 'bool',
+                'validation': (x) => ['yes', 'no', 'y', 'n'].includes(x.toLowerCase()),
+                'error_msg': "Please answer Yes or No."
+            },
+            'exited': {
+                'question': "Have you ever left the bank and returned? (Yes/No)",
+                'field': 'exited',
+                'type': 'bool',
+                'validation': (x) => ['yes', 'no', 'y', 'n'].includes(x.toLowerCase()),
+                'error_msg': "Please answer Yes or No."
+            }
+        };
+
+        class InformationChatbot {
+            constructor() {
+                this.questionKeys = Object.keys(CHATBOT_QUESTIONS);
+                this.currentQuestionIndex = 0;
+                this.answers = {};
+                this.chatMessages = document.getElementById('chatMessages');
+                this.userInput = document.getElementById('userInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.inputSection = document.getElementById('inputSection');
+                this.completionMessage = document.getElementById('completionMessage');
+                this.progressFill = document.getElementById('progressFill');
+                this.currentQuestionSpan = document.getElementById('currentQuestion');
+                this.totalQuestions = document.getElementById('totalQuestions');
+
+                this.init();
+            }
+
+            init() {
+                this.totalQuestions.textContent = this.questionKeys.length;
+                this.sendBtn.addEventListener('click', () => this.handleUserInput());
+                this.userInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.handleUserInput();
+                });
+                
+                this.startChat();
+            }
+
+            async startChat() {
+                await this.delay(500);
+                this.addBotMessage("Hello! I'm here to help you complete your profile. Let's get started! 🤖");
+                await this.delay(1000);
+                this.askCurrentQuestion();
+            }
+
+            async askCurrentQuestion() {
+                if (this.currentQuestionIndex >= this.questionKeys.length) {
+                    return this.completeProfile();
+                }
+
+                const questionKey = this.questionKeys[this.currentQuestionIndex];
+                const question = CHATBOT_QUESTIONS[questionKey];
+                
+                this.updateProgress();
+                await this.showTypingIndicator();
+                this.addBotMessage(question.question);
+            }
+
+            async handleUserInput() {
+                const userAnswer = this.userInput.value.trim();
+                if (!userAnswer) return;
+
+                this.addUserMessage(userAnswer);
+                this.userInput.value = '';
+                this.sendBtn.disabled = true;
+
+                const questionKey = this.questionKeys[this.currentQuestionIndex];
+                const question = CHATBOT_QUESTIONS[questionKey];
+
+                // Validate the answer
+                if (!question.validation(userAnswer)) {
+                    await this.delay(500);
+                    this.addBotMessage(question.error_msg);
+                    this.sendBtn.disabled = false;
+                    return;
+                }
+
+                // Process and store the answer
+                let processedAnswer = userAnswer;
+                if (question.type === 'int') {
+                    processedAnswer = parseInt(userAnswer);
+                } else if (question.type === 'float') {
+                    processedAnswer = parseFloat(userAnswer);
+                } else if (question.type === 'bool') {
+                    processedAnswer = ['yes', 'y'].includes(userAnswer.toLowerCase()) ? 'true' : 'false';
+                } else if (question.type === 'str') {
+                    processedAnswer = userAnswer.trim();
+                }
+
+                this.answers[question.field] = processedAnswer;
+                
+                await this.delay(500);
+                this.addBotMessage("Great! Thank you for that information. 👍");
+                
+                this.currentQuestionIndex++;
+                this.updateProgress();
+                
+                await this.delay(1000);
+                this.askCurrentQuestion();
+                
+                this.sendBtn.disabled = false;
+            }
+
+            addBotMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot-message';
+                messageDiv.textContent = message;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.textContent = message;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            async showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+                this.chatMessages.appendChild(typingDiv);
+                this.scrollToBottom();
+                
+                await this.delay(1500);
+                if (this.chatMessages.contains(typingDiv)) {
+                    this.chatMessages.removeChild(typingDiv);
+                }
+            }
+
+            updateProgress() {
+                const progress = (this.currentQuestionIndex / this.questionKeys.length) * 100;
+                this.progressFill.style.width = `${progress}%`;
+                this.currentQuestionSpan.textContent = this.currentQuestionIndex + 1;
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                }, 100);
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            async completeProfile() {
+                await this.delay(500);
+                this.addBotMessage("Perfect! I've collected all your information. Let me save your profile... 💾");
+                
+                await this.delay(2000);
+                
+                try {
+                    // Create a form and submit it to match your existing backend
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/information';
+                    
+                    // Add all the collected answers as hidden form fields
+                    for (const [key, value] of Object.entries(this.answers)) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+                    
+                    document.body.appendChild(form);
+                    
+                    this.addBotMessage("Your profile has been saved successfully! Redirecting you to the dashboard... 🎉");
+                    this.inputSection.classList.add('hidden');
+                    this.completionMessage.classList.remove('hidden');
+                    
+                    // Submit the form after a short delay
+                    setTimeout(() => {
+                        form.submit();
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Error saving profile:', error);
+                    this.addBotMessage("Sorry, there was an error saving your profile. Please try again or contact support.");
+                    this.sendBtn.disabled = false;
+                }
+            }
+        }
+
+        // Initialize the chatbot when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new InformationChatbot();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommend a Policy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .recommend-box {
+            flex: 1;
+            max-width: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .chatbox-container {
+            flex: 1;
+            max-width: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        #userInput {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        #userInput:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #recommendations {
+            margin-top: 30px;
+        }
+
+        #recommendations h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .policy-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .policy-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .policy-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .policy-header input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .policy-name {
+            font-weight: 600;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .policy-why-heading {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .policy-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .accept-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .decline-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .recommend-box,
+            .chatbox-container {
+                max-width: 100%;
+            }
+            
+            .chatbox-container {
+                min-height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel: Recommendation UI (Centered) -->
+        <div class="recommend-box">
+            <h1>Policy Recommendation</h1>
+            <textarea id="userInput" placeholder="Describe your requirements..."></textarea>
+            <button id="getRecommendationsBtn" onclick="getRecommendations()">Get Recommendations</button>
+
+            <div id="recommendations" style="display: none;">
+                <h2>Recommended Policies:</h2>
+                <ul id="policyList"></ul>
+                <div class="action-buttons" style="display: none;" id="actionButtons">
+                    <button class="accept-btn" id="acceptBtn" onclick="acceptPolicy()">Accept Policy</button>
+                    <button class="decline-btn" id="declineBtn" onclick="declinePolicy()">Decline Policy</button>
+                </div>
+            </div>
+
+            <div id="messageContainer"></div>
+        </div>
+
+        <!-- Right Panel: Chatbot -->
+        <div class="chatbox-container">
+            <iframe
+                src="https://www.chatbase.co/chatbot-iframe/N7ypLB_KMEig3ZTsuFH3G"
+                width="100%"
+                style="height: 100%; min-height: 700px"
+                frameborder="0"
+            ></iframe>
+        </div>
+    </div>
+
+    <script>
+        let selectedPolicy = null;
+
+        async function getRecommendations() {
+            const userInput = document.getElementById("userInput").value;
+            const getRecommendationsBtn = document.getElementById("getRecommendationsBtn");
+            
+            if (!userInput.trim()) {
+                showMessage("Please enter a description.", "error");
+                return;
+            }
+
+            // Show loading state
+            getRecommendationsBtn.disabled = true;
+            getRecommendationsBtn.innerHTML = '<span class="loading"></span>Getting Recommendations...';
+
+            try {
+                const res = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description: userInput })
+                });
+
+                const responseData = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(responseData.error || `HTTP error! status: ${res.status}`);
+                }
+
+                console.log('Response data:', responseData);
+                
+                // Handle multiple possible response structures
+                let policies = [];
+                
+                if (responseData.policies && Array.isArray(responseData.policies)) {
+                    // New format: { policies: [...] }
+                    policies = responseData.policies;
+                } else if (responseData.recommendation) {
+                    if (Array.isArray(responseData.recommendation)) {
+                        // Format: { recommendation: [...] }
+                        policies = responseData.recommendation;
+                    } else {
+                        // Format: { recommendation: {...} } - single policy object
+                        policies = [responseData.recommendation];
+                    }
+                } else if (responseData.name) {
+                    // Direct policy object format: { name: "...", why: "..." }
+                    policies = [responseData];
+                } else if (Array.isArray(responseData)) {
+                    // Direct array format
+                    policies = responseData;
+                } else {
+                    console.error('Unexpected response format:', responseData);
+                    throw new Error('Unexpected response format from server');
+                }
+                
+                console.log('Processed policies:', policies);
+                
+                if (policies && policies.length > 0) {
+                    displayRecommendations(policies);
+                } else {
+                    showMessage("No policies found for your requirements. Please try with different criteria.", "error");
+                }
+                
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+                showMessage(`Error: ${error.message}`, "error");
+            } finally {
+                // Reset button state
+                getRecommendationsBtn.disabled = false;
+                getRecommendationsBtn.innerHTML = 'Get Recommendations';
+            }
+        }
+
+        // Updated displayRecommendations function to handle various policy formats
+        function displayRecommendations(policies) {
+            const policyList = document.getElementById("policyList");
+            const recommendationsDiv = document.getElementById("recommendations");
+            const actionButtons = document.getElementById("actionButtons");
+            
+            policyList.innerHTML = "";
+            recommendationsDiv.style.display = "block";
+            
+            policies.forEach((policy, index) => {
+                // Handle both object and string formats
+                const policyName = policy.name || policy;
+                const policyWhy = policy.why || policy.description || 'No description available';
+                
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                    <div class="policy-item">
+                        <div class="policy-header">
+                            <input type="radio" name="selectedPolicy" value="${policyName}" id="policy_${index}" onchange="selectPolicy('${policyName}')">
+                            <label for="policy_${index}" class="policy-name">${policyName}</label>
+                        </div>
+                        <div class="policy-why-container">
+                            <h3 class="policy-why-heading">Why choose this policy:</h3>
+                            <div class="policy-description">${policyWhy}</div>
+                        </div>
+                    </div>
+                `;
+                policyList.appendChild(listItem);
+            });
+
+            actionButtons.style.display = "flex";
+        }
+
+        function selectPolicy(policyName) {
+            selectedPolicy = policyName;
+            console.log('Selected policy:', selectedPolicy);
+        }
+
+        async function acceptPolicy() {
+            if (!selectedPolicy) {
+                showMessage("Please select a policy first.", "error");
+                return;
+            }
+
+            const acceptBtn = document.getElementById("acceptBtn");
+            acceptBtn.disabled = true;
+            acceptBtn.innerHTML = '<span class="loading"></span>Processing...';
+
+            try {
+                const res = await fetch('/api/accept-policy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ policy: selectedPolicy })
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    showMessage(result.message, "success");
+                    
+                    // Redirect to upselling page after a short delay
+                    setTimeout(() => {
+                        if (result.redirect) {
+                            window.location.href = result.redirect;
+                        }
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Failed to accept policy');
+                }
+
+            } catch (error) {
+                console.error('Error accepting policy:', error);
+                showMessage("Error accepting policy. Please try again.", "error");
+            } finally {
+                acceptBtn.disabled = false;
+                acceptBtn.innerHTML = 'Accept Policy';
+            }
+        }
+
+        async function declinePolicy() {
+            const declineBtn = document.getElementById("declineBtn");
+            declineBtn.disabled = true;
+            declineBtn.innerHTML = '<span class="loading"></span>Processing...';
+
+            try {
+                const res = await fetch('/api/decline-policy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ policy: selectedPolicy })
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    showMessage(result.message, "success");
+                    
+                    // Reset the form
+                    document.getElementById("recommendations").style.display = "none";
+                    document.getElementById("userInput").value = "";
+                    selectedPolicy = null;
+                    
+                } else {
+                    throw new Error(result.error || 'Failed to decline policy');
+                }
+
+            } catch (error) {
+                console.error('Error declining policy:', error);
+                showMessage("Error processing decline. Please try again.", "error");
+            } finally {
+                declineBtn.disabled = false;
+                declineBtn.innerHTML = 'Decline Policy';
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById("messageContainer");
+            messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageContainer.innerHTML = '';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

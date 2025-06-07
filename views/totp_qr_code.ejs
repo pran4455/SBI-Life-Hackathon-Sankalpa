@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup 2FA - Financial AI Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(120deg, #6d3cc5, #ff69b4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .nav-bar img {
+            height: 40px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 360px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .title {
+            color: #6d3cc5;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #444;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .qr-container {
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+
+        .qr-code {
+            max-width: 180px;
+            width: 100%;
+            height: auto;
+        }
+
+        .instructions {
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .instructions h3 {
+            color: #6d3cc5;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            color: #333;
+        }
+
+        .btn {
+            background-color: #6d3cc5;
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-top: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #552ba0;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: #fdecea;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <img src="/static/sankalpa.png" alt="Logo">
+    </div>
+
+    <div class="container">
+        <h1 class="title">Set up Two-Factor Authentication</h1>
+        <p class="subtitle">Secure your account by scanning the QR code using any authenticator app.</p>
+
+        <% if (locals.qr_code_image) { %>
+            <div class="qr-container">
+                <img src="data:image/png;base64,<%= qr_code_image %>" alt="QR Code" class="qr-code">
+            </div>
+
+            <div class="instructions">
+                <h3>Steps:</h3>
+                <ol>
+                    <li>Open your authenticator app (Google Authenticator, Authy, etc).</li>
+                    <li>Scan the QR code shown above.</li>
+                    <li>Enter the generated code in the next step.</li>
+                </ol>
+            </div>
+
+            <a href="/verify_totp" class="btn">Continue to Verification</a>
+        <% } else if (locals.error) { %>
+            <p class="error"><%= error %></p>
+            <a href="/login" class="btn">Return to Login</a>
+        <% } %>
+    </div>
+
+    <div class="footer">
+        &copy; 2025 Financial AI Hub. All rights reserved.
+    </div>
+
+</body>
+</html>
