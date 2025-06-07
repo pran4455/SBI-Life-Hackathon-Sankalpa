@@ -1,8 +1,9 @@
 # Gunicorn configuration file
 import multiprocessing
+import os
 
 # Server socket
-bind = "0.0.0.0:8001"
+bind = f"0.0.0.0:{os.environ.get('CHATBOT_PORT', '8001')}"
 backlog = 2048
 
 # Worker processes

@@ -3,11 +3,11 @@ services:
     name: financial-ai-hub
     env: node
     buildCommand: npm install -g pm2 && npm install && pip install -r requirements.txt
-    startCommand: bash start.sh    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
+    startCommand: bash start.sh    envVars:      - key: NODE_ENV
+        value: production      - key: PORT
+        value: 3000
+      - key: CHATBOT_PORT
+        value: 3001
       - key: RENDER_STORAGE_PATH
         sync: false
       - key: PYTHON_PATH

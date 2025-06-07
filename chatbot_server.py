@@ -6,6 +6,7 @@ from ctransformers import AutoModelForCausalLM
 import re
 import threading
 import time
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -204,5 +205,9 @@ if __name__ == '__main__':
     model_thread.daemon = True
     model_thread.start()
     
+    # Get port from environment variable or use default
+    port = int(os.environ.get('CHATBOT_PORT', 8001))
+    print(f"Starting Flask server on port {port}")
+    
     # Start Flask server
-    app.run(host='0.0.0.0', port=8001, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)

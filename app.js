@@ -28,6 +28,11 @@ const pythonpath = process.env.PYTHON_PATH || 'python3'; // Fallback to python3 
 
 const app = express();  
 const PORT = process.env.PORT || 3000;
+const CHATBOT_PORT = process.env.CHATBOT_PORT || 8001;
+
+// Log port configurations
+console.log(`Main server port: ${PORT}`);
+console.log(`Chatbot server port: ${CHATBOT_PORT}`);
 
 // Recommendations mappingbased on model classes - For Upselling Policy
 const recommendationsMapping = {
@@ -1281,8 +1286,33 @@ app.get('/api/policy-details/:policyId', isAuthenticated, (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+// Health check endpoint
+app.get('/health', async (req, res) => {
+  try {
+    // Check chatbot server
+    const chatbotHealth = await axios.get(`http://localhost:${CHATBOT_PORT}/health`)
+      .then(response => response.data)
+      .catch(err => ({ status: 'error', error: err.message }));
+
+    res.json({
+      status: 'healthy',
+      mainServer: {
+        port: PORT,
+        status: 'running'
+      },
+      chatbotServer: chatbotHealth
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error.message
+    });
+  }
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Server URL: http://0.0.0.0:${PORT}`);
 
   // Start the Flask chatbot server
   startChainlitServer();

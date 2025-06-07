@@ -5,6 +5,23 @@ const path = require('path');
 
 let flaskProcess = null;
 
+async function checkServerConnection(port, maxRetries = 10) {
+  const axios = require('axios');
+  let retries = 0;
+  
+  while (retries < maxRetries) {
+    try {
+      await axios.get(`http://localhost:${port}/health`);
+      console.log(`Server successfully started on port ${port}`);
+      return true;
+    } catch (error) {
+      retries++;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+  return false;
+}
+
 function startChainlitServer() {
   // Don't start if already running
   if (flaskProcess && !flaskProcess.killed) {

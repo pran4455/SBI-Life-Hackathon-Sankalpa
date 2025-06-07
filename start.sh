@@ -1,6 +1,25 @@
 #!/bin/bash
 
-# Create storage directory if it doesn't exist
+# Create storage directoif [ "$NODE_ENV" = "production" ]; then
+    # Install PM2 globally if not already installed
+    npm install -g pm2
+    
+    # Export port for PM2
+    export PORT=${PORT:-3000}
+    export CHATBOT_PORT=${CHATBOT_PORT:-3001}
+    
+    echo "Starting servers with ports: Main=$PORT, Chatbot=$CHATBOT_PORT"
+    
+    # Start Flask chatbot with Gunicorn in the background
+    pm2 start "gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT" --name "chatbot" --wait-ready
+    
+    # Wait for chatbot server to be ready
+    echo "Waiting for chatbot server to start..."
+    sleep 10
+    
+    # Start the main application
+    echo "Starting main application..."
+    pm2 start app.js --name "sankalpa" --wait-ready -- --port $PORTsn't exist
 if [ -n "$RENDER_STORAGE_PATH" ]; then
     echo "Setting up storage directory..."
     mkdir -p $RENDER_STORAGE_PATH
@@ -40,10 +59,13 @@ if [ "$NODE_ENV" = "production" ]; then
     npm install -g pm2
     
     # Start Flask chatbot with Gunicorn in the background
-    pm2 start "gunicorn -c gunicorn.conf.py wsgi:app" --name "chatbot"
+    pm2 start "gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT" --name "chatbot" --wait-ready
+    
+    # Wait for chatbot server to be ready
+    sleep 5
     
     # Start the main application
-    pm2 start app.js --name "sankalpa"
+    pm2 start app.js --name "sankalpa" --wait-ready
     
     # Save the PM2 process list
     pm2 save
