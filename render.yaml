@@ -2,7 +2,7 @@ services:
   - type: web
     name: financial-ai-hub
     env: node
-    buildCommand: npm install && pip install -r requirements.txt
+    buildCommand: npm install -g pm2 && npm install && pip install -r requirements.txt
     startCommand: bash start.sh    envVars:
       - key: NODE_ENV
         value: production

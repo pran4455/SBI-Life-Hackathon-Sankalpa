@@ -31,7 +31,26 @@ fi
 chmod +x policy_recommend.py
 chmod +x upsell_predictor.py
 chmod +x chatbot_server.py
+chmod +x wsgi.py
 
 echo "Starting the application..."
-# Start the application
-node app.js
+# Start the application with PM2 for better process management
+if [ "$NODE_ENV" = "production" ]; then
+    # Install PM2 globally if not already installed
+    npm install -g pm2
+    
+    # Start Flask chatbot with Gunicorn in the background
+    pm2 start "gunicorn -c gunicorn.conf.py wsgi:app" --name "chatbot"
+    
+    # Start the main application
+    pm2 start app.js --name "sankalpa"
+    
+    # Save the PM2 process list
+    pm2 save
+    
+    # Display logs
+    pm2 logs
+else
+    # Development mode
+    node app.js
+fi

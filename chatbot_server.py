@@ -10,6 +10,11 @@ import time
 app = Flask(__name__)
 CORS(app)
 
+# Production configurations
+app.config['ENV'] = 'production'
+app.config['DEBUG'] = False
+app.config['PROPAGATE_EXCEPTIONS'] = True
+
 # Global model variable
 llm = None
 model_loaded = False

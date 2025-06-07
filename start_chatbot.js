@@ -11,13 +11,23 @@ function startChainlitServer() {
     console.log('Flask chatbot server is already running');
     return flaskProcess;
   }
-
   console.log('Starting Flask chatbot server...');
   
-  const chatbotPath = path.join(__dirname, 'chatbot_server.py');
+  const isProduction = process.env.NODE_ENV === 'production';
+  const chatbotPath = path.join(__dirname, isProduction ? 'wsgi.py' : 'chatbot_server.py');
   
-  flaskProcess = spawn('python', [chatbotPath], {
-    stdio: 'pipe'
+  flaskProcess = spawn(
+    isProduction ? 'gunicorn' : 'python',
+    isProduction 
+      ? ['wsgi:app', '--bind', '0.0.0.0:8001', '--workers', '2', '--timeout', '120']
+      : [chatbotPath],
+    {
+      stdio: 'pipe',
+      env: {
+        ...process.env,
+        FLASK_ENV: isProduction ? 'production' : 'development',
+        PYTHONUNBUFFERED: '1'
+      }
   });
   
   flaskProcess.stdout.on('data', (data) => {
