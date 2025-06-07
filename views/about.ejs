@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | Financial AI Hub</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6d3cc5">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -91,10 +95,45 @@
         ul {
             margin-top: 10px;
             padding-left: 20px;
+        }        .emoji {
+            font-size: 18px;
         }
 
-        .emoji {
-            font-size: 18px;
+        #installButton {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        #installButton:hover {
+            transform: scale(1.05);
+            background-color: #e42688;
+        }
+
+        #installButton.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -219,10 +258,58 @@
             </ul>
             <p>🎯 Strengthens security and reduces fraud-related losses.</p>
         </div>
-    </div>
+    </div>    <button id="installButton">
+        <i class="fas fa-download"></i> Install App
+    </button>
 
     <div class="footer">
         &copy; 2025 Financial AI Hub. All rights reserved.
     </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Install PWA Logic
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show the install button
+            installButton.classList.add('show');
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                // We no longer need the prompt
+                deferredPrompt = null;
+                // Hide the install button
+                installButton.classList.remove('show');
+            }
+        });
+
+        // Hide the install button if the app is already installed
+        window.addEventListener('appinstalled', () => {
+            installButton.style.display = 'none';
+        });
+    </script>
 </body>
 </html>

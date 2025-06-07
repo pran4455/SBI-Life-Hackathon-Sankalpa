@@ -83,6 +83,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/static', express.static(path.join(__dirname, 'public/static')));
+app.use('/icons', express.static(path.join(__dirname, 'public/icons')));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// PWA specific routes
+app.get('/manifest.json', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+app.get('/sw.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+    res.set('Service-Worker-Allowed', '/');
+});
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
