@@ -27,9 +27,11 @@ if [ -n "$RENDER_STORAGE_PATH" ]; then
     ln -sf $RENDER_STORAGE_PATH/sbilife.xlsx ./sbilife.xlsx
 fi
 
-# Make Python file executable
-chmod +x policypredict.py
+# Make Python files executable
+chmod +x policy_recommend.py
+chmod +x upsell_predictor.py
+chmod +x chatbot_server.py
 
 echo "Starting the application..."
 # Start the application
-node index.js
+node app.js

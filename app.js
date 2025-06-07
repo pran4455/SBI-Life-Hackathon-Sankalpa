@@ -23,13 +23,13 @@ const emailService = require('./emailService');
 const { startChainlitServer } = require('./start_chatbot');
 const { getGoalRecommendation } = require('./goal_gps'); // Import Goal GPS module
 
-// Fixed Python path
-const pythonpath = "C:/Users/prana/anaconda3/envs/tds/python.exe"; 
+// Python path configuration
+const pythonpath = process.env.PYTHON_PATH || 'python3'; // Fallback to python3 command
 
 const app = express();  
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Recommendations mapping based on model classes - For Upselling Policy
+// Recommendations mappingbased on model classes - For Upselling Policy
 const recommendationsMapping = {
   0: 'Cross-sell opportunity: Suggest savings or credit products with low fees',
   1: 'Engagement incentive: Personalized offers or loyalty points for early tenure engagement',
@@ -92,7 +92,12 @@ app.use(session({
   secret: sessionSecret,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false } // Set to true if using HTTPS
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+    httpOnly: true, // Prevents client-side access to the cookie
+    sameSite: 'strict', // CSRF protection
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // ========================================
@@ -1276,3 +1281,24 @@ app.listen(PORT, () => {
     process.exit(0);
   });
 });
+
+// After importing spawn
+const spawnPythonProcess = (scriptPath, args = []) => {
+  try {
+    const pythonProcess = spawn(
+      process.env.PYTHON_PATH || 'python3',
+      [scriptPath, ...args],
+      { cwd: __dirname }
+    );
+
+    pythonProcess.on('error', (err) => {
+      console.error(`Failed to start Python process for ${scriptPath}:`, err);
+      throw err;
+    });
+
+    return pythonProcess;
+  } catch (error) {
+    console.error(`Error spawning Python process for ${scriptPath}:`, error);
+    throw error;
+  }
+};
