@@ -1,1 +1,0 @@
-# SBI-Life-Hackathon-Sankalpa
