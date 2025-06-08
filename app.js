@@ -162,12 +162,13 @@ app.use(session({
         table: 'sessions'
     }),
     secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        sameSite: 'lax'
     }
 }));
 
@@ -287,6 +288,26 @@ function isAuthenticated(req, res, next) {
 // Welcome/Home page
 app.get('/', (req, res) => {
   res.render('welcome');
+});
+
+// Home dashboard route
+app.get('/home', isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const userProfile = await getUserProfileData(username);
+    res.render('home', { 
+      username: username,
+      userProfile: userProfile,
+      error: null
+    });
+  } catch (error) {
+    console.error('Home route error:', error);
+    res.render('home', { 
+      username: req.session.username,
+      userProfile: null,
+      error: 'Failed to load user profile'
+    });
+  }
 });
 
 // About page
@@ -815,11 +836,6 @@ app.post('/information', isAuthenticated, async (req, res) => {
 // ========================================
 // MAIN DASHBOARD ROUTES
 // ========================================
-
-// Home route - Financial AI Hub Dashboard
-app.get('/home', isAuthenticated, (req, res) => {
-  res.render('home', { username: req.session.username });
-});
 
 // Logout route
 app.get('/logout', (req, res) => {
