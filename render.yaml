@@ -4,7 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: npm install && pip install -r requirements.txt
-    startCommand: node app.js
+    startCommand: NODE_ENV=production node --optimize_for_size --max_old_space_size=460 app.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -20,7 +20,14 @@ services:
         value: UTC
       - key: SESSION_SECRET
         generateValue: true
+      - key: UV_THREADPOOL_SIZE
+        value: 1
+      - key: NODE_OPTIONS
+        value: --optimize_for_size --max_old_space_size=460
     disk:
       name: data
       mountPath: /data
       sizeGB: 1
+    scaling:
+      minInstances: 1
+      maxInstances: 1

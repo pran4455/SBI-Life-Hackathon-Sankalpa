@@ -26,6 +26,19 @@ const { getGoalRecommendation } = require('./goal_gps'); // Import Goal GPS modu
 // Python path configuration
 const pythonpath = process.env.PYTHON_PATH || 'python3'; // Fallback to python3 command
 
+// Production optimization settings
+if (process.env.NODE_ENV === 'production') {
+    // Optimize memory usage
+    global.gc && global.gc(); // Enable garbage collection if available
+
+    // Monitor memory usage
+    const used = process.memoryUsage();
+    console.log('Memory usage:');
+    for (let key in used) {
+        console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+    }
+}
+
 const app = express();  
 // Server Configuration
 const SERVER_CONFIG = {
@@ -88,10 +101,43 @@ const policyDescriptionsMapping = {
 // MIDDLEWARE SETUP
 // ========================================
 
+// Production configuration and middleware setup
+if (process.env.NODE_ENV === 'production') {
+    // Disable unnecessary features in production
+    app.disable('x-powered-by');
+    app.set('env', 'production');
+    
+    // Enable compression for responses
+    const compression = require('compression');
+    app.use(compression());
+    
+    // Strict security headers
+    app.use((req, res, next) => {
+        res.set({
+            'X-Frame-Options': 'SAMEORIGIN',
+            'X-Content-Type-Options': 'nosniff',
+            'X-XSS-Protection': '1; mode=block',
+            'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+        });
+        next();
+    });
+}
+
 // Set up middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ extended: true }));
+// Optimize response time and memory usage in production
+if (process.env.NODE_ENV === 'production') {
+    app.set('view cache', true);
+    app.set('trust proxy', 1);
+    app.use(express.json({ limit: '1mb' }));
+    app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+    app.use(bodyParser.json({ limit: '1mb' }));
+    app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
+} else {
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(bodyParser.urlencoded({ extended: true }));
+}
+
 app.use('/static', express.static(path.join(__dirname, 'public/static')));
 app.use('/icons', express.static(path.join(__dirname, 'public/icons')));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -108,18 +154,23 @@ app.get('/sw.js', (req, res) => {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Session configuration
-const sessionSecret = crypto.randomBytes(24).toString('hex');
+// Session configuration with memory optimization
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(24).toString('hex');
 app.use(session({
   secret: sessionSecret,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false, // Only create session when data is stored
+  rolling: true, // Refresh session with each request
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-    httpOnly: true, // Prevents client-side access to the cookie
-    sameSite: 'strict', // CSRF protection
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'strict',
+    maxAge: 1 * 60 * 60 * 1000 // 1 hour instead of 24 hours to save memory
+  },
+  // Clear old sessions to prevent memory leaks
+  store: new session.MemoryStore({
+    checkPeriod: 30 * 60 * 1000 // Prune expired entries every 30 mins
+  })
 }));
 
 // ========================================
@@ -1302,11 +1353,20 @@ app.get('/health', (req, res) => {
 
 // Start the server with explicit host binding
 const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
+    console.log(`Server starting in ${process.env.NODE_ENV || 'development'} mode`);
     console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
     console.log(`Health check endpoint: http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}/health`);
     
-    // Start the chatbot server for non-production environments only
-    if (process.env.NODE_ENV !== 'production') {
+    // In production, only start essential services
+    if (process.env.NODE_ENV === 'production') {
+        // Log memory usage
+        const used = process.memoryUsage();
+        console.log('Initial memory usage:');
+        for (let key in used) {
+            console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+        }
+    } else {
+        // Start development-only services
         startChainlitServer();
     }
 });
@@ -1314,15 +1374,39 @@ const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
 // Helper function for spawning Python processes
 const spawnPythonProcess = (scriptPath, args = []) => {
   try {
+    // Add memory limit for Python processes
+    const options = {
+      cwd: __dirname,
+      env: {
+        ...process.env,
+        PYTHONPATH: __dirname,
+        MALLOC_TRIM_THRESHOLD_: '65536', // Enable memory trimming
+        PYTHONUNBUFFERED: '1', // Disable output buffering
+        PYTHONMALLOC: 'malloc', // Use system malloc
+        PYTHONOPTIMIZE: '2', // Enable Python optimization (removes assertions and docstrings)
+        PYTHONDONTWRITEBYTECODE: '1', // Don't write .pyc files
+        MPLBACKEND: 'Agg' // Use non-interactive matplotlib backend
+      }
+    };
+
     const pythonProcess = spawn(
       process.env.PYTHON_PATH || 'python3',
-      [scriptPath, ...args],
-      { cwd: __dirname }
+      ['-OO', scriptPath, ...args], // -OO removes docstrings and assertions
+      options
     );
 
     pythonProcess.on('error', (err) => {
       console.error(`Failed to start Python process for ${scriptPath}:`, err);
       throw err;
+    });
+
+    // Clean up process on exit
+    pythonProcess.on('exit', (code) => {
+      if (code !== 0) {
+        console.error(`Python process exited with code ${code}`);
+      }
+      // Force garbage collection if available
+      global.gc && global.gc();
     });
 
     return pythonProcess;
