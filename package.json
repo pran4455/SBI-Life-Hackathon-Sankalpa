@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
+    "start": "node server.js",
     "start-all": "node start-services.js",
     "install-dashboard": "pip install -r requirements.txt"
   },

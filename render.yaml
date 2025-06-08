@@ -2,8 +2,10 @@ services:
   - type: web
     name: financial-ai-hub
     env: node
-    buildCommand: npm install -g pm2 && npm install && pip install -r requirements.txt
-    startCommand: bash start.sh    envVars:      - key: NODE_ENV
+    plan: free
+    buildCommand: npm install && pip install -r requirements.txt
+    startCommand: node app.js
+    envVars:- key: NODE_ENV
         value: production      - key: PORT
         value: 3000
       - key: CHATBOT_PORT

@@ -1287,41 +1287,26 @@ app.get('/api/policy-details/:policyId', isAuthenticated, (req, res) => {
 });
 
 // Health check endpoint
-app.get('/health', async (req, res) => {
-  try {
-    // Check chatbot server
-    const chatbotHealth = await axios.get(`http://localhost:${CHATBOT_PORT}/health`)
-      .then(response => response.data)
-      .catch(err => ({ status: 'error', error: err.message }));
-
+app.get('/health', (req, res) => {
     res.json({
-      status: 'healthy',
-      mainServer: {
-        port: PORT,
-        status: 'running'
-      },
-      chatbotServer: chatbotHealth
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
     });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      error: error.message
-    });
-  }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Server URL: http://0.0.0.0:${PORT}`);
+// Production port configuration
+const port = process.env.PORT || 3000;
+const host = '0.0.0.0';
 
-  // Start the Flask chatbot server
-  startChainlitServer();
-
-  // Handle graceful shutdown
-  process.on('SIGINT', () => {
-    console.log('Shutting down server...');
-    process.exit(0);
-  });
+// Start the server
+const server = app.listen(port, host, () => {
+    console.log(`Server is running on ${host}:${port}`);
+    
+    // Start the chatbot server for non-production environments only
+    if (process.env.NODE_ENV !== 'production') {
+        startChainlitServer();
+    }
 });
 
 // After importing spawn
