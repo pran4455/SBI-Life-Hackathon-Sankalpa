@@ -27,12 +27,17 @@ const { getGoalRecommendation } = require('./goal_gps'); // Import Goal GPS modu
 const pythonpath = process.env.PYTHON_PATH || 'python3'; // Fallback to python3 command
 
 const app = express();  
-const PORT = process.env.PORT || 3000;
-const CHATBOT_PORT = process.env.CHATBOT_PORT || 8001;
+// Server Configuration
+const SERVER_CONFIG = {
+    PORT: process.env.PORT || 10000,
+    HOST: '0.0.0.0',
+    CHATBOT_PORT: process.env.CHATBOT_PORT || 8001
+};
 
 // Log port configurations
-console.log(`Main server port: ${PORT}`);
-console.log(`Chatbot server port: ${CHATBOT_PORT}`);
+console.log(`Main server port: ${SERVER_CONFIG.PORT}`);
+console.log(`Main server host: ${SERVER_CONFIG.HOST}`);
+console.log(`Chatbot server port: ${SERVER_CONFIG.CHATBOT_PORT}`);
 
 // Recommendations mappingbased on model classes - For Upselling Policy
 const recommendationsMapping = {
@@ -1295,13 +1300,10 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Production port configuration
-const port = process.env.PORT || 3000;
-const host = '0.0.0.0';
-
-// Start the server
-const server = app.listen(port, host, () => {
-    console.log(`Server is running on ${host}:${port}`);
+// Start the server with explicit host binding
+const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
+    console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
+    console.log(`Health check endpoint: http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}/health`);
     
     // Start the chatbot server for non-production environments only
     if (process.env.NODE_ENV !== 'production') {
@@ -1309,7 +1311,7 @@ const server = app.listen(port, host, () => {
     }
 });
 
-// After importing spawn
+// Helper function for spawning Python processes
 const spawnPythonProcess = (scriptPath, args = []) => {
   try {
     const pythonProcess = spawn(

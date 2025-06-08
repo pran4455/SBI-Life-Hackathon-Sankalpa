@@ -5,11 +5,13 @@ services:
     plan: free
     buildCommand: npm install && pip install -r requirements.txt
     startCommand: node app.js
-    envVars:- key: NODE_ENV
-        value: production      - key: PORT
-        value: 3000
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
       - key: CHATBOT_PORT
-        value: 3001
+        value: 8001
       - key: RENDER_STORAGE_PATH
         sync: false
       - key: PYTHON_PATH
