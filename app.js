@@ -1371,6 +1371,24 @@ const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
     }
 });
 
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received. Closing server...');
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('SIGINT signal received. Closing server...');
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});
+
+
 // Helper function for spawning Python processes
 const spawnPythonProcess = (scriptPath, args = []) => {
   try {

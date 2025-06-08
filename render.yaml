@@ -4,12 +4,10 @@ services:
     env: node
     plan: free
     buildCommand: npm install && pip install -r requirements.txt
-    startCommand: NODE_ENV=production node --optimize_for_size --max_old_space_size=460 app.js
+    startCommand: npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
       - key: CHATBOT_PORT
         value: 8001
       - key: RENDER_STORAGE_PATH
