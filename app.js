@@ -17,6 +17,7 @@ const exec = promisify(require('child_process').exec);
 const xlsx = require('xlsx');
 const { execFile } = require('child_process');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const SQLiteStore = require('connect-sqlite3')(session);
 
 // Import utility modules
 const dbSetup = require('./dbSetup');
@@ -153,23 +154,21 @@ app.get('/sw.js', (req, res) => {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Session configuration with memory optimization
-const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(24).toString('hex');
+// Session configuration
 app.use(session({
-  secret: sessionSecret,
-  resave: false,
-  saveUninitialized: false, // Only create session when data is stored
-  rolling: true, // Refresh session with each request
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: 'strict',
-    maxAge: 1 * 60 * 60 * 1000 // 1 hour instead of 24 hours to save memory
-  },
-  // Clear old sessions to prevent memory leaks
-  store: new session.MemoryStore({
-    checkPeriod: 30 * 60 * 1000 // Prune expired entries every 30 mins
-  })
+    store: new SQLiteStore({
+        db: 'sessions.db',
+        dir: './',
+        table: 'sessions'
+    }),
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
 }));
 
 // ========================================
