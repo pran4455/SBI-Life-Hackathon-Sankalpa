@@ -310,13 +310,64 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-input {
+            width: 100%;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .game-button {
+            background: #667eea;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .game-button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .recommendation-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            margin-top: 1rem;
+        }
+
+        .success-message {
+            color: #38a169;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="header-content">
             <a href="/home" class="logo">
-                <i class="fas fa-gamepad"></i>
+                <i class="fas fa-robot"></i>
                 Financial AI Hub
             </a>
             <div class="user-section">
@@ -330,60 +381,67 @@
     </header>
 
     <div class="container">
-        <div class="games-header">
-            <h2>Financial Games</h2>
-            <p>Learn about financial concepts through interactive games and simulations. Choose a game to start your financial learning journey!</p>
+        <h1 class="page-title">Financial Games</h1>
+
+        <div class="game-container">
+            <h2>Investment Game</h2>
+            <p>Learn about investment strategies through interactive scenarios.</p>
+            <input type="text" class="game-input" id="investmentInput" placeholder="Describe your investment goals...">
+            <button class="game-button" onclick="getRecommendation('investment')">Get AI Recommendation</button>
+            <div id="investmentRecommendation" class="recommendation-box"></div>
         </div>
 
-        <div class="games-grid">
-            <div class="game-card">
-                <img src="/static/images/simulator.jpg" alt="Financial Simulator" class="game-image">
-                <div class="game-content">
-                    <h3 class="game-title">Financial Simulator</h3>
-                    <p class="game-description">Experience real-world financial scenarios and learn how to make smart financial decisions in a risk-free environment.</p>
-                    <ul class="game-features">
-                        <li><i class="fas fa-check-circle"></i> Real-time market simulation</li>
-                        <li><i class="fas fa-check-circle"></i> Multiple investment scenarios</li>
-                        <li><i class="fas fa-check-circle"></i> Risk management practice</li>
-                    </ul>
-                    <a href="/games/simulator" class="play-btn">
-                        <i class="fas fa-play"></i>
-                        Play Now
-                    </a>
-                </div>
-            </div>
+        <div class="game-container">
+            <h2>Budgeting Game</h2>
+            <p>Practice budgeting with different scenarios.</p>
+            <input type="text" class="game-input" id="budgetingInput" placeholder="Describe your budgeting needs...">
+            <button class="game-button" onclick="getRecommendation('budgeting')">Get AI Recommendation</button>
+            <div id="budgetingRecommendation" class="recommendation-box"></div>
+        </div>
 
-            <div class="game-card">
-                <img src="/static/images/goal-gps.jpg" alt="Goal GPS" class="game-image">
-                <div class="game-content">
-                    <h3 class="game-title">Goal GPS</h3>
-                    <p class="game-description">Set your financial goals and get personalized recommendations on how to achieve them through strategic planning.</p>
-                    <ul class="game-features">
-                        <li><i class="fas fa-check-circle"></i> Goal setting and tracking</li>
-                        <li><i class="fas fa-check-circle"></i> Personalized recommendations</li>
-                        <li><i class="fas fa-check-circle"></i> Progress visualization</li>
-                    </ul>
-                    <a href="/games/goal-gps" class="play-btn">
-                        <i class="fas fa-play"></i>
-                        Play Now
-                    </a>
-                </div>
-            </div>
+        <div class="game-container">
+            <h2>Savings Game</h2>
+            <p>Learn about saving strategies and compound interest.</p>
+            <input type="text" class="game-input" id="savingsInput" placeholder="Describe your savings goals...">
+            <button class="game-button" onclick="getRecommendation('savings')">Get AI Recommendation</button>
+            <div id="savingsRecommendation" class="recommendation-box"></div>
         </div>
     </div>
 
     <script>
-        // Register service worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
+        async function getRecommendation(gameType) {
+            const inputElement = document.getElementById(`${gameType}Input`);
+            const recommendationElement = document.getElementById(`${gameType}Recommendation`);
+            const userInput = inputElement.value.trim();
+
+            if (!userInput) {
+                recommendationElement.innerHTML = '<p class="error-message">Please enter your input first.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/game-recommendations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        gameType,
+                        userInput
                     })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    recommendationElement.innerHTML = `<p class="success-message">${data.recommendation}</p>`;
+                } else {
+                    recommendationElement.innerHTML = `<p class="error-message">${data.message}</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                recommendationElement.innerHTML = '<p class="error-message">Failed to get recommendation. Please try again.</p>';
+            }
         }
     </script>
 </body>

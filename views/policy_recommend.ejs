@@ -122,11 +122,24 @@
             transition: all 0.3s ease;
         }
 
-        .recommend-box iframe {
-            height: 100%;
-            min-height: 700px;
+        .chat-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container iframe {
+            flex: 1;
             border: none;
             border-radius: 15px;
+            width: 100%;
+            height: 100%;
         }
 
         .recommend-box h1 {
@@ -416,12 +429,9 @@
             <div id="errorMessage" class="error-message"></div>
         </div>
         <div class="recommend-box">
-            <iframe
-                src="https://www.chatbase.co/chatbot-iframe/N7ypLB_KMEig3ZTsuFH3G"
-                width="100%"
-                style="height: 100%; min-height: 700px"
-                frameborder="0"
-            ></iframe>
+            <div class="chat-container">
+                <iframe id="chatFrame" src="/financial-chatbot" frameborder="0"></iframe>
+            </div>
         </div>
     </div>
 
@@ -568,6 +578,51 @@
                 errorMessage.style.display = 'block';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle accept policy button click
+            const acceptButtons = document.querySelectorAll('.accept-policy-btn');
+            acceptButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const policyId = this.dataset.policyId;
+                    
+                    // Send accept request
+                    fetch('/api/accept-policy', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ policyId: policyId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            const successMessage = document.createElement('div');
+                            successMessage.className = 'success-message';
+                            successMessage.textContent = 'Policy accepted successfully!';
+                            this.parentElement.appendChild(successMessage);
+                            
+                            // Disable the button
+                            this.disabled = true;
+                            this.textContent = 'Policy Accepted';
+                            
+                            // Remove success message after 3 seconds
+                            setTimeout(() => {
+                                successMessage.remove();
+                            }, 3000);
+                        } else {
+                            throw new Error(data.message || 'Failed to accept policy');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to accept policy. Please try again.');
+                    });
+                });
+            });
+        });
     </script>
 </body>
 </html>

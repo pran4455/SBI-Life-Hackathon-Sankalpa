@@ -118,129 +118,51 @@
         }
 
         /* Features Grid */
-        .features-grid {
+        .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            padding: 2rem;
         }
 
-        .feature-card {
-            position: relative;
-            height: 250px;
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
             text-decoration: none;
-            animation: fadeInUp 0.5s ease forwards;
-            opacity: 0;
-        }
-
-        .feature-card:nth-child(1) { animation-delay: 0.1s; }
-        .feature-card:nth-child(2) { animation-delay: 0.2s; }
-        .feature-card:nth-child(3) { animation-delay: 0.3s; }
-        .feature-card:nth-child(4) { animation-delay: 0.4s; }
-        .feature-card:nth-child(5) { animation-delay: 0.5s; }
-        .feature-card:nth-child(6) { animation-delay: 0.6s; }
-        .feature-card:nth-child(7) { animation-delay: 0.7s; }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.3;
-            transition: all 0.4s ease;
-            z-index: 1;
-        }
-
-        .feature-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
-            z-index: 2;
-            transition: all 0.4s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-15px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-        }
-
-        .feature-card:hover::before {
-            opacity: 0.6;
-            transform: scale(1.1);
-        }
-
-        .feature-card:hover::after {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.6), rgba(118, 75, 162, 0.6));
-        }
-
-        .feature-content {
-            position: relative;
-            z-index: 3;
-            height: 100%;
+            color: #2d3748;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 2rem;
-            color: white;
+            gap: 1rem;
         }
 
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            transition: all 0.4s ease;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-        }
-
-        .feature-card:hover .feature-icon {
-            transform: scale(1.2) rotate(5deg);
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-        }
-
-        .feature-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            transition: all 0.4s ease;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        }
-
-        .feature-description {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            line-height: 1.4;
-            transition: all 0.4s ease;
-        }
-
-        .feature-card:hover .feature-title,
-        .feature-card:hover .feature-description {
+        .dashboard-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
-        /* Background images for each card */
-        .card-policy::before { background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500'); }
-        .card-analytics::before { background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500'); }
-        .card-chatbot::before { background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500'); }
-        .card-upselling::before { background-image: url('https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500'); }
-        .card-fraud::before { background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500'); }
-        .card-tools::before { background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500'); }
-        .card-finchat::before { background-image: url('https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=500'); }
+        .dashboard-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .dashboard-card p {
+            font-size: 1rem;
+            color: #4a5568;
+            margin: 0;
+        }
 
         /* Language Dropdown */
         .language-dropdown {
@@ -320,17 +242,6 @@
             }
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         @keyframes slideDown {
             from {
                 transform: translateY(-100%);
@@ -371,7 +282,7 @@
                 font-size: 2rem;
             }
 
-            .features-grid {
+            .dashboard-grid {
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
@@ -409,53 +320,35 @@
     <div class="main-container">
         <h1 class="page-title">Your Financial AI Dashboard</h1>
         
-        <div class="features-grid">
-            <a href="/policy-recommend" class="feature-card card-policy">
-                <div class="feature-content">
-                    <i class="fas fa-file-invoice"></i>
-                    <h3 class="feature-title">Policy Recommendations</h3>
-                    <p class="feature-description">Get personalized policy recommendations based on your needs</p>
-                </div>
+        <div class="dashboard-grid">
+            <a href="/policy-recommend" class="dashboard-card">
+                <i class="fas fa-file-invoice"></i>
+                <h2>Policy Recommendations</h2>
+                <p>Get personalized policy recommendations based on your needs</p>
             </a>
 
-            <a href="/financial-chatbot" class="feature-card card-finchat">
-                <div class="feature-content">
-                    <i class="fas fa-robot"></i>
-                    <h3 class="feature-title">AI Chatbot</h3>
-                    <p class="feature-description">Chat with our AI assistant for financial guidance</p>
-                </div>
+            <a href="/financial-chatbot" class="dashboard-card">
+                <i class="fas fa-robot"></i>
+                <h2>AI Chatbot</h2>
+                <p>Chat with our AI assistant for financial guidance</p>
             </a>
 
-            <a href="/goal-gps" class="feature-card card-tools">
-                <div class="feature-content">
-                    <i class="fas fa-bullseye"></i>
-                    <h3 class="feature-title">Goal GPS</h3>
-                    <p class="feature-description">Plan and track your financial goals</p>
-                </div>
+            <a href="/goal-gps" class="dashboard-card">
+                <i class="fas fa-bullseye"></i>
+                <h2>Goal GPS</h2>
+                <p>Plan and track your financial goals</p>
             </a>
 
-            <a href="/analytics-dashboard" class="feature-card card-analytics">
-                <div class="feature-content">
-                    <i class="fas fa-chart-line"></i>
-                    <h3 class="feature-title">Analytics</h3>
-                    <p class="feature-description">View your financial analytics and insights</p>
-                </div>
+            <a href="/analytics-dashboard" class="dashboard-card">
+                <i class="fas fa-chart-line"></i>
+                <h2>Analytics</h2>
+                <p>View your financial analytics and insights</p>
             </a>
 
-            <a href="/simulator" class="feature-card card-tools">
-                <div class="feature-content">
-                    <i class="fas fa-gamepad"></i>
-                    <h3 class="feature-title">Simulator</h3>
-                    <p class="feature-description">Simulate different financial scenarios</p>
-                </div>
-            </a>
-
-            <a href="/games" class="feature-card card-tools">
-                <div class="feature-content">
-                    <i class="fas fa-dice"></i>
-                    <h3 class="feature-title">Games</h3>
-                    <p class="feature-description">Learn finance through interactive games</p>
-                </div>
+            <a href="/games" class="dashboard-card">
+                <i class="fas fa-dice"></i>
+                <h2>Games</h2>
+                <p>Learn finance through interactive games</p>
             </a>
         </div>
     </div>

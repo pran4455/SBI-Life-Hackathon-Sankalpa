@@ -158,19 +158,30 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(session({
     store: new SQLiteStore({
         db: 'sessions.db',
-        dir: './',
-        table: 'sessions'
+        table: 'sessions',
+        dir: './'
     }),
     secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: 'lax'
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
+
+// Add middleware to ensure session is saved
+app.use((req, res, next) => {
+    res.on('finish', () => {
+        if (req.session) {
+            req.session.save((err) => {
+                if (err) console.error('Session save error:', err);
+            });
+        }
+    });
+    next();
+});
 
 // ========================================
 // DATABASE INITIALIZATION
@@ -466,35 +477,43 @@ app.get('/login', (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
-    console.log('Login attempt for username:', username);
-
-    // Get user from database
     const user = await getUserByUsername(username);
-    
-    if (!user) {
-      console.log('User not found:', username);
-      return res.render('login', { error: 'Invalid username or password', success: null });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.render('login', { 
+        error: 'Invalid username or password',
+        success: null
+      });
     }
-    
-    console.log('User found:', user.email);
-    console.log('Stored password hash length:', user.password ? user.password.length : 'null');
-    console.log('Input password length:', password ? password.length : 'null');
-    
-    // Check if password is correct
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    console.log('Password match result:', passwordMatch);
-    
-    if (passwordMatch) {
-      req.session.username = username;
-      res.redirect('/verify_totp');
-    } else {
-      console.log('Password verification failed for user:', username);
-      res.render('login', { error: 'Invalid username or password', success: null });
-    }
+
+    // Set session variables
+    req.session.authenticated = true;
+    req.session.username = username;
+    req.session.userId = user._id;
+
+    // Save session before redirecting
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.render('login', { 
+          error: 'An error occurred. Please try again.',
+          success: null
+        });
+      }
+
+      // Check if profile is completed
+      if (!user.profileCompleted) {
+        res.redirect('/collect-info');
+      } else {
+        res.redirect('/home');
+      }
+    });
   } catch (error) {
     console.error('Login error:', error);
-    res.render('login', { error: 'Login failed. Please try again.', success: null });
+    res.render('login', { 
+      error: 'An error occurred. Please try again.',
+      success: null
+    });
   }
 });
 
@@ -917,9 +936,57 @@ app.get('/analytics-dashboard', isAuthenticated, async (req, res) => {
   }
 });
 
-// Games main page
-app.get('/games', isAuthenticated, (req, res) => {   
-  res.render('games', { username: req.session.username }); 
+// Games route
+app.get('/games', (req, res) => {
+    if (!req.session.authenticated) {
+        return res.redirect('/login');
+    }
+    res.render('games', { 
+        username: req.session.username,
+        error: null,
+        success: null
+    });
+});
+
+// API endpoint for game recommendations
+app.post('/api/game-recommendations', async (req, res) => {
+    try {
+        const { gameType, userInput } = req.body;
+        
+        if (!gameType || !userInput) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Game type and user input are required' 
+            });
+        }
+
+        // Process the game type and user input
+        let recommendation = '';
+        switch (gameType) {
+            case 'investment':
+                recommendation = `Based on your input "${userInput}", I recommend starting with a diversified portfolio of index funds. Consider allocating 60% to stocks and 40% to bonds for a balanced approach.`;
+                break;
+            case 'budgeting':
+                recommendation = `For your budgeting needs "${userInput}", I suggest using the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings.`;
+                break;
+            case 'savings':
+                recommendation = `Regarding your savings goal "${userInput}", I recommend setting up an automatic transfer to a high-yield savings account. Aim to save at least 20% of your income.`;
+                break;
+            default:
+                recommendation = `I understand you're interested in "${userInput}". Let's explore this topic further to provide more specific recommendations.`;
+        }
+
+        res.json({ 
+            success: true, 
+            recommendation: recommendation 
+        });
+    } catch (error) {
+        console.error('Game recommendation error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to generate recommendation' 
+        });
+    }
 });
 
 // Financial Simulator
@@ -1393,3 +1460,21 @@ const spawnPythonProcess = (scriptPath, args = []) => {
     throw error;
   }
 };
+
+// API endpoint for accepting policies
+app.post('/api/accept-policy', async (req, res) => {
+    try {
+        const { policyId } = req.body;
+        
+        if (!policyId) {
+            return res.status(400).json({ success: false, message: 'Policy ID is required' });
+        }
+
+        // Here you would typically update the database to mark the policy as accepted
+        // For now, we'll just return success
+        res.json({ success: true, message: 'Policy accepted successfully' });
+    } catch (error) {
+        console.error('Error accepting policy:', error);
+        res.status(500).json({ success: false, message: 'Failed to accept policy' });
+    }
+});
