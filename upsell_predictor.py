@@ -17,33 +17,44 @@ def load_model():
         print(f"Python version: {platform.python_version()}", file=sys.stderr)
         print(f"scikit-learn version: {sklearn.__version__}", file=sys.stderr)
         
-        model_path = os.path.join(os.path.dirname(__file__), 'model_upsell', 'upsell_ensemble_model.pkl')
+        model_dir = os.path.join(os.path.dirname(__file__), 'model_upsell')
+        preprocessor_path = os.path.join(model_dir, 'preprocessor.pkl')
+        model_path = os.path.join(model_dir, 'upsell_ensemble_model.pkl')
+        
+        print(f"Loading preprocessor from: {preprocessor_path}", file=sys.stderr)
         print(f"Loading model from: {model_path}", file=sys.stderr)
         
+        if not os.path.exists(preprocessor_path):
+            raise FileNotFoundError(f"Preprocessor file not found at: {preprocessor_path}")
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at: {model_path}")
         
-        # Try loading with different pickle protocols
-        for protocol in ['highest_protocol', 'default', 'compatibility']:
-            try:
-                if protocol == 'highest_protocol':
-                    pipeline = joblib.load(model_path)
-                elif protocol == 'default':
-                    import pickle
-                    with open(model_path, 'rb') as f:
-                        pipeline = pickle.load(f)
-                else:
-                    import pickle
-                    with open(model_path, 'rb') as f:
-                        pipeline = pickle.load(f, encoding='latin1')
-                
-                print(f"Model loaded successfully using {protocol} protocol", file=sys.stderr)
-                return pipeline
-            except Exception as e:
-                print(f"Failed to load with {protocol} protocol: {str(e)}", file=sys.stderr)
-                continue
-                
-        raise Exception("Failed to load model with any available protocol")
+        # Load preprocessor
+        preprocessor = joblib.load(preprocessor_path)
+        print(f"Preprocessor loaded successfully. Type: {type(preprocessor)}", file=sys.stderr)
+        
+        # Load model
+        model = joblib.load(model_path)
+        print(f"Model loaded successfully. Type: {type(model)}", file=sys.stderr)
+        
+        # Create a pipeline-like object that combines preprocessor and model
+        class CombinedPipeline:
+            def __init__(self, preprocessor, model):
+                self.preprocessor = preprocessor
+                self.model = model
+            
+            def predict(self, X):
+                X_transformed = self.preprocessor.transform(X)
+                return self.model.predict(X_transformed)
+            
+            def predict_proba(self, X):
+                X_transformed = self.preprocessor.transform(X)
+                return self.model.predict_proba(X_transformed)
+        
+        pipeline = CombinedPipeline(preprocessor, model)
+        print(f"Combined pipeline created successfully", file=sys.stderr)
+        return pipeline
+        
     except Exception as e:
         error_msg = f"Failed to load model: {str(e)}\nTraceback:\n{traceback.format_exc()}"
         print(error_msg, file=sys.stderr)
