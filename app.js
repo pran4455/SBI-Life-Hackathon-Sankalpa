@@ -524,18 +524,29 @@ app.post('/verify_totp', async (req, res) => {
     // Verify TOTP
     const isValid = authenticator.verify({ token: totp, secret: user.totp_secret });
     if (isValid) {
+      // Set session variables
       req.session.authenticated = true;
+      req.session.username = username;
       
-      // NEW: Check if profile is completed
-      const profileCompleted = await isUserProfileCompleted(username);
-      
-      if (!profileCompleted) {
-        // Redirect to information collection page for first-time users
-        res.redirect('/information');
-      } else {
-        // Redirect to home for existing users
-        res.redirect('/home');
-      }
+      // Save session before redirect
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.render('verify_totp', { error: 'Verification failed. Please try again.' });
+        }
+        
+        // Check if profile is completed
+        isUserProfileCompleted(username).then(profileCompleted => {
+          if (!profileCompleted) {
+            res.redirect('/information');
+          } else {
+            res.redirect('/home');
+          }
+        }).catch(error => {
+          console.error('Profile check error:', error);
+          res.redirect('/home');
+        });
+      });
     } else {
       res.render('verify_totp', { error: 'Invalid TOTP code. Please try again.' });
     }
@@ -848,16 +859,32 @@ app.get('/logout', (req, res) => {
 // ========================================
 
 // Policy Recommendation with XAI
-app.get('/policy-recommendation', isAuthenticated, (req, res) => {
-  res.render('policy_recommend', { username: req.session.username });
+app.get('/policy-recommend', isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const userProfile = await getUserProfileData(username);
+    res.render('policy_recommend', { 
+      username: username,
+      userProfile: userProfile,
+      error: null
+    });
+  } catch (error) {
+    console.error('Policy recommendation error:', error);
+    res.render('policy_recommend', { 
+      username: req.session.username,
+      userProfile: null,
+      error: 'Failed to load policy recommendations'
+    });
+  }
 });
 
-// Route for policy upselling recommendations page
+// Policy upselling recommendations route
 app.get('/policy-upselling-recommendations', isAuthenticated, (req, res) => {
-  if (!req.session.userProfileData) {
-    return res.redirect('/policy-recommend');
-  }
-  res.render('policy_upselling_recommendations');
+  res.redirect('/policy-recommend');
+});
+
+app.post('/api/upselling-recommendations', isAuthenticated, (req, res) => {
+  res.status(404).json({ error: 'This feature has been removed' });
 });
 
 // TIA - Conversational AI Bot
@@ -871,8 +898,23 @@ app.get('/financial-chatbot', isAuthenticated, (req, res) => {
 });
 
 // Analytics Dashboard
-app.get('/analytics-dashboard', isAuthenticated, (req, res) => {
-  res.render('analytics_dashboard', {username: req.session.username });
+app.get('/analytics-dashboard', isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const userProfile = await getUserProfileData(username);
+    res.render('analytics_dashboard', { 
+      username: username,
+      userProfile: userProfile,
+      error: null
+    });
+  } catch (error) {
+    console.error('Analytics dashboard error:', error);
+    res.render('analytics_dashboard', { 
+      username: req.session.username,
+      userProfile: null,
+      error: 'Failed to load analytics'
+    });
+  }
 });
 
 // Games main page
@@ -1177,115 +1219,6 @@ app.post('/api/decline-policy', isAuthenticated, (req, res) => {
   } catch (error) {
     console.error('Policy decline error:', error);
     res.status(500).json({ error: "Failed to process policy decline" });
-  }
-});
-
-// Upselling recommendations API endpoint
-app.post('/api/upselling-recommendations', isAuthenticated, async (req, res) => {
-  try {
-    const username = req.session.username;
-    const userProfileData = req.session.userProfileData;
-    const acceptedPolicy = req.session.acceptedPolicy;
-    
-    if (!userProfileData) {
-      return res.status(400).json({ error: "User profile data not found" });
-    }
-
-    console.log('Upselling prediction request for user:', username);
-    console.log('User profile data:', userProfileData);
-    
-    const inputData = {
-      'CreditScore': userProfileData.CreditScore,
-      'Geography': userProfileData.Geography,
-      'Gender': userProfileData.Gender,
-      'Age': userProfileData.Age,
-      'Tenure': userProfileData.Tenure,
-      'Balance': userProfileData.Balance,
-      'NumOfProducts': userProfileData.NumOfProducts,
-      'HasCrCard': userProfileData.HasCrCard,
-      'IsActiveMember': userProfileData.IsActiveMember,
-      'EstimatedSalary': userProfileData.EstimatedSalary,
-      'Exited': userProfileData.Exited
-    };
-
-    console.log('Input data for prediction:', inputData);
-
-    const pythonProcess = spawn(pythonpath, [
-      path.join(__dirname, 'upsell_predictor.py'),
-      JSON.stringify(inputData)
-    ], {
-      cwd: __dirname
-    });
-
-    let pythonOutput = '';
-    let pythonError = '';
-
-    pythonProcess.stdout.on('data', (data) => {
-      pythonOutput += data.toString();
-    });
-
-    pythonProcess.stderr.on('data', (data) => {
-      pythonError += data.toString();
-    });
-
-    pythonProcess.on('close', (code) => {
-      if (code !== 0) {
-        console.error('Python upselling script error code:', code);
-        console.error('Python stderr:', pythonError);
-        return res.status(500).json({ 
-          error: "Upselling prediction failed", 
-          details: pythonError || `Python script exited with code ${code}`
-        });
-      }
-
-      try {
-        const cleanOutput = pythonOutput.trim();
-        console.log('Python upselling script output:', cleanOutput);
-        
-        if (!cleanOutput) {
-          console.error('Empty Python upselling output');
-          return res.status(500).json({ error: "No output from Python upselling script" });
-        }
-
-        const predictionResult = JSON.parse(cleanOutput);
-        
-        if (!predictionResult.success) {
-          console.error('Python upselling script error:', predictionResult.error);
-          return res.status(500).json({ error: predictionResult.error });
-        }
-
-        const response = {
-          ...predictionResult,
-          acceptedPolicy: acceptedPolicy || 'Unknown Policy'
-        };
-        
-        console.log('Final upselling response:', response);
-        res.json(response);
-        
-      } catch (parseErr) {
-        console.error('Error parsing Python upselling output:', parseErr);
-        console.error('Raw Python output:', pythonOutput);
-        return res.status(500).json({ 
-          error: "Invalid upselling prediction format",
-          details: parseErr.message
-        });
-      }
-    });
-
-    pythonProcess.on('error', (error) => {
-      console.error('Failed to start Python upselling process:', error);
-      res.status(500).json({
-        error: 'Failed to start Python upselling script',
-        details: error.message
-      });
-    });
-    
-  } catch (error) {
-    console.error('Upselling recommendations error:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      details: error.message
-    });
   }
 });
 

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Financial AI Hub</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <a href="/home">
+                    <img src="/static/images/logo.png" alt="Financial AI Hub Logo">
+                </a>
+            </div>
+            <div class="user-section">
+                <span class="welcome-text">Welcome, <%= username %></span>
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/home"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/policy-recommend"><i class="fas fa-file-invoice"></i> Policy Recommendations</a></li>
+                <li><a href="/financial-chatbot"><i class="fas fa-robot"></i> AI Chatbot</a></li>
+                <li><a href="/goal-gps"><i class="fas fa-bullseye"></i> Goal GPS</a></li>
+                <li><a href="/analytics-dashboard" class="active"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/simulator"><i class="fas fa-gamepad"></i> Simulator</a></li>
+                <li><a href="/games"><i class="fas fa-dice"></i> Games</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header>
+                <h1>Analytics Dashboard</h1>
+            </header>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h2>Portfolio Performance</h2>
+                    <div id="portfolioChart"></div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h2>Risk Analysis</h2>
+                    <div id="riskChart"></div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h2>Investment Distribution</h2>
+                    <div id="distributionChart"></div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h2>Market Trends</h2>
+                    <div id="marketChart"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sample data for charts
+        const portfolioData = {
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            y: [10000, 10500, 10200, 10800, 11200, 11500],
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Portfolio Value'
+        };
+
+        const riskData = {
+            labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+            values: [40, 35, 25],
+            type: 'pie',
+            name: 'Risk Distribution'
+        };
+
+        const distributionData = {
+            labels: ['Stocks', 'Bonds', 'Real Estate', 'Cash'],
+            values: [45, 25, 20, 10],
+            type: 'pie',
+            name: 'Asset Distribution'
+        };
+
+        const marketData = {
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            y: [100, 102, 101, 103, 105, 104],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Market Index'
+        };
+
+        // Create charts
+        Plotly.newPlot('portfolioChart', [portfolioData], {
+            title: 'Portfolio Value Over Time',
+            margin: { t: 30, b: 30, l: 50, r: 30 }
+        });
+
+        Plotly.newPlot('riskChart', [riskData], {
+            title: 'Risk Distribution',
+            margin: { t: 30, b: 30, l: 30, r: 30 }
+        });
+
+        Plotly.newPlot('distributionChart', [distributionData], {
+            title: 'Asset Distribution',
+            margin: { t: 30, b: 30, l: 30, r: 30 }
+        });
+
+        Plotly.newPlot('marketChart', [marketData], {
+            title: 'Market Trends',
+            margin: { t: 30, b: 30, l: 50, r: 30 }
+        });
+    </script>
+</body>
+</html> 
