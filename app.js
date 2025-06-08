@@ -440,7 +440,7 @@ app.post('/setup_totp', async (req, res) => {
 
 // Login routes
 app.get('/login', (req, res) => {
-  res.render('login', { error: null });
+  res.render('login', { error: null, success: null });
 });
 
 app.post('/login', async (req, res) => {
@@ -454,7 +454,7 @@ app.post('/login', async (req, res) => {
     
     if (!user) {
       console.log('User not found:', username);
-      return res.render('login', { error: 'Invalid username or password' });
+      return res.render('login', { error: 'Invalid username or password', success: null });
     }
     
     console.log('User found:', user.email);
@@ -470,11 +470,11 @@ app.post('/login', async (req, res) => {
       res.redirect('/verify_totp');
     } else {
       console.log('Password verification failed for user:', username);
-      res.render('login', { error: 'Invalid username or password' });
+      res.render('login', { error: 'Invalid username or password', success: null });
     }
   } catch (error) {
     console.error('Login error:', error);
-    res.render('login', { error: 'Login failed. Please try again.' });
+    res.render('login', { error: 'Login failed. Please try again.', success: null });
   }
 });
 
