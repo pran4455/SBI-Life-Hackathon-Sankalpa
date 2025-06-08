@@ -11,15 +11,43 @@ import traceback
 def load_model():
     """Load the upselling model"""
     try:
-        model_path = os.path.join(os.path.dirname(__file__), 'model_upsell', 'upsell_ensemble_model.pkl')
+        # Print environment info
+        import sklearn
+        import platform
+        print(f"Python version: {platform.python_version()}", file=sys.stderr)
+        print(f"scikit-learn version: {sklearn.__version__}", file=sys.stderr)
         
-        if os.path.exists(model_path):
-            pipeline = joblib.load(model_path)
-            return pipeline
-        else:
+        model_path = os.path.join(os.path.dirname(__file__), 'model_upsell', 'upsell_ensemble_model.pkl')
+        print(f"Loading model from: {model_path}", file=sys.stderr)
+        
+        if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at: {model_path}")
+        
+        # Try loading with different pickle protocols
+        for protocol in ['highest_protocol', 'default', 'compatibility']:
+            try:
+                if protocol == 'highest_protocol':
+                    pipeline = joblib.load(model_path)
+                elif protocol == 'default':
+                    import pickle
+                    with open(model_path, 'rb') as f:
+                        pipeline = pickle.load(f)
+                else:
+                    import pickle
+                    with open(model_path, 'rb') as f:
+                        pipeline = pickle.load(f, encoding='latin1')
+                
+                print(f"Model loaded successfully using {protocol} protocol", file=sys.stderr)
+                return pipeline
+            except Exception as e:
+                print(f"Failed to load with {protocol} protocol: {str(e)}", file=sys.stderr)
+                continue
+                
+        raise Exception("Failed to load model with any available protocol")
     except Exception as e:
-        raise Exception(f"Failed to load model: {str(e)}")
+        error_msg = f"Failed to load model: {str(e)}\nTraceback:\n{traceback.format_exc()}"
+        print(error_msg, file=sys.stderr)
+        raise Exception(error_msg)
 
 def prepare_data_for_prediction(user_data):
     """Prepare user data for model prediction"""
