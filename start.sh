@@ -20,14 +20,33 @@ if [ -n "$RENDER_STORAGE_PATH" ]; then
     ln -sf "$RENDER_STORAGE_PATH/sbilife.xlsx" ./sbilife.xlsx
 fi
 
+# Set environment variables with defaults
+export PORT=${PORT:-10000}
+export CHATBOT_PORT=${CHATBOT_PORT:-8001}
+export NODE_ENV=${NODE_ENV:-production}
+
 # Make Python files executable
 chmod +x policy_recommend.py
 chmod +x upsell_predictor.py
+chmod +x chatbot_server.py
+chmod +x wsgi.py
 
-# Start the server
+echo "Starting the application..."
 if [ "$NODE_ENV" = "production" ]; then
-    # Start with production settings
-    NODE_ENV=production node --optimize_for_size --max_old_space_size=460 app.js
+    # Install PM2 globally if not already installed
+    npm install -g pm2
+
+    echo "Starting main application..."
+    pm2 start app.js --name "sankalpa" -- --port $PORT
+    
+    # Only start chatbot in production if needed
+    if [ "$ENABLE_CHATBOT" = "true" ]; then
+        echo "Starting chatbot server..."
+        pm2 start "gunicorn -c gunicorn.conf.py wsgi:app" --name "chatbot"
+    fi
+    
+    # Display logs
+    pm2 logs
 else
     # Start in development mode
     node app.js

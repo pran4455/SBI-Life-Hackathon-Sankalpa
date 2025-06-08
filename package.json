@@ -20,6 +20,7 @@
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
     "child_process": "^1.0.2",
+    "compression": "^1.8.0",
     "crypto": "^1.0.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
