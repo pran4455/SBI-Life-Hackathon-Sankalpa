@@ -23,5 +23,11 @@ echo "Environment: $NODE_ENV"
 echo "Data directory: $DATA_DIR"
 echo "Database path: $SQLITE_DB_PATH"
 
-# Start the application
-node app.js
+# Wait for any existing database processes to complete
+sleep 2
+
+# Start the application with proper error handling
+node app.js || {
+    echo "Application failed to start"
+    exit 1
+}
