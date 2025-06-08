@@ -16,6 +16,7 @@ const { promisify } = require('util');
 const exec = promisify(require('child_process').exec);
 const xlsx = require('xlsx');
 const { execFile } = require('child_process');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 // Import utility modules
 const dbSetup = require('./dbSetup');
@@ -23,8 +24,54 @@ const emailService = require('./emailService');
 const { startChainlitServer } = require('./start_chatbot');
 const { getGoalRecommendation } = require('./goal_gps'); // Import Goal GPS module
 
+// Import Streamlit server starter
+const { startStreamlitServer } = require('./start_streamlit');
+
 // Python path configuration
 const pythonpath = process.env.PYTHON_PATH || 'python3'; // Fallback to python3 command
+const recommendationsMapping = {
+  0: 'Cross-sell opportunity: Suggest savings or credit products with low fees',
+  1: 'Engagement incentive: Personalized offers or loyalty points for early tenure engagement',
+  2: 'General offer: Reward program or tailored financial review',
+  3: 'Long-tenured customer: Recommend premium financial products or exclusive memberships',
+  4: 'Mid-term tenure: Suggest insurance, fixed deposits, or personal loans with incentives',
+  5: 'Premium policy offer: Investment or wealth management plans',
+  6: 'Retention offer: Special cashback or reduced fees to retain the customer'
+};
+
+// Policy descriptions mapping
+const specificPoliciesMapping = {
+  0: ['SBI Life - Smart Bachat Plus', 'SBI Life - Smart Swadhan Supreme', 'SBI Life - Smart Platina Plus'],
+  1: ['SBI Life - eShield Next', 'SBI Life - Saral Jeevan Bima', 'SBI Life - Smart Term Plus'],
+  2: ['SBI Life - Smart Platina Supreme', 'SBI Life - Smart Platina Plus', 'SBI Life - Smart Bachat Gold'],
+  3: ['SBI Life - Smart Elite Plus', 'SBI Life - Smart Fortune Builder', 'SBI Life - Premium Wealth Plan'],
+  4: ['SBI Life - Smart Scholar Plus', 'SBI Life - Retire Smart Plus', 'SBI Life - Smart Investment Plan'],
+  5: ['SBI Life - eWealth Plus', 'SBI Life - Smart Annuity Plus', 'SBI Life - Wealth Assure Premium'],
+  6: ['SBI Life - Smart Platina Assure', 'SBI Life - Loyalty Rewards Plan', 'SBI Life - Retention Special']
+};
+
+const policyDescriptionsMapping = {
+  "SBI Life - Smart Bachat Plus": "A savings-oriented life insurance plan with guaranteed additions and flexible premium payment options.",
+  "SBI Life - Smart Swadhan Supreme": "A term insurance plan with return of premiums at policy end, ideal for financial security.",
+  "SBI Life - Smart Platina Plus": "A life insurance savings plan with guaranteed returns and wealth accumulation benefits.",
+  "SBI Life - eShield Next": "A pure risk premium life insurance plan with flexible coverage options and affordable premiums.",
+  "SBI Life - Saral Jeevan Bima": "A standard term plan with simple and affordable protection for the entire family.",
+  "SBI Life - Smart Term Plus": "Enhanced term insurance with additional riders and comprehensive coverage.",
+  "SBI Life - Smart Platina Supreme": "A savings plan offering guaranteed regular income and life cover with tax benefits.",
+  "SBI Life - Smart Bachat Gold": "Premium savings plan with higher returns and flexible withdrawal options.",
+  "SBI Life - Smart Elite Plus": "A unit-linked insurance plan (ULIP) for high net-worth individuals with premium fund management.",
+  "SBI Life - Smart Fortune Builder": "A unit-linked life insurance plan for wealth creation with multiple fund options.",
+  "SBI Life - Premium Wealth Plan": "Exclusive wealth management solution for affluent customers with personalized service.",
+  "SBI Life - Smart Scholar Plus": "A ULIP designed to secure your child's future education and career goals.",
+  "SBI Life - Retire Smart Plus": "A unit-linked pension plan for retirement planning with flexible withdrawal options.",
+  "SBI Life - Smart Investment Plan": "Balanced investment approach combining insurance and investment benefits.",
+  "SBI Life - eWealth Plus": "An online ULIP with automatic asset allocation and digital portfolio management.",
+  "SBI Life - Smart Annuity Plus": "An immediate annuity plan ensuring a lifelong income with guaranteed payments.",
+  "SBI Life - Wealth Assure Premium": "Premium investment plan with guaranteed wealth creation and insurance coverage.",
+  "SBI Life - Smart Platina Assure": "A life insurance savings product with guaranteed returns and loyalty benefits.",
+  "SBI Life - Loyalty Rewards Plan": "Special plan for long-term customers with exclusive rewards and benefits.",
+  "SBI Life - Retention Special": "Customized retention offer with special terms and reduced fees for valued customers."
+};
 
 // Production optimization settings
 if (process.env.NODE_ENV === 'production') {
@@ -808,6 +855,11 @@ app.get('/financial-chatbot', isAuthenticated, (req, res) => {
   res.render('financial_chatbot', { username: req.session.username });
 });
 
+// Analytics Dashboard
+app.get('/analytics-dashboard', isAuthenticated, (req, res) => {
+  res.render('analytics_dashboard', {username: req.session.username });
+});
+
 // Games main page
 app.get('/games', isAuthenticated, (req, res) => {   
   res.render('games', { username: req.session.username }); 
@@ -913,7 +965,7 @@ app.get('/api/policies', isAuthenticated, (req, res) => {
   }
 });
 
-// Updated /api/recommend route in app.js
+// Updated /api/recommend route
 app.post('/api/recommend', isAuthenticated, async (req, res) => {
   try {
     const { description } = req.body;
@@ -937,7 +989,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
     // Prepare user data for Python script
     const userData = {
       description: description,
-      username: username,  // Add username to the data
+      username: username,
       credit_score: userProfile.credit_score,
       geography: userProfile.geography,
       gender: userProfile.gender,
@@ -955,7 +1007,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
     const pythonProcess = spawn(pythonpath, [
       path.join(__dirname, 'policy_recommend.py'),
       JSON.stringify(userData),
-      username  // Pass username as second argument
+      username
     ], {
       cwd: __dirname
     });
@@ -999,23 +1051,19 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
 
         console.log('Policy prediction successful:', prediction);
         
-        // Ensure response has consistent format
         let response = {
           success: true,
           message: "Policy recommendation generated successfully"
         };
 
-        // Handle different response formats from Python
         if (prediction.policies && Array.isArray(prediction.policies)) {
           response.policies = prediction.policies;
         } else if (prediction.name) {
-          // Single policy object - convert to array
           response.policies = [{
             name: prediction.name,
             why: prediction.why || 'No description available'
           }];
         } else {
-          // Fallback - treat entire prediction as single policy
           response.policies = [prediction];
         }
 
@@ -1048,8 +1096,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
   }
 });
 
-
-// UPDATED Handle policy acceptance - Replace your existing route
+// Handle policy acceptance
 app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
   try {
     const { policy } = req.body;
@@ -1059,10 +1106,8 @@ app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Policy name is required" });
     }
 
-    // Save the accepted policy
     await saveUserPolicySelection(username, policy);
 
-    // Get user profile data from database (this uses the stored data from /information page)
     const userProfile = await getUserProfileData(username);
     
     if (!userProfile) {
@@ -1073,7 +1118,6 @@ app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
 
     console.log('User profile data retrieved for upselling:', userProfile);
 
-    // Prepare user data for upselling prediction using the stored database values
     const userDataForPrediction = {
       CreditScore: userProfile.credit_score,
       Geography: userProfile.geography,
@@ -1088,7 +1132,6 @@ app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
       Exited: userProfile.exited ? 1 : 0
     };
 
-    // Store user data in session for upselling page
     req.session.userProfileData = userDataForPrediction;
     req.session.acceptedPolicy = policy;
 
@@ -1122,7 +1165,7 @@ app.post('/api/decline-policy', isAuthenticated, (req, res) => {
   }
 });
 
-// Update your existing upselling API endpoint to use app.py logic
+// Upselling recommendations API endpoint
 app.post('/api/upselling-recommendations', isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
@@ -1136,7 +1179,6 @@ app.post('/api/upselling-recommendations', isAuthenticated, async (req, res) => 
     console.log('Upselling prediction request for user:', username);
     console.log('User profile data:', userProfileData);
     
-    // Prepare input data for Python ML model
     const inputData = {
       'CreditScore': userProfileData.CreditScore,
       'Geography': userProfileData.Geography,
@@ -1153,7 +1195,6 @@ app.post('/api/upselling-recommendations', isAuthenticated, async (req, res) => 
 
     console.log('Input data for prediction:', inputData);
 
-    // Call Python ML model for actual prediction
     const pythonProcess = spawn(pythonpath, [
       path.join(__dirname, 'upsell_predictor.py'),
       JSON.stringify(inputData)
@@ -1198,7 +1239,6 @@ app.post('/api/upselling-recommendations', isAuthenticated, async (req, res) => 
           return res.status(500).json({ error: predictionResult.error });
         }
 
-        // Include accepted policy in response
         const response = {
           ...predictionResult,
           acceptedPolicy: acceptedPolicy || 'Unknown Policy'
@@ -1244,8 +1284,6 @@ app.post('/api/select-upselling-policy', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Policy name is required" });
     }
 
-    // You can save this as an additional policy or update the existing selection
-    // For now, let's save it as an additional field
     const db = dbSetup.getDB();
     db.run(
       `UPDATE users SET upselling_policy = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?`,
@@ -1260,7 +1298,6 @@ app.post('/api/select-upselling-policy', isAuthenticated, async (req, res) => {
           return res.status(500).json({ error: "Failed to save upselling policy" });
         }
         
-        // Clear session data
         delete req.session.userProfileData;
         delete req.session.acceptedPolicy;
         
@@ -1304,13 +1341,33 @@ app.get('/healthz', (req, res) => {
     });
 });
 
+// Add proxy for Streamlit
+const streamlitProxy = createProxyMiddleware({
+    target: `http://localhost:${process.env.STREAMLIT_PORT || 8501}`,
+    changeOrigin: true,
+    pathRewrite: {
+        '^/dashboard': '', // Remove /dashboard prefix when forwarding to Streamlit
+    },
+    ws: true, // Enable WebSocket proxying
+    onError: (err, req, res) => {
+        console.error('Streamlit proxy error:', err);
+        res.status(500).send('Error connecting to dashboard');
+    }
+});
+
+// Add proxy route before other routes
+app.use('/dashboard', streamlitProxy);
+
 // Create HTTP server
 const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
     console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
     console.log('Server startup complete');
     
-    // In production mode
+    // Start Streamlit server in production
     if (process.env.NODE_ENV === 'production') {
+        console.log('Starting Streamlit dashboard...');
+        startStreamlitServer();
+        
         // Log memory usage after startup
         const used = process.memoryUsage();
         console.log('Memory usage after startup:');

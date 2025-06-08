@@ -23,6 +23,7 @@ fi
 # Set environment variables with defaults
 export PORT=${PORT:-10000}
 export CHATBOT_PORT=${CHATBOT_PORT:-8001}
+export STREAMLIT_PORT=${STREAMLIT_PORT:-8501}
 export NODE_ENV=${NODE_ENV:-production}
 
 # Make Python files executable
@@ -30,6 +31,7 @@ chmod +x policy_recommend.py
 chmod +x upsell_predictor.py
 chmod +x chatbot_server.py
 chmod +x wsgi.py
+chmod +x dashboard.py
 
 echo "Starting the application..."
 if [ "$NODE_ENV" = "production" ]; then
@@ -69,35 +71,18 @@ if [ "$NODE_ENV" = "production" ]; then
         exit 1
     fi
 
-    # Keep the script running
-    wait $APP_PID
-else
-    # Start in development mode
-    node app.js
-fi
-chmod +x chatbot_server.py
-chmod +x wsgi.py
-
-echo "Starting the application..."
-# Start the application with PM2 for better process management
-if [ "$NODE_ENV" = "production" ]; then
-    # Install PM2 globally if not already installed
-    npm install -g pm2
-    
     # Start Flask chatbot with Gunicorn in the background
-    pm2 start "gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT" --name "chatbot" --wait-ready
-    
-    # Wait for chatbot server to be ready
-    sleep 5
-    
-    # Start the main application
-    pm2 start app.js --name "sankalpa" --wait-ready
-    
-    # Save the PM2 process list
-    pm2 save
-    
-    # Display logs
-    pm2 logs
+    echo "Starting chatbot server on port $CHATBOT_PORT..."
+    gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT &
+    CHATBOT_PID=$!
+
+    # Start Streamlit dashboard in the background
+    echo "Starting Streamlit dashboard on port $STREAMLIT_PORT..."
+    streamlit run dashboard.py --server.port $STREAMLIT_PORT --server.address 0.0.0.0 &
+    STREAMLIT_PID=$!
+
+    # Wait for all processes
+    wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
 else
     # Development mode
     node app.js

@@ -1,0 +1,474 @@
+/* ===== CORE LAYOUT & VARIABLES ===== */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --accent-color: #ff69b4;
+    --background-light: #f8fafc;
+    --background-white: #ffffff;
+    --border-light: #e2e8f0;
+    --text-primary: #2d3748;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 10px 30px rgba(102, 126, 234, 0.3);
+    --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.1);
+    --border-radius: 20px;
+    --border-radius-small: 12px;
+    --transition: all 0.3s ease;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* ===== STREAMLIT APP CONTAINER ===== */
+div[data-testid="stAppViewContainer"] {
+    background: var(--primary-gradient);
+    color: white;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+/* ===== RESPONSIVE LAYOUT ADJUSTMENTS ===== */
+@media (max-width: 1200px) {
+    .left-container {
+        display: none;
+    }
+    
+    div[data-testid="stSidebar"] {
+        left: 0;
+        width: 300px;
+    }
+    
+    div[data-testid="stMain"] {
+        margin-left: 300px;
+        width: calc(100% - 300px);
+        max-width: calc(1400px - 300px);
+    }
+}
+
+@media (max-width: 768px) {
+    .left-container {
+        display: none;
+    }
+    
+    div[data-testid="stSidebar"] {
+        position: relative;
+        left: 0;
+        width: 100%;
+        height: auto;
+    }
+    
+    div[data-testid="stMain"] {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+        padding: 1rem;
+    }
+}
+
+/* ===== ENHANCED LEFT CONTAINER ===== */
+.left-container {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 350px; /* Increased from 300/280 */
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+    z-index: 40;
+    color: white;
+}
+
+/* ===== STREAMLIT SIDEBAR (NEXT TO LEFT CONTAINER) ===== */
+div[data-testid="stSidebar"] {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    padding: 2rem 1.5rem;
+    color: white;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    position: fixed;
+    left: 350px; /* Adjusted to follow .left-container */
+    top: 0;
+    height: 100vh;
+    width: 300px; /* Increased sidebar width */
+    overflow-y: auto;
+    z-index: 50;
+}
+
+/* Optional visual effect over sidebar */
+div[data-testid="stSidebar"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+div[data-testid="stSidebar"] * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== MAIN CONTENT AREA ===== */
+div[data-testid="stMain"] {
+    margin-left: 650px; /* left-container + sidebar: 350 + 300 */
+    padding: 2rem;
+    width: calc(100% - 650px);
+    max-width: calc(1600px - 650px); /* Adjust as needed */
+}
+
+/* ===== CONTENT BLOCKS ===== */
+div[data-testid="stVerticalBlock"] {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    color: #1a1a1a;
+    width: 105%;
+    max-width: 1300px;
+    min-height: 600px; /* Increased for more content space */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    backdrop-filter: blur(10px);
+    transition: 0.3s ease;
+}
+
+div[data-testid="stVerticalBlock"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== ENHANCED BUTTONS ===== */
+.stButton > button {
+    background: var(--primary-gradient) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: var(--border-radius-small) !important;
+    padding: 0.8rem 2rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: var(--transition) !important;
+    box-shadow: var(--shadow-light) !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stButton > button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-color) 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-medium) !important;
+}
+
+.stButton > button:hover::before {
+    left: 100%;
+}
+
+.stButton > button:active {
+    transform: translateY(0) !important;
+}
+
+/* ===== MODERN METRICS ===== */
+div[data-testid="stMetric"] {
+    background: var(--background-white, rgba(255, 255, 255, 0.9));
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 300px; /* ✅ Limit width to stay in container */
+    box-sizing: border-box;
+    margin: 1rem auto; /* ✅ Centers metric if needed */
+}
+
+div[data-testid="stMetric"]:hover {
+    transform: translateY(2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient border indicator */
+div[data-testid="stMetric"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed); /* Fallback if var fails */
+}
+
+/* Metric label */
+div[data-testid="stMetricLabel"] {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6b7280; /* text-secondary */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Metric value */
+div[data-testid="stMetricValue"] {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #4f46e5; /* primary-color fallback */
+    line-height: 1.2;
+    word-wrap: break-word;
+}
+
+/* Metric delta */
+div[data-testid="stMetricDelta"] {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    color: #10b981; /* green for positive trend */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== ENHANCED DATAFRAMES ===== */
+div[data-testid="stDataFrame"] {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--border-radius-small);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+div[data-testid="stDataFrame"]:hover {
+    box-shadow: var(--shadow-medium);
+}
+
+div[data-testid="stDataFrame"] table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+div[data-testid="stDataFrame"] th {
+    background: var(--primary-gradient) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    padding: 1rem 0.8rem !important;
+    text-align: left !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border: none !important;
+}
+
+div[data-testid="stDataFrame"] td {
+    background: var(--background-white) !important;
+    color: var(--text-primary) !important;
+    padding: 0.8rem !important;
+    border-bottom: 1px solid var(--border-light) !important;
+    transition: var(--transition) !important;
+}
+
+div[data-testid="stDataFrame"] tr:hover td {
+    background: var(--background-light) !important;
+}
+
+/* ===== MODERN CHARTS ===== */
+div[data-testid="stPlotlyChart"] {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--border-radius-small);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-light);
+    transition: var(--transition);
+}
+
+div[data-testid="stPlotlyChart"]:hover {
+    box-shadow: var(--shadow-medium);
+}
+
+.js-plotly-plot {
+    border-radius: var(--border-radius-small);
+    overflow: hidden;
+}
+
+/* ===== FORM ELEMENTS ===== */
+div[data-testid="stSelectbox"] > div,
+div[data-testid="stTextInput"] > div,
+div[data-testid="stNumberInput"] > div {
+    border-radius: var(--border-radius-small) !important;
+}
+
+div[data-testid="stSelectbox"] select,
+div[data-testid="stTextInput"] input,
+div[data-testid="stNumberInput"] input {
+    border: 2px solid var(--border-light) !important;
+    border-radius: var(--border-radius-small) !important;
+    padding: 0.8rem 1rem !important;
+    font-size: 1rem !important;
+    transition: var(--transition) !important;
+    background: var(--background-white) !important;
+}
+
+div[data-testid="stSelectbox"] select:focus,
+div[data-testid="stTextInput"] input:focus,
+div[data-testid="stNumberInput"] input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    outline: none !important;
+}
+
+/* ===== HEADERS & TYPOGRAPHY ===== */
+.main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+}
+
+.main h1 {
+    font-size: 2.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.main h2 {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.main h3 {
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+}
+
+/* ===== LOADING STATES ===== */
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--background-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    z-index: 10;
+    backdrop-filter: blur(5px);
+    border-radius: var(--border-radius);
+}
+
+.loading::before {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-light);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    div[data-testid="stMain"] {
+        padding: 1rem;
+    }
+    
+    div[data-testid="stVerticalBlock"] {
+        padding: 1.5rem;
+        margin: 0.5rem 0;
+        min-height: 300px;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+    
+    div[data-testid="stMetricValue"] {
+        font-size: 2rem;
+    }
+}
+
+/* ===== CUSTOM ANIMATIONS ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+div[data-testid="stVerticalBlock"] {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+div[data-testid="stMetric"] {
+    animation: fadeInUp 0.6s ease-out;
+    animation-delay: 0.1s;
+    animation-fill-mode: both;
+}
+
+/* ===== SCROLL STYLES ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-light);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-gradient);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+}
