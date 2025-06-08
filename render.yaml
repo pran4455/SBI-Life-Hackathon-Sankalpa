@@ -6,8 +6,10 @@ services:
     buildCommand: |
       chmod +x start.sh
       npm install compression --save
-      npm install && pip install -r requirements.txt
-    startCommand: bash ./start.sh
+      npm install && pip install -r requirements.txt    startCommand: bash ./start.sh
+    healthCheckPath: /healthz
+    healthCheckTimeout: 300
+    startupDelay: 120
     envVars:
       - key: NODE_ENV
         value: production

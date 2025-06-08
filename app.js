@@ -47,59 +47,11 @@ const SERVER_CONFIG = {
     CHATBOT_PORT: process.env.CHATBOT_PORT || 8001
 };
 
-// Log port configurations
+// Log startup
+console.log('Starting server...');
+console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 console.log(`Main server port: ${SERVER_CONFIG.PORT}`);
 console.log(`Main server host: ${SERVER_CONFIG.HOST}`);
-console.log(`Chatbot server port: ${SERVER_CONFIG.CHATBOT_PORT}`);
-
-// Recommendations mappingbased on model classes - For Upselling Policy
-const recommendationsMapping = {
-  0: 'Cross-sell opportunity: Suggest savings or credit products with low fees',
-  1: 'Engagement incentive: Personalized offers or loyalty points for early tenure engagement',
-  2: 'General offer: Reward program or tailored financial review',
-  3: 'Long-tenured customer: Recommend premium financial products or exclusive memberships',
-  4: 'Mid-term tenure: Suggest insurance, fixed deposits, or personal loans with incentives',
-  5: 'Premium policy offer: Investment or wealth management plans',
-  6: 'Retention offer: Special cashback or reduced fees to retain the customer'
-};
-
-// Policy descriptions mapping
-const specificPoliciesMapping = {
-  0: ['SBI Life - Smart Bachat Plus', 'SBI Life - Smart Swadhan Supreme', 'SBI Life - Smart Platina Plus'],
-  1: ['SBI Life - eShield Next', 'SBI Life - Saral Jeevan Bima', 'SBI Life - Smart Term Plus'],
-  2: ['SBI Life - Smart Platina Supreme', 'SBI Life - Smart Platina Plus', 'SBI Life - Smart Bachat Gold'],
-  3: ['SBI Life - Smart Elite Plus', 'SBI Life - Smart Fortune Builder', 'SBI Life - Premium Wealth Plan'],
-  4: ['SBI Life - Smart Scholar Plus', 'SBI Life - Retire Smart Plus', 'SBI Life - Smart Investment Plan'],
-  5: ['SBI Life - eWealth Plus', 'SBI Life - Smart Annuity Plus', 'SBI Life - Wealth Assure Premium'],
-  6: ['SBI Life - Smart Platina Assure', 'SBI Life - Loyalty Rewards Plan', 'SBI Life - Retention Special']
-};
-
-const policyDescriptionsMapping = {
-  "SBI Life - Smart Bachat Plus": "A savings-oriented life insurance plan with guaranteed additions and flexible premium payment options.",
-  "SBI Life - Smart Swadhan Supreme": "A term insurance plan with return of premiums at policy end, ideal for financial security.",
-  "SBI Life - Smart Platina Plus": "A life insurance savings plan with guaranteed returns and wealth accumulation benefits.",
-  "SBI Life - eShield Next": "A pure risk premium life insurance plan with flexible coverage options and affordable premiums.",
-  "SBI Life - Saral Jeevan Bima": "A standard term plan with simple and affordable protection for the entire family.",
-  "SBI Life - Smart Term Plus": "Enhanced term insurance with additional riders and comprehensive coverage.",
-  "SBI Life - Smart Platina Supreme": "A savings plan offering guaranteed regular income and life cover with tax benefits.",
-  "SBI Life - Smart Bachat Gold": "Premium savings plan with higher returns and flexible withdrawal options.",
-  "SBI Life - Smart Elite Plus": "A unit-linked insurance plan (ULIP) for high net-worth individuals with premium fund management.",
-  "SBI Life - Smart Fortune Builder": "A unit-linked life insurance plan for wealth creation with multiple fund options.",
-  "SBI Life - Premium Wealth Plan": "Exclusive wealth management solution for affluent customers with personalized service.",
-  "SBI Life - Smart Scholar Plus": "A ULIP designed to secure your child's future education and career goals.",
-  "SBI Life - Retire Smart Plus": "A unit-linked pension plan for retirement planning with flexible withdrawal options.",
-  "SBI Life - Smart Investment Plan": "Balanced investment approach combining insurance and investment benefits.",
-  "SBI Life - eWealth Plus": "An online ULIP with automatic asset allocation and digital portfolio management.",
-  "SBI Life - Smart Annuity Plus": "An immediate annuity plan ensuring a lifelong income with guaranteed payments.",
-  "SBI Life - Wealth Assure Premium": "Premium investment plan with guaranteed wealth creation and insurance coverage.",
-  "SBI Life - Smart Platina Assure": "A life insurance savings product with guaranteed returns and loyalty benefits.",
-  "SBI Life - Loyalty Rewards Plan": "Special plan for long-term customers with exclusive rewards and benefits.",
-  "SBI Life - Retention Special": "Customized retention offer with special terms and reduced fees for valued customers."
-};
-
-// ========================================
-// MIDDLEWARE SETUP
-// ========================================
 
 // Production configuration and middleware setup
 if (process.env.NODE_ENV === 'production') {
@@ -1096,6 +1048,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
   }
 });
 
+
 // UPDATED Handle policy acceptance - Replace your existing route
 app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
   try {
@@ -1343,7 +1296,7 @@ app.get('/api/policy-details/:policyId', isAuthenticated, (req, res) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/healthz', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
@@ -1351,29 +1304,31 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Start the server with explicit host binding
+// Create HTTP server
 const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
-    console.log(`Server starting in ${process.env.NODE_ENV || 'development'} mode`);
     console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
-    console.log(`Health check endpoint: http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}/health`);
+    console.log('Server startup complete');
     
-    // In production, only start essential services
+    // In production mode
     if (process.env.NODE_ENV === 'production') {
-        // Log memory usage
+        // Log memory usage after startup
         const used = process.memoryUsage();
-        console.log('Initial memory usage:');
+        console.log('Memory usage after startup:');
         for (let key in used) {
             console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
         }
-    } else {
-        // Start development-only services
-        startChainlitServer();
     }
+});
+
+// Add error handler
+server.on('error', (error) => {
+    console.error('Server error:', error);
+    process.exit(1);
 });
 
 // Handle graceful shutdown
 process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received. Closing server...');
+    console.log('SIGTERM received, shutting down gracefully');
     server.close(() => {
         console.log('Server closed');
         process.exit(0);
@@ -1381,7 +1336,7 @@ process.on('SIGTERM', () => {
 });
 
 process.on('SIGINT', () => {
-    console.log('SIGINT signal received. Closing server...');
+    console.log('SIGINT received, shutting down gracefully');
     server.close(() => {
         console.log('Server closed');
         process.exit(0);

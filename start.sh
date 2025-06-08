@@ -33,20 +33,44 @@ chmod +x wsgi.py
 
 echo "Starting the application..."
 if [ "$NODE_ENV" = "production" ]; then
-    # Install PM2 globally if not already installed
-    npm install -g pm2
+    echo "Starting in production mode..."
+    
+    # Install curl if not present
+    which curl || { apt-get update && apt-get install -y curl; }
+    
+    # Start the main application
+    echo "Starting Node.js server on port $PORT..."
+    node app.js &
+    APP_PID=$!
+    
+    # Wait for up to 120 seconds for the server to start
+    echo "Waiting for server to become available..."
+    COUNTER=0
+    while [ $COUNTER -lt 120 ]; do
+        echo "Attempt $COUNTER: Checking server health..."
+        if curl -s "http://localhost:$PORT/healthz" > /dev/null; then
+            echo "Server is up and running!"
+            break
+        fi
+        
+        # Check if process is still running
+        if ! kill -0 $APP_PID 2>/dev/null; then
+            echo "Server process died unexpectedly"
+            exit 1
+        fi
+        
+        sleep 2
+        let COUNTER=COUNTER+1
+    done
 
-    echo "Starting main application..."
-    pm2 start app.js --name "sankalpa" -- --port $PORT
-    
-    # Only start chatbot in production if needed
-    if [ "$ENABLE_CHATBOT" = "true" ]; then
-        echo "Starting chatbot server..."
-        pm2 start "gunicorn -c gunicorn.conf.py wsgi:app" --name "chatbot"
+    if [ $COUNTER -ge 120 ]; then
+        echo "Server failed to start within 240 seconds"
+        kill -9 $APP_PID 2>/dev/null
+        exit 1
     fi
-    
-    # Display logs
-    pm2 logs
+
+    # Keep the script running
+    wait $APP_PID
 else
     # Start in development mode
     node app.js
