@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Financial AI Hub</title>
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#6d3cc5">
-    <meta name="description" content="AI-Driven Personalization for SBI Life Insurance">
     <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <style>
         * {
@@ -188,6 +186,19 @@
             font-weight: 500;
         }
 
+        /* Success Message */
+        .success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.5);
+            color: #51cf66;
+            padding: 1rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+
         /* Form Footer */
         .form-footer {
             text-align: center;
@@ -210,14 +221,14 @@
 
         .form-footer a:hover {
             color: white;
-            text-decoration: underline;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
         /* Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -228,71 +239,90 @@
         @keyframes slideDown {
             from {
                 transform: translateY(-100%);
+                opacity: 0;
             }
             to {
                 transform: translateY(0);
+                opacity: 1;
             }
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .container {
-                margin: 40px 20px;
-                padding: 2rem;
-            }
-
             .nav-bar {
                 padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
             }
-
+            
             .other-links {
                 gap: 1rem;
             }
-
-            .other-links a {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.9rem;
+            
+            .container {
+                margin: 40px 1rem;
+                padding: 2rem;
+            }
+            
+            .title {
+                font-size: 1.75rem;
+            }
+            
+            .form-group input {
+                padding: 0.875rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="nav-bar">
         <div class="nav-links">
-            <img src="/static/sankalpa.png" alt="Sankalpa Logo">
+            <img src="/icons/logo.png" alt="Financial AI Hub Logo">
         </div>
         <div class="other-links">
-            <a href="/about">About</a>
-            <a href="/register">Register</a>
+            <a href="/about" class="about">About</a>
+            <a href="/register" class="signup">Sign Up</a>
         </div>
     </nav>
 
-    <!-- Login Container -->
     <div class="container">
         <h1 class="title">Welcome Back</h1>
+        
         <% if (error) { %>
             <div class="error"><%= error %></div>
         <% } %>
+        
+        <% if (success) { %>
+            <div class="success"><%= success %></div>
+        <% } %>
+
         <form action="/login" method="POST">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="username" id="username" name="username" placeholder="Enter your username" required>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
             </div>
+            
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password" required>
             </div>
+            
             <button type="submit" class="btn">Login</button>
         </form>
+
         <div class="form-footer">
-            <p>Don't have an account? <a href="/register">Register here</a></p>
-            <p><a href="/forget-password">Forgot your password?</a></p>
+            <p>Don't have an account? <a href="/register">Sign Up</a></p>
+            <p><a href="/forgot-password">Forgot Password?</a></p>
         </div>
     </div>
 
-    <!-- PWA Service Worker Registration -->
     <script>
+        // Register service worker for PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')

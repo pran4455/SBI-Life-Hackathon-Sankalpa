@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial AI Hub</title>
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#6d3cc5">
-    <meta name="description" content="AI-Driven Personalization for SBI Life Insurance">
+    <title>Financial AI Hub - Dashboard</title>
     <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -22,6 +20,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             overflow-x: hidden;
+            color: white;
         }
 
         /* Header */
@@ -33,6 +32,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            animation: slideDown 0.5s ease forwards;
         }
 
         .header-content {
@@ -50,12 +50,19 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .user-section {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .welcome-text {
@@ -64,6 +71,7 @@
             font-size: 1.15rem;
             margin-right: 20px;
             margin-bottom: 2px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .logout-btn {
@@ -76,29 +84,37 @@
             font-weight: 500;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .logout-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         /* Main Content */
         .main-container {
             max-width: 1400px;
-            margin: 0rem auto;
+            margin: 1rem auto;
             padding: 3rem 2rem;
-            height: 90vh;
-            overflow: hidden;
+            min-height: calc(100vh - 80px);
+            animation: fadeIn 0.8s ease forwards;
         }
 
         .page-title {
             text-align: center;
             color: white;
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         /* Features Grid */
@@ -119,7 +135,17 @@
             transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-decoration: none;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
         }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .feature-card:nth-child(6) { animation-delay: 0.6s; }
+        .feature-card:nth-child(7) { animation-delay: 0.7s; }
 
         .feature-card::before {
             content: '';
@@ -179,11 +205,12 @@
             font-size: 3rem;
             margin-bottom: 1rem;
             transition: all 0.4s ease;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
         .feature-card:hover .feature-icon {
             transform: scale(1.2) rotate(5deg);
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
         }
 
         .feature-title {
@@ -191,6 +218,7 @@
             font-weight: 600;
             margin-bottom: 0.5rem;
             transition: all 0.4s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .feature-description {
@@ -228,6 +256,13 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .language-dropdown:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .language-dropdown img {
@@ -254,28 +289,57 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 50%;
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.5rem;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
+            z-index: 1000;
         }
 
         .chat-button:hover {
-            transform: scale(1.1) translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
 
-        .chat-button img {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         /* Responsive Design */
@@ -291,114 +355,135 @@
 
             .user-section {
                 flex-direction: column;
-                align-items: center;
+                gap: 1rem;
             }
 
             .welcome-text {
                 margin-right: 0;
-                margin-bottom: 0.5rem;
+                text-align: center;
             }
 
             .main-container {
                 padding: 2rem 1rem;
-                height: auto;
-                overflow: visible;
+            }
+
+            .page-title {
+                font-size: 2rem;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
 
-            .feature-card {
-                height: 200px;
+            .language-dropdown {
+                top: auto;
+                bottom: 2rem;
+                left: 2rem;
+                right: auto;
             }
-        }
 
-        /* Install PWA Button */
-        .install-pwa {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 0.8rem 1.5rem;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            display: none;
-            z-index: 1000;
-        }
-
-        .install-pwa:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+            .chat-button {
+                bottom: 5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo">
-                <img src="/static/sankalpa.png" alt="Sankalpa Logo" height="40">
-                <span>Financial AI Hub</span>
-            </div>
+            <a href="/home" class="logo">
+                <i class="fas fa-robot"></i>
+                Financial AI Hub
+            </a>
             <div class="user-section">
-                <span class="welcome-text">Welcome, <%= user.name %></span>
-                <a href="/logout" class="logout-btn">Logout</a>
+                <span class="welcome-text">Welcome, <%= username %></span>
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-container">
-        <h1 class="page-title">Welcome to Your Financial Dashboard</h1>
+    <div class="main-container">
+        <h1 class="page-title">Your Financial AI Dashboard</h1>
         
         <div class="features-grid">
-            <a href="/financial-chatbot" class="feature-card">
+            <a href="/policy-recommendation" class="feature-card card-policy">
+                <div class="feature-content">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                    <h3 class="feature-title">Policy Recommendation</h3>
+                    <p class="feature-description">Get personalized insurance policy recommendations based on your profile</p>
+                </div>
+            </a>
+
+            <a href="/analytics-dashboard" class="feature-card card-analytics">
+                <div class="feature-content">
+                    <i class="fas fa-chart-line feature-icon"></i>
+                    <h3 class="feature-title">Analytics Dashboard</h3>
+                    <p class="feature-description">View detailed analytics and insights about your financial data</p>
+                </div>
+            </a>
+
+            <a href="/tia-chatbot" class="feature-card card-chatbot">
                 <div class="feature-content">
                     <i class="fas fa-robot feature-icon"></i>
-                    <h2 class="feature-title">AI Financial Chatbot</h2>
-                    <p class="feature-description">Get personalized financial advice and answers to your questions instantly</p>
+                    <h3 class="feature-title">TIA Chatbot</h3>
+                    <p class="feature-description">Interact with our AI assistant for instant support and guidance</p>
                 </div>
             </a>
 
-            <a href="/policy-recommend" class="feature-card">
+            <a href="/policy-upselling-recommendations" class="feature-card card-upselling">
                 <div class="feature-content">
-                    <i class="fas fa-file-contract feature-icon"></i>
-                    <h2 class="feature-title">Policy Recommendations</h2>
-                    <p class="feature-description">Discover insurance policies tailored to your needs and goals</p>
+                    <i class="fas fa-arrow-trend-up feature-icon"></i>
+                    <h3 class="feature-title">Policy Upselling</h3>
+                    <p class="feature-description">Discover additional policies that complement your current coverage</p>
                 </div>
             </a>
 
-            <a href="/goal-gps" class="feature-card">
+            <a href="/fraud-detection" class="feature-card card-fraud">
                 <div class="feature-content">
-                    <i class="fas fa-bullseye feature-icon"></i>
-                    <h2 class="feature-title">Goal GPS</h2>
-                    <p class="feature-description">Track and achieve your financial goals with AI-powered insights</p>
+                    <i class="fas fa-shield-virus feature-icon"></i>
+                    <h3 class="feature-title">Fraud Detection</h3>
+                    <p class="feature-description">Monitor and protect against potential fraudulent activities</p>
                 </div>
             </a>
 
-            <a href="/games" class="feature-card">
+            <a href="/financial-tools" class="feature-card card-tools">
                 <div class="feature-content">
-                    <i class="fas fa-gamepad feature-icon"></i>
-                    <h2 class="feature-title">Financial Games</h2>
-                    <p class="feature-description">Learn financial concepts through interactive games and challenges</p>
+                    <i class="fas fa-tools feature-icon"></i>
+                    <h3 class="feature-title">Financial Tools</h3>
+                    <p class="feature-description">Access a suite of tools to manage your financial portfolio</p>
+                </div>
+            </a>
+
+            <a href="/financial-chatbot" class="feature-card card-finchat">
+                <div class="feature-content">
+                    <i class="fas fa-comments feature-icon"></i>
+                    <h3 class="feature-title">Financial Chat</h3>
+                    <p class="feature-description">Chat with our financial AI for personalized advice</p>
                 </div>
             </a>
         </div>
-    </main>
+    </div>
 
-    <!-- Install PWA Button -->
-    <button id="installPWA" class="install-pwa">
-        <i class="fas fa-download"></i> Install App
+    <div class="language-dropdown">
+        <img src="/icons/language.png" alt="Language">
+        <select id="languageSelect">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+        </select>
+    </div>
+
+    <button class="chat-button" onclick="window.location.href='/tia-chatbot'">
+        <i class="fas fa-comments"></i>
     </button>
 
-    <!-- PWA Service Worker Registration -->
     <script>
+        // Register service worker for PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
@@ -411,28 +496,11 @@
             });
         }
 
-        // PWA Install Prompt
-        let deferredPrompt;
-        const installButton = document.getElementById('installPWA');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installButton.style.display = 'block';
-        });
-
-        installButton.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                } else {
-                    console.log('User dismissed the install prompt');
-                }
-                deferredPrompt = null;
-                installButton.style.display = 'none';
-            }
+        // Language selection handler
+        document.getElementById('languageSelect').addEventListener('change', function(e) {
+            const language = e.target.value;
+            // Implement language change logic here
+            console.log('Language changed to:', language);
         });
     </script>
 </body>
