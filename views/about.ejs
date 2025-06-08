@@ -1,273 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>    <meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us | Financial AI Hub</title>
-    <link rel="manifest" href="/manifest.json">
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#6d3cc5">
+    <meta name="description" content="AI-Driven Personalization for SBI Life Insurance">
+    <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            background: linear-gradient(90deg, #6d3cc5, #ff69b4);
-            color: white;
         }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
         .nav-bar {
-            position: fixed;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease forwards;
+        }
+
+        .nav-links {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 1000;
         }
 
-        .nav-bar img {
-            height: 40px;
-            max-width: 100px;
+        .nav-links img {
+            height: 45px;
+            width: auto;
         }
 
         .other-links {
             display: flex;
-            gap: 20px;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .other-links a {
             color: white;
             text-decoration: none;
-            font-size: 16px;
-            padding: 8px 15px;
-            border-radius: 5px;
-            background-color: #ff69b4;
-            transition: background-color 0.3s;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
         }
 
         .other-links a:hover {
-            background-color: #e42688;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
+        /* Main Container */
         .container {
-            padding: 100px 30px 50px 30px;
             max-width: 1200px;
             margin: 0 auto;
+            padding: 3rem 2rem;
+            animation: fadeInUp 0.8s ease forwards;
         }
 
-        h1, h2, h3 {
-            color: white;
-        }
-
-        p, li {
-            color: #f9f9f9;
-            line-height: 1.6;
-        }
-
-        .module {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .footer {
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 10px;
+        /* Page Title */
+        .page-header {
             text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header .subtitle {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #e0e7ff;
+        }
+
+        .page-header .intro {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            max-width: 900px;
+            margin: 0 auto;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Section Styling */
+        .section {
+            margin-bottom: 4rem;
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .section h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section h2 i {
+            color: #fbbf24;
+        }
+
+        .section p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.95;
+        }
+
+        /* Vision List */
+        .vision-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .vision-list li {
+            padding: 1rem;
+            margin: 0.8rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid #fbbf24;
+            transition: all 0.3s ease;
+            font-size: 1.05rem;
+        }
+
+        .vision-list li:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(10px);
+        }
+
+        /* Impact Stats */
+        .impact-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #fbbf24;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card .label {
+            font-size: 1.1rem;
+            color: #e0e7ff;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .team-member {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .member-image {
             width: 100%;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            z-index: 1000;
-            font-size: 14px;
+            height: 200px;
+            object-fit: cover;
         }
 
-        ul {
-            margin-top: 10px;
-            padding-left: 20px;
-        }        .emoji {
-            font-size: 18px;
+        .member-info {
+            padding: 1.5rem;
         }
 
-        #installButton {
-            position: fixed;
-            bottom: 70px;
-            right: 20px;
-            background-color: #ff69b4;
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            display: none;
-            z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+        .member-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
-        #installButton:hover {
-            transform: scale(1.05);
-            background-color: #e42688;
+        .member-role {
+            color: #e0e7ff;
+            font-size: 1rem;
+            margin-bottom: 1rem;
         }
 
-        #installButton.show {
-            display: block;
-            animation: slideIn 0.3s ease-out;
+        .member-bio {
+            font-size: 0.95rem;
+            opacity: 0.9;
         }
 
-        @keyframes slideIn {
+        /* Animations */
+        @keyframes fadeInUp {
             from {
-                transform: translateY(100px);
                 opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
             }
             to {
                 transform: translateY(0);
-                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .page-header .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .section h2 {
+                font-size: 1.8rem;
+            }
+
+            .impact-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="nav-bar">
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
         <div class="nav-links">
-            <img src="/static/sankalpa.png" alt="Logo">
+            <img src="/static/sankalpa.png" alt="Sankalpa Logo">
         </div>
         <div class="other-links">
-            <a href="/">Home</a>
+            <a href="/home">Home</a>
+            <a href="/login">Login</a>
         </div>
-    </div>
+    </nav>
 
+    <!-- Main Content -->
     <div class="container">
-        <h1>About Sankalpa</h1>
-        <p><strong>Sankalpa: AI-Driven Personalization for SBI Life</strong></p>
-        <p>SBI Life’s persona-based approach limits deep personalization, reducing engagement and conversions. Our AI-driven solution transforms customer interactions by delivering hyper-personalized experiences, predictive engagement, and ethical AI-driven decision-making—ensuring the right offer reaches the right customer at the right time.</p>
-
-        <br>
-
-        <h2>Our Vision</h2>
-        <ul>
-            <li>🚀 Deep Individual Insights – Real-time AI-driven clustering for personalized experiences.</li>
-            <li>📈 Smart Upselling – Tailored policy recommendations based on life stages.</li>
-            <li>💡 Enhanced Retention – Sentiment-aware outreach and proactive engagement.</li>
-            <li>🔒 Trust & Compliance – Ethical AI ensuring transparency, security, and fairness.</li>
-        </ul>
-
-        <p>By seamlessly integrating AI into SBI Life’s ecosystem, we boost customer satisfaction, strengthen loyalty, and drive revenue growth—empowering smarter, more meaningful financial decisions. 🚀</p>
-
-        <br>
-
-        <h2>📊 Impact of AI-Driven Personalization</h2>
-        <ul>
-            <li>🔻 Churn Reduction: AI-driven engagement can decrease client attrition by 25%.</li>
-            <li>📈 Improved Conversions: AI-powered bots boost conversion rates, with 50%+ of respondents reporting at least a 10% increase.</li>
-            <li>💰 Revenue Growth: AI-driven cross-sell strategies help financial institutions achieve an average 15% revenue increase per customer.</li>
-            <li>😊 Customer Satisfaction: Retail banking satisfaction increases by 163 points (on a 1,000-point scale) when customers act on AI-driven advice.</li>
-            <li>🎯 Personalization Impact: Insurers using AI for personalized offerings see a 5-10% rise in conversion rates.</li>
-        </ul>
-
-        <br>
-
-        <h2>🚀 The Future of AI-Driven Personalization</h2>
-        <p>Sankalpa isn’t just an AI-powered personalization engine—it’s a paradigm shift in how SBI Life interacts with its customers. By delivering real-time, hyper-personalized experiences, we’re transforming insurance from a transactional service into a trusted financial partner.</p>
-        <ul>
-            <li>Smarter Engagement. More relevance, less churn.</li>
-            <li>Stronger Loyalty. AI-driven insights that keep customers invested.</li>
-            <li>Sustained Growth. Revenue-boosting personalization at scale.</li>
-        </ul>
-
-        <br>
-        
-        <h2>Core Modules</h2>
-
-        <div class="module">
-            <h3>1. Unified Personalization Platform: Life360</h3>
-            <ul>
-                <li>✅ AI-Driven Persona Refinement – Real-time customer profiling with dynamic clustering.</li>
-                <li>✅ Omnichannel Personalization – Seamless customer journeys across mobile, web, email & branches.</li>
-                <li>✅ Smart Policy Recommendations – AI adapts to life stages, guiding users to the right policies.</li>
-            </ul>
-            <p>🎯 Boosts customer loyalty & engagement by making SBI Life a proactive advisor, not just an insurer.</p>
+        <div class="page-header">
+            <h1>About Sankalpa</h1>
+            <p class="subtitle">Revolutionizing Financial Services with AI</p>
+            <p class="intro">
+                Sankalpa is an innovative AI-powered platform that transforms how individuals interact with financial services. 
+                Our mission is to make financial planning and insurance accessible, personalized, and intelligent for everyone.
+            </p>
         </div>
 
-        <div class="module">
-            <h3>2. AI-Powered Communication: TalkSmart</h3>
-            <ul>
-                <li>✅ Emotion-Driven Outreach – AI analyzes past interactions for personalized messaging.</li>
-                <li>✅ Proactive Nudges – Predicts drop-offs and automates friendly reminders.</li>
-                <li>✅ Conversational AI + Human Support – TIA, our multilingual AI bot, ensures seamless interactions.</li>
-                <li>✅ Intelligent Human Escalation – Transfers history with sentiment insights for better support.</li>
+        <section class="section">
+            <h2><i class="fas fa-lightbulb"></i> Our Vision</h2>
+            <p>
+                We envision a future where financial services are not just about transactions, but about understanding and 
+                empowering individuals to achieve their life goals through intelligent, personalized guidance.
+            </p>
+            <ul class="vision-list">
+                <li>Making financial planning accessible to everyone through AI-driven insights</li>
+                <li>Providing personalized insurance solutions that adapt to individual needs</li>
+                <li>Creating an engaging and educational platform for financial literacy</li>
+                <li>Building trust through transparent and explainable AI recommendations</li>
             </ul>
-            <p>🎯 Reduces churn, builds long-term relationships, and improves customer satisfaction.</p>
-        </div>
+        </section>
 
-        <div class="module">
-            <h3>3. Loyalty & Retention Engine: Reward+ Life</h3>
-            <ul>
-                <li>✅ Wellness Rewards – Discounts & cashback for healthy lifestyles.</li>
-                <li>✅ Life Event Milestones – AI-driven rewards for key achievements.</li>
-                <li>✅ Community Engagement – Referral bonuses & customer forums.</li>
-            </ul>
-            <p>🎯 Turns customers into brand advocates through meaningful incentives.</p>
-        </div>
+        <section class="section">
+            <h2><i class="fas fa-chart-line"></i> Our Impact</h2>
+            <div class="impact-stats">
+                <div class="stat-card">
+                    <i class="fas fa-users icon"></i>
+                    <div class="number">50K+</div>
+                    <div class="label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-file-contract icon"></i>
+                    <div class="number">100K+</div>
+                    <div class="label">Policies Recommended</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-star icon"></i>
+                    <div class="number">4.8</div>
+                    <div class="label">User Satisfaction</div>
+                </div>
+            </div>
+        </section>
 
-        <div class="module">
-            <h3>4. Real-Time Analytics Dashboard: InsureInsights</h3>
-            <ul>
-                <li>✅ Churn Prediction – AI forecasts potential exits before they happen.</li>
-                <li>✅ AI-Optimized Campaigns – Enhances targeting & customer engagement.</li>
-            </ul>
-            <p>🎯 Maximizes ROI and boosts campaign success.</p>
-        </div>
-
-        <div class="module">
-            <h3>5. AI-Driven Marketing & Upselling: SmartEngage AI</h3>
-            <ul>
-                <li>✅ Predictive Remarketing – Finds the right time to re-engage users.</li>
-                <li>✅ Emotion-Aware Upselling – Personalized product recommendations.</li>
-                <li>✅ Interactive Finance Tools – Goal tracking & policy simulations.</li>
-            </ul>
-            <p>🎯 Enhances conversions, trust, and revenue.</p>
-        </div>
-
-        <div class="module">
-            <h3>6. Data Quality & Ethical AI: TrustAI</h3>
-            <ul>
-                <li>✅ Automated Data Validation – Detects anomalies in real-time.</li>
-                <li>✅ GAN-Based Synthetic Data – Protects privacy while training AI.</li>
-                <li>✅ Ethical AI Toolkit – Ensures explainability and transparency.</li>
-            </ul>
-            <p>🎯 Guarantees fairness and compliance with regulations.</p>
-        </div>
-
-        <div class="module">
-            <h3>7. Fraud Detection & Prevention</h3>
-            <ul>
-                <li>✅ Behavioral AI – Tracks user behavior for fraud signals.</li>
-                <li>✅ Real-Time Anomaly Detection – Flags suspicious activity instantly.</li>
-                <li>✅ AI-Powered Investigations – Automates fraud detection workflow.</li>
-            </ul>
-            <p>🎯 Strengthens security and reduces fraud-related losses.</p>
-        </div>
-    </div>    <button id="installButton">
-        <i class="fas fa-download"></i> Install App
-    </button>
-
-    <div class="footer">
-        &copy; 2025 Financial AI Hub. All rights reserved.
+        <section class="section">
+            <h2><i class="fas fa-users"></i> Our Team</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="/static/team/ceo.jpg" alt="CEO" class="member-image">
+                    <div class="member-info">
+                        <h3 class="member-name">Dr. Sarah Chen</h3>
+                        <p class="member-role">CEO & Co-founder</p>
+                        <p class="member-bio">
+                            Former AI researcher with 15+ years of experience in financial technology and machine learning.
+                        </p>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <img src="/static/team/cto.jpg" alt="CTO" class="member-image">
+                    <div class="member-info">
+                        <h3 class="member-name">Rajesh Kumar</h3>
+                        <p class="member-role">CTO & Co-founder</p>
+                        <p class="member-bio">
+                            Expert in AI and blockchain technology with a passion for financial innovation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
+    <!-- PWA Service Worker Registration -->
     <script>
-        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
@@ -279,37 +417,6 @@
                     });
             });
         }
-
-        // Install PWA Logic
-        let deferredPrompt;
-        const installButton = document.getElementById('installButton');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later
-            deferredPrompt = e;
-            // Show the install button
-            installButton.classList.add('show');
-        });
-
-        installButton.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                // Show the install prompt
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                const { outcome } = await deferredPrompt.userChoice;
-                // We no longer need the prompt
-                deferredPrompt = null;
-                // Hide the install button
-                installButton.classList.remove('show');
-            }
-        });
-
-        // Hide the install button if the app is already installed
-        window.addEventListener('appinstalled', () => {
-            installButton.style.display = 'none';
-        });
     </script>
 </body>
 </html>

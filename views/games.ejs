@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Games Hub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Financial Games | Financial AI Hub</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6d3cc5">
+    <meta name="description" content="AI-Driven Personalization for SBI Life Insurance">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -16,6 +21,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            overflow-x: hidden;
             color: white;
         }
 
@@ -57,11 +63,9 @@
             color: white;
             font-weight: 500;
             font-size: 1.15rem;
-            margin-right: 20px;
-            margin-bottom: 2px;
         }
 
-        .logout-btn {
+        .back-btn {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -73,43 +77,45 @@
             backdrop-filter: blur(10px);
         }
 
-        .logout-btn:hover {
+        .back-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
 
-        /* Main Content */
+        /* Main Container */
         .main-container {
             max-width: 1400px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
+            margin: 2rem auto;
+            padding: 0 2rem;
         }
 
         .page-header {
             text-align: center;
-            margin-bottom: 4rem;
+            margin-bottom: 3rem;
         }
 
-        .page-title {
-            font-size: 3rem;
+        .page-header h1 {
+            font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            background: linear-gradient(45deg, #ffffff, #f0f8ff);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff, #e0e7ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .page-description {
-            font-size: 1.2rem;
+        .page-header p {
             color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
             max-width: 600px;
             margin: 0 auto;
         }
 
+        /* Games Grid */
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
@@ -117,74 +123,122 @@
         .game-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
-            padding: 2.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
-        }
-
-        .game-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
-        }
-
-        .game-card:hover::before {
-            transform: translateX(100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .game-card:hover {
             transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
         }
 
-        .game-card h2 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: white;
+        .game-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .game-content {
+            padding: 1.5rem;
+        }
+
+        .game-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 0.5rem;
         }
 
-        .game-card p {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 2rem;
-            line-height: 1.6;
+        .game-title i {
+            color: #fbbf24;
         }
 
-        .btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
+        .game-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat {
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            border: 2px solid transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
         }
 
-        .btn:hover {
-            background: linear-gradient(45deg, #5a6fd8, #6a4190);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.3);
+        .stat i {
+            color: #fbbf24;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Responsive Design */
@@ -198,78 +252,177 @@
                 gap: 1rem;
             }
 
-            .logo {
-                font-size: 1.5rem;
-            }
-
             .main-container {
-                padding: 2rem 1rem;
+                padding: 0 1rem;
             }
 
-            .page-title {
+            .page-header h1 {
                 font-size: 2rem;
             }
 
             .games-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
             }
 
-            .game-card {
-                padding: 2rem;
-            }
-
-            .welcome-text {
-                font-size: 1rem;
-                margin-right: 10px;
+            .progress-section {
+                padding: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="logo">
-                <i class="fas fa-chart-line"></i>
-                Financial AI Hub
+                <img src="/static/sankalpa.png" alt="Sankalpa Logo" height="40">
+                <span>Financial AI Hub</span>
             </div>
             <div class="user-section">
-                <span class="welcome-text">Welcome, <%= username %>!</span>
-                <a href="/home" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Home
-                </a>
-                <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+                <span class="welcome-text">Welcome, <%= user.name %></span>
+                <a href="/home" class="back-btn">Back to Home</a>
             </div>
         </div>
     </header>
 
-    <div class="main-container">
+    <!-- Main Content -->
+    <main class="main-container">
         <div class="page-header">
-            <h1 class="page-title">Financial Games Hub</h1>
-            <p class="page-description">Enhance your financial knowledge through interactive games and simulations</p>
+            <h1>Financial Learning Games</h1>
+            <p>Learn financial concepts through interactive games and challenges. Earn points, unlock achievements, and improve your financial literacy!</p>
         </div>
 
-        <main>
-            <div class="games-grid">
-                <div class="game-card">
-                    <h2><i class="fas fa-chart-bar"></i> Financial Simulator</h2>
-                    <p>Test different financial scenarios and see their outcomes. Make strategic decisions and learn from the results.</p>
-                    <a href="/games/simulator" class="btn">
-                        <i class="fas fa-play"></i> Play Simulator
-                    </a>
-                </div>
+        <div class="progress-section">
+            <div class="progress-header">
+                <h2 class="progress-title">Your Learning Progress</h2>
+                <span>Level 3 Financial Explorer</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 65%;"></div>
+            </div>
+            <div class="progress-stats">
+                <span>650/1000 Points</span>
+                <span>Next Level: 350 points needed</span>
+            </div>
+        </div>
 
-                <div class="game-card">
-                    <h2><i class="fas fa-compass"></i> Goal GPS</h2>
-                    <p>Get AI-powered recommendations for achieving your financial goals. Navigate your path to financial success.</p>
-                    <a href="/games/goal-gps" class="btn">
-                        <i class="fas fa-rocket"></i> Try Goal GPS
-                    </a>
+        <div class="games-grid">
+            <div class="game-card">
+                <img src="/static/games/investment-simulator.jpg" alt="Investment Simulator" class="game-image">
+                <div class="game-content">
+                    <h3 class="game-title">
+                        <i class="fas fa-chart-line"></i>
+                        Investment Simulator
+                    </h3>
+                    <p class="game-description">
+                        Practice investing in a risk-free environment. Learn about stocks, bonds, and market dynamics.
+                    </p>
+                    <div class="game-stats">
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span>4.8/5</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-users"></i>
+                            <span>2.5K Players</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </main>
-    </div>
+
+            <div class="game-card">
+                <img src="/static/games/budget-challenge.jpg" alt="Budget Challenge" class="game-image">
+                <div class="game-content">
+                    <h3 class="game-title">
+                        <i class="fas fa-wallet"></i>
+                        Budget Challenge
+                    </h3>
+                    <p class="game-description">
+                        Master budgeting skills by managing virtual finances and making smart spending decisions.
+                    </p>
+                    <div class="game-stats">
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span>4.6/5</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-users"></i>
+                            <span>1.8K Players</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <img src="/static/games/insurance-adventure.jpg" alt="Insurance Adventure" class="game-image">
+                <div class="game-content">
+                    <h3 class="game-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Insurance Adventure
+                    </h3>
+                    <p class="game-description">
+                        Explore different types of insurance and learn how to protect your assets effectively.
+                    </p>
+                    <div class="game-stats">
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span>4.7/5</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-users"></i>
+                            <span>2.1K Players</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <img src="/static/games/retirement-planner.jpg" alt="Retirement Planner" class="game-image">
+                <div class="game-content">
+                    <h3 class="game-title">
+                        <i class="fas fa-umbrella-beach"></i>
+                        Retirement Planner
+                    </h3>
+                    <p class="game-description">
+                        Plan your retirement journey and learn about pension schemes and retirement savings.
+                    </p>
+                    <div class="game-stats">
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span>4.9/5</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-users"></i>
+                            <span>1.5K Players</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Add click handlers for game cards
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const gameTitle = card.querySelector('.game-title').textContent.trim();
+                // Add your game launch logic here
+                console.log(`Launching game: ${gameTitle}`);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI('AIzaSyBFGhAb2xXDJRNPfwXSEBi4KpSDSBPb7ow'); // Replace with your actual API key
+const genAI = new GoogleGenerativeAI('AIzaSyBOxwgTgo7d76taI5SvnK-6pkghOPbNnRQ'); // Replace with your actual API key
 
 async function getGoalRecommendation(goal, duration, risk) {
     try {

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Recommendations | Financial AI Hub</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6d3cc5">
+    <meta name="description" content="AI-Driven Personalization for SBI Life Insurance">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .welcome-text {
+            color: white;
+            font-weight: 500;
+            font-size: 1.15rem;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Policy Cards */
+        .policy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .policy-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .policy-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .policy-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .policy-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .policy-title i {
+            color: #fbbf24;
+        }
+
+        .policy-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .policy-content {
+            padding: 1.5rem;
+        }
+
+        .policy-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .policy-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        .policy-feature i {
+            color: #4ade80;
+            font-size: 0.8rem;
+        }
+
+        .policy-price {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #fbbf24;
+        }
+
+        .policy-price span {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .policy-cta {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .policy-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        /* AI Insights Section */
+        .ai-insights {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .insights-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .insights-header i {
+            font-size: 1.5rem;
+            color: #fbbf24;
+        }
+
+        .insights-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .insights-content {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .main-container {
+                padding: 0 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .policy-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-insights {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="/static/sankalpa.png" alt="Sankalpa Logo" height="40">
+                <span>Financial AI Hub</span>
+            </div>
+            <div class="user-section">
+                <span class="welcome-text">Welcome, <%= user.name %></span>
+                <a href="/home" class="back-btn">Back to Home</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="page-header">
+            <h1>Personalized Policy Recommendations</h1>
+            <p>Based on your profile and preferences, we've selected these insurance policies that best match your needs</p>
+        </div>
+
+        <div class="ai-insights">
+            <div class="insights-header">
+                <i class="fas fa-robot"></i>
+                <h2 class="insights-title">AI Insights</h2>
+            </div>
+            <div class="insights-content">
+                <p>Our AI has analyzed your financial profile, lifestyle, and goals to recommend these policies. The recommendations are based on factors such as your age, income, family situation, and risk tolerance.</p>
+            </div>
+        </div>
+
+        <div class="policy-grid">
+            <div class="policy-card">
+                <div class="policy-header">
+                    <h3 class="policy-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Comprehensive Life Insurance
+                    </h3>
+                    <p class="policy-subtitle">Best for long-term financial security</p>
+                </div>
+                <div class="policy-content">
+                    <ul class="policy-features">
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Coverage up to ₹1 Crore
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Premium waiver on disability
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Tax benefits under Section 80C
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Flexible premium payment options
+                        </li>
+                    </ul>
+                    <div class="policy-price">
+                        ₹2,500<span>/month</span>
+                    </div>
+                    <button class="policy-cta">
+                        <i class="fas fa-file-signature"></i>
+                        Get Started
+                    </button>
+                </div>
+            </div>
+
+            <div class="policy-card">
+                <div class="policy-header">
+                    <h3 class="policy-title">
+                        <i class="fas fa-heartbeat"></i>
+                        Health Shield Plus
+                    </h3>
+                    <p class="policy-subtitle">Complete health coverage</p>
+                </div>
+                <div class="policy-content">
+                    <ul class="policy-features">
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Coverage up to ₹10 Lakhs
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Cashless hospitalization
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Pre and post hospitalization
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Critical illness coverage
+                        </li>
+                    </ul>
+                    <div class="policy-price">
+                        ₹1,800<span>/month</span>
+                    </div>
+                    <button class="policy-cta">
+                        <i class="fas fa-file-signature"></i>
+                        Get Started
+                    </button>
+                </div>
+            </div>
+
+            <div class="policy-card">
+                <div class="policy-header">
+                    <h3 class="policy-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        Education Protection
+                    </h3>
+                    <p class="policy-subtitle">Secure your child's future</p>
+                </div>
+                <div class="policy-content">
+                    <ul class="policy-features">
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Education fund guarantee
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Premium waiver on parent's death
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Flexible payout options
+                        </li>
+                        <li class="policy-feature">
+                            <i class="fas fa-check-circle"></i>
+                            Additional health coverage
+                        </li>
+                    </ul>
+                    <div class="policy-price">
+                        ₹3,200<span>/month</span>
+                    </div>
+                    <button class="policy-cta">
+                        <i class="fas fa-file-signature"></i>
+                        Get Started
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Add click handlers for policy CTAs
+        document.querySelectorAll('.policy-cta').forEach(button => {
+            button.addEventListener('click', () => {
+                const policyTitle = button.closest('.policy-card').querySelector('.policy-title').textContent.trim();
+                // Add your policy application logic here
+                console.log(`Starting application for: ${policyTitle}`);
+            });
+        });
+    </script>
+</body>
+</html> 
