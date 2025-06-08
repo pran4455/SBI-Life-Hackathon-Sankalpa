@@ -6,9 +6,7 @@ services:
     buildCommand: |
       chmod +x start.sh
       npm install compression --save
-      npm install
-      python -m pip install --upgrade pip
-      python -m pip install -r requirements.txt --no-cache-dirstartCommand: bash ./start.sh
+      npm install && pip install -r requirements.txt    startCommand: bash ./start.sh
     healthCheckPath: /healthz
     healthCheckTimeout: 300
     startupDelay: 120
