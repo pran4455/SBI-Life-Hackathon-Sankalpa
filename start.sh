@@ -1,54 +1,37 @@
 #!/bin/bash
 
-# Create storage directoif [ "$NODE_ENV" = "production" ]; then
-    # Install PM2 globally if not already installed
-    npm install -g pm2
-    
-    # Export port for PM2
-    export PORT=${PORT:-3000}
-    export CHATBOT_PORT=${CHATBOT_PORT:-3001}
-    
-    echo "Starting servers with ports: Main=$PORT, Chatbot=$CHATBOT_PORT"
-    
-    # Start Flask chatbot with Gunicorn in the background
-    pm2 start "gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT" --name "chatbot" --wait-ready
-    
-    # Wait for chatbot server to be ready
-    echo "Waiting for chatbot server to start..."
-    sleep 10
-    
-    # Start the main application
-    echo "Starting main application..."
-    pm2 start app.js --name "sankalpa" --wait-ready -- --port $PORTsn't exist
+# Setup storage directory
 if [ -n "$RENDER_STORAGE_PATH" ]; then
     echo "Setting up storage directory..."
-    mkdir -p $RENDER_STORAGE_PATH
-
-    # Initialize database if it doesn't exist
-    if [ ! -f "$RENDER_STORAGE_PATH/users.db" ]; then
-        echo "Initializing database..."
-        # Copy existing database if it exists
-        if [ -f "users.db" ]; then
-            cp users.db $RENDER_STORAGE_PATH/
-        else
-            node -e "require('./dbsetup.js').initDB()"
-        fi
-    fi
+    mkdir -p "$RENDER_STORAGE_PATH"
+    
+    # Initialize database
+    echo "Initializing database..."
+    node -e "require('./dbSetup.js').initDB()"
 
     # Copy Excel file to storage if it doesn't exist
     if [ ! -f "$RENDER_STORAGE_PATH/sbilife.xlsx" ]; then
         echo "Copying Excel file to storage..."
-        cp sbilife.xlsx $RENDER_STORAGE_PATH/
+        cp sbilife.xlsx "$RENDER_STORAGE_PATH/"
     fi
 
-    # Create symbolic link for the database
-    ln -sf $RENDER_STORAGE_PATH/users.db ./users.db
-    ln -sf $RENDER_STORAGE_PATH/sbilife.xlsx ./sbilife.xlsx
+    # Create symbolic links
+    ln -sf "$RENDER_STORAGE_PATH/users.db" ./users.db
+    ln -sf "$RENDER_STORAGE_PATH/sbilife.xlsx" ./sbilife.xlsx
 fi
 
 # Make Python files executable
 chmod +x policy_recommend.py
 chmod +x upsell_predictor.py
+
+# Start the server
+if [ "$NODE_ENV" = "production" ]; then
+    # Start with production settings
+    NODE_ENV=production node --optimize_for_size --max_old_space_size=460 app.js
+else
+    # Start in development mode
+    node app.js
+fi
 chmod +x chatbot_server.py
 chmod +x wsgi.py
 

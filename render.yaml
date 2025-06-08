@@ -3,15 +3,17 @@ services:
     name: financial-ai-hub
     env: node
     plan: free
-    buildCommand: npm install && pip install -r requirements.txt
-    startCommand: npm run start:prod
+    buildCommand: |
+      chmod +x start.sh
+      npm install && pip install -r requirements.txt
+    startCommand: bash ./start.sh
     envVars:
       - key: NODE_ENV
         value: production
       - key: CHATBOT_PORT
         value: 8001
       - key: RENDER_STORAGE_PATH
-        sync: false
+        value: /data
       - key: PYTHON_PATH
         value: python3
       - key: TZ

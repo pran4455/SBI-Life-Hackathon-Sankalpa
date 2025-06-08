@@ -4,10 +4,23 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
+// Get the database path based on environment
+const getDBPath = () => {
+  if (process.env.RENDER_STORAGE_PATH) {
+    const storagePath = process.env.RENDER_STORAGE_PATH;
+    // Ensure storage directory exists
+    if (!fs.existsSync(storagePath)) {
+      fs.mkdirSync(storagePath, { recursive: true });
+    }
+    return path.join(storagePath, 'users.db');
+  }
+  return path.join(__dirname, 'users.db');
+};
+
 // Database initialization
-const initDB = () => {  const dbPath = process.env.RENDER_STORAGE_PATH 
-    ? path.join(process.env.RENDER_STORAGE_PATH, 'users.db')
-    : path.join(__dirname, 'users.db');
+const initDB = () => {
+  const dbPath = getDBPath();
+  console.log('Initializing database at:', dbPath);
   
   try {
     const db = new sqlite3.Database(dbPath, (err) => {
@@ -15,6 +28,7 @@ const initDB = () => {  const dbPath = process.env.RENDER_STORAGE_PATH
         console.error('Error opening database:', err);
         throw err;
       }
+      console.log('Database connection established');
     });
     
     db.serialize(() => {
