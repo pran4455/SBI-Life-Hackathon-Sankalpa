@@ -192,6 +192,13 @@
             position: relative;
         }
 
+        .dashboard-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            flex-grow: 1;
+        }
+
         /* ===== LOADING STATE ===== */
         .loading {
             position: absolute;
@@ -226,14 +233,6 @@
         }
 
         /* ===== IFRAME STYLES ===== */
-        .dashboard-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: var(--background-white);
-            transition: var(--transition);
-        }
-
         .dashboard-iframe:focus {
             outline: 2px solid var(--primary-color);
             outline-offset: -2px;

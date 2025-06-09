@@ -82,7 +82,7 @@ if [ "$NODE_ENV" = "production" ]; then
     STREAMLIT_PID=$!
 
     # Wait for all processes
-    wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
+#    wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
 else
     # Development mode
     node app.js
