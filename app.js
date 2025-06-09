@@ -28,8 +28,8 @@ const { getGoalRecommendation } = require('./goal_gps'); // Import Goal GPS modu
 // Import Streamlit server starter
 const { startStreamlitServer } = require('./start_streamlit');
 
-// Python path configuration
-const pythonpath = process.env.PYTHON_PATH || 'python3'; // Fallback to python3 command
+// Fixed Python path
+const pythonpath = process.env.PYTHON_PATH || 'python3'; 
 const recommendationsMapping = {
   0: 'Cross-sell opportunity: Suggest savings or credit products with low fees',
   1: 'Engagement incentive: Personalized offers or loyalty points for early tenure engagement',
@@ -76,23 +76,23 @@ const policyDescriptionsMapping = {
 
 // Production optimization settings
 if (process.env.NODE_ENV === 'production') {
-    // Optimize memory usage
-    global.gc && global.gc(); // Enable garbage collection if available
+  // Optimize memory usage
+  global.gc && global.gc(); // Enable garbage collection if available
 
-    // Monitor memory usage
-    const used = process.memoryUsage();
-    console.log('Memory usage:');
-    for (let key in used) {
-        console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
-    }
+  // Monitor memory usage
+  const used = process.memoryUsage();
+  console.log('Memory usage:');
+  for (let key in used) {
+      console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+  }
 }
 
 const app = express();  
 // Server Configuration
 const SERVER_CONFIG = {
-    PORT: process.env.PORT || 10000,
-    HOST: '0.0.0.0',
-    CHATBOT_PORT: process.env.CHATBOT_PORT || 8001
+  PORT: process.env.PORT || 10000,
+  HOST: '0.0.0.0',
+  CHATBOT_PORT: process.env.CHATBOT_PORT || 8001
 };
 
 // Log startup
@@ -103,39 +103,39 @@ console.log(`Main server host: ${SERVER_CONFIG.HOST}`);
 
 // Production configuration and middleware setup
 if (process.env.NODE_ENV === 'production') {
-    // Disable unnecessary features in production
-    app.disable('x-powered-by');
-    app.set('env', 'production');
-    
-    // Enable compression for responses
-    const compression = require('compression');
-    app.use(compression());
-    
-    // Strict security headers
-    app.use((req, res, next) => {
-        res.set({
-            'X-Frame-Options': 'SAMEORIGIN',
-            'X-Content-Type-Options': 'nosniff',
-            'X-XSS-Protection': '1; mode=block',
-            'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
-        });
-        next();
-    });
+  // Disable unnecessary features in production
+  app.disable('x-powered-by');
+  app.set('env', 'production');
+  
+  // Enable compression for responses
+  const compression = require('compression');
+  app.use(compression());
+  
+  // Strict security headers
+  app.use((req, res, next) => {
+      res.set({
+          'X-Frame-Options': 'SAMEORIGIN',
+          'X-Content-Type-Options': 'nosniff',
+          'X-XSS-Protection': '1; mode=block',
+          'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+      });
+      next();
+  });
 }
 
 // Set up middleware
 // Optimize response time and memory usage in production
 if (process.env.NODE_ENV === 'production') {
-    app.set('view cache', true);
-    app.set('trust proxy', 1);
-    app.use(express.json({ limit: '1mb' }));
-    app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-    app.use(bodyParser.json({ limit: '1mb' }));
-    app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
+  app.set('view cache', true);
+  app.set('trust proxy', 1);
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+  app.use(bodyParser.json({ limit: '1mb' }));
+  app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
 } else {
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
-    app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(bodyParser.urlencoded({ extended: true }));
 }
 
 app.use('/static', express.static(path.join(__dirname, 'public/static')));
@@ -156,31 +156,31 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Session configuration
 app.use(session({
-    store: new SQLiteStore({
-        db: 'sessions.db',
-        table: 'sessions',
-        dir: './'
-    }),
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+  store: new SQLiteStore({
+    db: path.join(__dirname, 'sessions.db'),
+    table: 'sessions',
+    dir: __dirname
+  }),
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // Add middleware to ensure session is saved
 app.use((req, res, next) => {
-    res.on('finish', () => {
-        if (req.session) {
-            req.session.save((err) => {
-                if (err) console.error('Session save error:', err);
-            });
-        }
-    });
-    next();
+  res.on('finish', () => {
+      if (req.session) {
+          req.session.save((err) => {
+              if (err) console.error('Session save error:', err);
+          });
+      }
+  });
+  next();
 });
 
 // ========================================
@@ -299,26 +299,6 @@ function isAuthenticated(req, res, next) {
 // Welcome/Home page
 app.get('/', (req, res) => {
   res.render('welcome');
-});
-
-// Home dashboard route
-app.get('/home', isAuthenticated, async (req, res) => {
-  try {
-    const username = req.session.username;
-    const userProfile = await getUserProfileData(username);
-    res.render('home', { 
-      username: username,
-      userProfile: userProfile,
-      error: null
-    });
-  } catch (error) {
-    console.error('Home route error:', error);
-    res.render('home', { 
-      username: req.session.username,
-      userProfile: null,
-      error: 'Failed to load user profile'
-    });
-  }
 });
 
 // About page
@@ -471,49 +451,41 @@ app.post('/setup_totp', async (req, res) => {
 
 // Login routes
 app.get('/login', (req, res) => {
-  res.render('login', { error: null, success: null });
+  res.render('login', { error: null });
 });
 
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+    
+    console.log('Login attempt for username:', username);
+
+    // Get user from database
     const user = await getUserByUsername(username);
-
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.render('login', { 
-        error: 'Invalid username or password',
-        success: null
-      });
+    
+    if (!user) {
+      console.log('User not found:', username);
+      return res.render('login', { error: 'Invalid username or password' });
     }
-
-    // Set session variables
-    req.session.authenticated = true;
-    req.session.username = username;
-    req.session.userId = user._id;
-
-    // Save session before redirecting
-    req.session.save((err) => {
-      if (err) {
-        console.error('Session save error:', err);
-        return res.render('login', { 
-          error: 'An error occurred. Please try again.',
-          success: null
-        });
-      }
-
-      // Check if profile is completed
-      if (!user.profileCompleted) {
-        res.redirect('/collect-info');
-      } else {
-        res.redirect('/home');
-      }
-    });
+    
+    console.log('User found:', user.email);
+    console.log('Stored password hash length:', user.password ? user.password.length : 'null');
+    console.log('Input password length:', password ? password.length : 'null');
+    
+    // Check if password is correct
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match result:', passwordMatch);
+    
+    if (passwordMatch) {
+      req.session.username = username;
+      res.redirect('/verify_totp');
+    } else {
+      console.log('Password verification failed for user:', username);
+      res.render('login', { error: 'Invalid username or password' });
+    }
   } catch (error) {
     console.error('Login error:', error);
-    res.render('login', { 
-      error: 'An error occurred. Please try again.',
-      success: null
-    });
+    res.render('login', { error: 'Login failed. Please try again.' });
   }
 });
 
@@ -543,29 +515,18 @@ app.post('/verify_totp', async (req, res) => {
     // Verify TOTP
     const isValid = authenticator.verify({ token: totp, secret: user.totp_secret });
     if (isValid) {
-      // Set session variables
       req.session.authenticated = true;
-      req.session.username = username;
       
-      // Save session before redirect
-      req.session.save((err) => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.render('verify_totp', { error: 'Verification failed. Please try again.' });
-        }
-        
-        // Check if profile is completed
-        isUserProfileCompleted(username).then(profileCompleted => {
-          if (!profileCompleted) {
-            res.redirect('/information');
-          } else {
-            res.redirect('/home');
-          }
-        }).catch(error => {
-          console.error('Profile check error:', error);
-          res.redirect('/home');
-        });
-      });
+      // NEW: Check if profile is completed
+      const profileCompleted = await isUserProfileCompleted(username);
+      
+      if (!profileCompleted) {
+        // Redirect to information collection page for first-time users
+        res.redirect('/information');
+      } else {
+        // Redirect to home for existing users
+        res.redirect('/home');
+      }
     } else {
       res.render('verify_totp', { error: 'Invalid TOTP code. Please try again.' });
     }
@@ -867,6 +828,11 @@ app.post('/information', isAuthenticated, async (req, res) => {
 // MAIN DASHBOARD ROUTES
 // ========================================
 
+// Home route - Financial AI Hub Dashboard
+app.get('/home', isAuthenticated, (req, res) => {
+  res.render('home', { username: req.session.username });
+});
+
 // Logout route
 app.get('/logout', (req, res) => {
   req.session.destroy();
@@ -878,32 +844,16 @@ app.get('/logout', (req, res) => {
 // ========================================
 
 // Policy Recommendation with XAI
-app.get('/policy-recommend', isAuthenticated, async (req, res) => {
-  try {
-    const username = req.session.username;
-    const userProfile = await getUserProfileData(username);
-    res.render('policy_recommend', { 
-      username: username,
-      userProfile: userProfile,
-      error: null
-    });
-  } catch (error) {
-    console.error('Policy recommendation error:', error);
-    res.render('policy_recommend', { 
-      username: req.session.username,
-      userProfile: null,
-      error: 'Failed to load policy recommendations'
-    });
-  }
+app.get('/policy-recommendation', isAuthenticated, (req, res) => {
+  res.render('policy_recommend', { username: req.session.username });
 });
 
-// Policy upselling recommendations route
+// Route for policy upselling recommendations page
 app.get('/policy-upselling-recommendations', isAuthenticated, (req, res) => {
-  res.redirect('/policy-recommend');
-});
-
-app.post('/api/upselling-recommendations', isAuthenticated, (req, res) => {
-  res.status(404).json({ error: 'This feature has been removed' });
+  if (!req.session.userProfileData) {
+    return res.redirect('/policy-recommend');
+  }
+  res.render('policy_upselling_recommendations');
 });
 
 // TIA - Conversational AI Bot
@@ -916,77 +866,14 @@ app.get('/financial-chatbot', isAuthenticated, (req, res) => {
   res.render('financial_chatbot', { username: req.session.username });
 });
 
-// Analytics Dashboard
-app.get('/analytics-dashboard', isAuthenticated, async (req, res) => {
-  try {
-    const username = req.session.username;
-    const userProfile = await getUserProfileData(username);
-    res.render('analytics_dashboard', { 
-      username: username,
-      userProfile: userProfile,
-      error: null
-    });
-  } catch (error) {
-    console.error('Analytics dashboard error:', error);
-    res.render('analytics_dashboard', { 
-      username: req.session.username,
-      userProfile: null,
-      error: 'Failed to load analytics'
-    });
-  }
+//Analytics Dashboard
+app.get('/analytics-dashboard', isAuthenticated, (req, res) => {
+  res.render('analytics_dashboard', {username: req.session.username });
 });
 
-// Games route
-app.get('/games', (req, res) => {
-    if (!req.session.authenticated) {
-        return res.redirect('/login');
-    }
-    res.render('games', { 
-        username: req.session.username,
-        error: null,
-        success: null
-    });
-});
-
-// API endpoint for game recommendations
-app.post('/api/game-recommendations', async (req, res) => {
-    try {
-        const { gameType, userInput } = req.body;
-        
-        if (!gameType || !userInput) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Game type and user input are required' 
-            });
-        }
-
-        // Process the game type and user input
-        let recommendation = '';
-        switch (gameType) {
-            case 'investment':
-                recommendation = `Based on your input "${userInput}", I recommend starting with a diversified portfolio of index funds. Consider allocating 60% to stocks and 40% to bonds for a balanced approach.`;
-                break;
-            case 'budgeting':
-                recommendation = `For your budgeting needs "${userInput}", I suggest using the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings.`;
-                break;
-            case 'savings':
-                recommendation = `Regarding your savings goal "${userInput}", I recommend setting up an automatic transfer to a high-yield savings account. Aim to save at least 20% of your income.`;
-                break;
-            default:
-                recommendation = `I understand you're interested in "${userInput}". Let's explore this topic further to provide more specific recommendations.`;
-        }
-
-        res.json({ 
-            success: true, 
-            recommendation: recommendation 
-        });
-    } catch (error) {
-        console.error('Game recommendation error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Failed to generate recommendation' 
-        });
-    }
+// Games main page
+app.get('/games', isAuthenticated, (req, res) => {   
+  res.render('games', { username: req.session.username }); 
 });
 
 // Financial Simulator
@@ -1027,7 +914,7 @@ app.post('/api/goal-gps', isAuthenticated, async (req, res) => {
 
 // Read Excel File for policies
 function readExcelFile() {
-    const filePath = 'sbilife.xlsx';
+    const filePath = path.join(__dirname, 'sbilife.xlsx');
     if (!fs.existsSync(filePath)) return [];
     const workbook = xlsx.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
@@ -1089,7 +976,7 @@ app.get('/api/policies', isAuthenticated, (req, res) => {
   }
 });
 
-// Updated /api/recommend route
+// Updated /api/recommend route in app.js
 app.post('/api/recommend', isAuthenticated, async (req, res) => {
   try {
     const { description } = req.body;
@@ -1113,7 +1000,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
     // Prepare user data for Python script
     const userData = {
       description: description,
-      username: username,
+      username: username,  // Add username to the data
       credit_score: userProfile.credit_score,
       geography: userProfile.geography,
       gender: userProfile.gender,
@@ -1131,9 +1018,14 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
     const pythonProcess = spawn(pythonpath, [
       path.join(__dirname, 'policy_recommend.py'),
       JSON.stringify(userData),
-      username
+      username  // Pass username as second argument
     ], {
-      cwd: __dirname
+      cwd: __dirname,
+      env: {
+        ...process.env,
+        PYTHONPATH: __dirname,
+        PYTHONUNBUFFERED: '1'
+      }
     });
 
     let pythonOutput = '';
@@ -1175,19 +1067,23 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
 
         console.log('Policy prediction successful:', prediction);
         
+        // Ensure response has consistent format
         let response = {
           success: true,
           message: "Policy recommendation generated successfully"
         };
 
+        // Handle different response formats from Python
         if (prediction.policies && Array.isArray(prediction.policies)) {
           response.policies = prediction.policies;
         } else if (prediction.name) {
+          // Single policy object - convert to array
           response.policies = [{
             name: prediction.name,
             why: prediction.why || 'No description available'
           }];
         } else {
+          // Fallback - treat entire prediction as single policy
           response.policies = [prediction];
         }
 
@@ -1220,7 +1116,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
   }
 });
 
-// Handle policy acceptance
+// UPDATED Handle policy acceptance - Replace your existing route
 app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
   try {
     const { policy } = req.body;
@@ -1230,8 +1126,10 @@ app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Policy name is required" });
     }
 
+    // Save the accepted policy
     await saveUserPolicySelection(username, policy);
 
+    // Get user profile data from database (this uses the stored data from /information page)
     const userProfile = await getUserProfileData(username);
     
     if (!userProfile) {
@@ -1242,6 +1140,7 @@ app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
 
     console.log('User profile data retrieved for upselling:', userProfile);
 
+    // Prepare user data for upselling prediction using the stored database values
     const userDataForPrediction = {
       CreditScore: userProfile.credit_score,
       Geography: userProfile.geography,
@@ -1256,6 +1155,7 @@ app.post('/api/accept-policy', isAuthenticated, async (req, res) => {
       Exited: userProfile.exited ? 1 : 0
     };
 
+    // Store user data in session for upselling page
     req.session.userProfileData = userDataForPrediction;
     req.session.acceptedPolicy = policy;
 
@@ -1289,6 +1189,118 @@ app.post('/api/decline-policy', isAuthenticated, (req, res) => {
   }
 });
 
+// Update your existing upselling API endpoint to use app.py logic
+app.post('/api/upselling-recommendations', isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const userProfileData = req.session.userProfileData;
+    const acceptedPolicy = req.session.acceptedPolicy;
+    
+    if (!userProfileData) {
+      return res.status(400).json({ error: "User profile data not found" });
+    }
+
+    console.log('Upselling prediction request for user:', username);
+    console.log('User profile data:', userProfileData);
+    
+    // Prepare input data for Python ML model
+    const inputData = {
+      'CreditScore': userProfileData.CreditScore,
+      'Geography': userProfileData.Geography,
+      'Gender': userProfileData.Gender,
+      'Age': userProfileData.Age,
+      'Tenure': userProfileData.Tenure,
+      'Balance': userProfileData.Balance,
+      'NumOfProducts': userProfileData.NumOfProducts,
+      'HasCrCard': userProfileData.HasCrCard,
+      'IsActiveMember': userProfileData.IsActiveMember,
+      'EstimatedSalary': userProfileData.EstimatedSalary,
+      'Exited': userProfileData.Exited
+    };
+
+    console.log('Input data for prediction:', inputData);
+
+    // Call Python ML model for actual prediction
+    const pythonProcess = spawn(pythonpath, [
+      path.join(__dirname, 'upsell_predictor.py'),
+      JSON.stringify(inputData)
+    ], {
+      cwd: __dirname
+    });
+
+    let pythonOutput = '';
+    let pythonError = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      pythonOutput += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      pythonError += data.toString();
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        console.error('Python upselling script error code:', code);
+        console.error('Python stderr:', pythonError);
+        return res.status(500).json({ 
+          error: "Upselling prediction failed", 
+          details: pythonError || `Python script exited with code ${code}`
+        });
+      }
+
+      try {
+        const cleanOutput = pythonOutput.trim();
+        console.log('Python upselling script output:', cleanOutput);
+        
+        if (!cleanOutput) {
+          console.error('Empty Python upselling output');
+          return res.status(500).json({ error: "No output from Python upselling script" });
+        }
+
+        const predictionResult = JSON.parse(cleanOutput);
+        
+        if (!predictionResult.success) {
+          console.error('Python upselling script error:', predictionResult.error);
+          return res.status(500).json({ error: predictionResult.error });
+        }
+
+        // Include accepted policy in response
+        const response = {
+          ...predictionResult,
+          acceptedPolicy: acceptedPolicy || 'Unknown Policy'
+        };
+        
+        console.log('Final upselling response:', response);
+        res.json(response);
+        
+      } catch (parseErr) {
+        console.error('Error parsing Python upselling output:', parseErr);
+        console.error('Raw Python output:', pythonOutput);
+        return res.status(500).json({ 
+          error: "Invalid upselling prediction format",
+          details: parseErr.message
+        });
+      }
+    });
+
+    pythonProcess.on('error', (error) => {
+      console.error('Failed to start Python upselling process:', error);
+      res.status(500).json({
+        error: 'Failed to start Python upselling script',
+        details: error.message
+      });
+    });
+    
+  } catch (error) {
+    console.error('Upselling recommendations error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      details: error.message
+    });
+  }
+});
+
 // Save selected upselling policy
 app.post('/api/select-upselling-policy', isAuthenticated, async (req, res) => {
   try {
@@ -1299,6 +1311,8 @@ app.post('/api/select-upselling-policy', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Policy name is required" });
     }
 
+    // You can save this as an additional policy or update the existing selection
+    // For now, let's save it as an additional field
     const db = dbSetup.getDB();
     db.run(
       `UPDATE users SET upselling_policy = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?`,
@@ -1313,6 +1327,7 @@ app.post('/api/select-upselling-policy', isAuthenticated, async (req, res) => {
           return res.status(500).json({ error: "Failed to save upselling policy" });
         }
         
+        // Clear session data
         delete req.session.userProfileData;
         delete req.session.acceptedPolicy;
         
@@ -1349,62 +1364,61 @@ app.get('/api/policy-details/:policyId', isAuthenticated, (req, res) => {
 
 // Health check endpoint
 app.get('/healthz', (req, res) => {
-    res.json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime()
-    });
+  res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+  });
 });
 
 // Add proxy for Streamlit
 const streamlitProxy = createProxyMiddleware({
-    target: `http://localhost:${process.env.STREAMLIT_PORT || 8501}`,
-    changeOrigin: true,
-    pathRewrite: {
-        '^/dashboard': '', // Remove /dashboard prefix when forwarding to Streamlit
-    },
-    ws: true, // Enable WebSocket proxying
-    onError: (err, req, res) => {
-        console.error('Streamlit proxy error:', err);
-        res.status(500).send('Error connecting to dashboard');
+  target: `http://localhost:${process.env.STREAMLIT_PORT || 8501}`,
+  changeOrigin: true,
+  pathRewrite: {
+      '^/dashboard': '', // Remove /dashboard prefix when forwarding to Streamlit
+  },
+  ws: true, // Enable WebSocket proxying
+  onError: (err, req, res) => {
+      console.error('Streamlit proxy error:', err);
+      res.status(500).send('Error connecting to dashboard');
     }
 });
 
-// Add proxy route before other routes
+// Add Streamlit proxy to Express app
 app.use('/dashboard', streamlitProxy);
 
-// Create HTTP server
 const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
-    console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
-    console.log('Server startup complete');
-    
-    // Start Streamlit server in production
-    if (process.env.NODE_ENV === 'production') {
-        console.log('Starting Streamlit dashboard...');
-        startStreamlitServer();
-        
-        // Log memory usage after startup
-        const used = process.memoryUsage();
+  console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
+  console.log('Server startup complete');
+  
+  // Start Streamlit server in production
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Starting Streamlit dashboard...');
+    startStreamlitServer();
+    console.log('Starting Chainlit server...');
+    startChainlitServer();
+    const used = process.memoryUsage();
         console.log('Memory usage after startup:');
         for (let key in used) {
             console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
         }
-    }
+  }
 });
-
-// Add error handler
-server.on('error', (error) => {
+  server.on('error', (error) => {
     console.error('Server error:', error);
     process.exit(1);
 });
 
-// Handle graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received, shutting down gracefully');
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-    });
+  // Start the Flask chatbot server
+
+  // Handle graceful shutdown
+  process.on('SIGTERM', () => {
+      console.log('SIGTERM received, shutting down gracefully');
+      server.close(() => {
+          console.log('Server closed');
+          process.exit(0);
+      });
 });
 
 process.on('SIGINT', () => {
@@ -1414,9 +1428,6 @@ process.on('SIGINT', () => {
         process.exit(0);
     });
 });
-
-
-// Helper function for spawning Python processes
 const spawnPythonProcess = (scriptPath, args = []) => {
   try {
     // Add memory limit for Python processes
@@ -1460,21 +1471,3 @@ const spawnPythonProcess = (scriptPath, args = []) => {
     throw error;
   }
 };
-
-// API endpoint for accepting policies
-app.post('/api/accept-policy', async (req, res) => {
-    try {
-        const { policyId } = req.body;
-        
-        if (!policyId) {
-            return res.status(400).json({ success: false, message: 'Policy ID is required' });
-        }
-
-        // Here you would typically update the database to mark the policy as accepted
-        // For now, we'll just return success
-        res.json({ success: true, message: 'Policy accepted successfully' });
-    } catch (error) {
-        console.error('Error accepting policy:', error);
-        res.status(500).json({ success: false, message: 'Failed to accept policy' });
-    }
-});
