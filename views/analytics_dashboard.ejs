@@ -470,143 +470,40 @@
     <div class="container">        
         <!-- Dashboard Container -->
         <div class="dashboard-container">
-            <!-- Status Bar -->
-            <div class="status-bar">
-                <div class="status-indicator">
-                    <div class="status-dot" id="statusDot"></div>
-                    <span id="statusText">Connecting to dashboard...</span>
-                </div>
-                <div class="timestamp">
-                    <i class="fas fa-clock"></i>
-                    <span id="lastUpdated">Loading...</span>
-                </div>
-            </div>
-
-            <!-- Iframe Container -->
-            <div class="iframe-container">
-                <!-- Loading Overlay -->
-                <div class="iframe-overlay" id="iframeOverlay">
-                    <div class="loading">
-                        <span>Loading InsureInsights Dashboard...</span>
-                    </div>
-                </div>
-
-                <!-- Streamlit Iframe -->
-                <iframe 
-                    id="streamlitIframe" 
-                    class="dashboard-iframe" 
-                    src="http://localhost:8501" 
-                    onload="handleIframeLoad()"
-                    onerror="handleIframeError()"
-                    title="InsureInsights Dashboard">
-                </iframe>
-            </div>
-
-            <!-- Error State -->
-            <div class="error-state" id="errorState">
-                <div class="error-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="error-title">Dashboard Unavailable</div>
-                <div class="error-message">
-                    Unable to load the InsureInsights dashboard. Please check if the Streamlit service is running and try again.
-                </div>
-                <button class="retry-btn" onclick="retryDashboard()">
-                    <i class="fas fa-redo"></i> Retry Connection
-                </button>
-            </div>
+            <p class="status-message success-message">
+                <span class="status-dot">•</span> Dashboard loaded successfully
+                <span class="last-updated"><i class="fas fa-clock"></i> Last updated: <span id="last-updated-time"></span></span>
+            </p>
+            <iframe id="streamlit-dashboard" class="dashboard-iframe" src="/dashboard" title="InsureInsights Dashboard"></iframe>
         </div>
     </div>
     
     <script>
-        let retryCount = 0;
-        const maxRetries = 3;
-
-        function handleIframeLoad() {
-            // Hide loading overlay
-            const overlay = document.getElementById('iframeOverlay');
-            overlay.classList.add('hidden');
-            
-            // Update status
-            updateStatus('online', 'Dashboard loaded successfully');
-            updateTimestamp();
-            
-            // Reset retry count
-            retryCount = 0;
-        }
-
-        function handleIframeError() {
-            console.error('Iframe failed to load');
-            
-            if (retryCount < maxRetries) {
-                retryCount++;
-                setTimeout(() => {
-                    document.getElementById('streamlitIframe').src = document.getElementById('streamlitIframe').src;
-                }, 2000);
-                updateStatus('offline', `Retrying connection... (${retryCount}/${maxRetries})`);
-            } else {
-                showErrorState();
-            }
-        }
-
-        function showErrorState() {
-            document.getElementById('iframeOverlay').style.display = 'none';
-            document.getElementById('errorState').style.display = 'flex';
-            updateStatus('offline', 'Connection failed');
-        }
-
-        function retryDashboard() {
-            // Hide error state
-            document.getElementById('errorState').style.display = 'none';
-            
-            // Show loading overlay
-            const overlay = document.getElementById('iframeOverlay');
-            overlay.classList.remove('hidden');
-            
-            // Reset retry count and reload iframe
-            retryCount = 0;
-            updateStatus('offline', 'Reconnecting...');
-            
-            // Reload iframe
-            const iframe = document.getElementById('streamlitIframe');
-            iframe.src = iframe.src;
-        }
-
-        function updateStatus(status, message) {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
-            
-            statusDot.className = `status-dot ${status === 'offline' ? 'offline' : ''}`;
-            statusText.textContent = message;
-        }
-
-        function updateTimestamp() {
-            const timestamp = document.getElementById('lastUpdated');
-            const now = new Date();
-            timestamp.textContent = `Last updated: ${now.toLocaleTimeString()}`;
-        }
-
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            updateTimestamp();
-            
-            // Set up periodic timestamp updates
-            setInterval(updateTimestamp, 30000); // Update every 30 seconds
-            
-            // Handle iframe load timeout
-            setTimeout(() => {
-                const overlay = document.getElementById('iframeOverlay');
-                if (!overlay.classList.contains('hidden')) {
-                    handleIframeError();
-                }
-            }, 15000); // 15 second timeout
-        });
-
-        // Handle visibility change to refresh dashboard when tab becomes active
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                updateTimestamp();
+            // Update last updated time
+            function updateLastUpdated() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('last-updated-time').textContent = timeString;
             }
+            setInterval(updateLastUpdated, 60000); // Update every minute
+            updateLastUpdated(); // Initial update
+
+            // Add error handling for iframe
+            const iframe = document.getElementById('streamlit-dashboard');
+            iframe.onload = function() {
+                console.log("Streamlit iframe loaded.");
+                // Optionally, you can hide a loading spinner here
+            };
+
+            iframe.onerror = function() {
+                console.error("Streamlit iframe failed to load.");
+                // Display an error message to the user
+                const dashboardContainer = document.querySelector('.dashboard-container');
+                if (dashboardContainer) {
+                    dashboardContainer.innerHTML = '<p class="status-message error-message"><span class="status-dot">•</span> Failed to load dashboard. Please try again later.</p>';
+                }
+            };
         });
     </script>
 </body>
