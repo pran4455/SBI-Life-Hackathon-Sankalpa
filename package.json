@@ -50,7 +50,6 @@
   "description": "",
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "connect-sqlite3": "^1.1.11",
     "nodemon": "^3.0.3"
   }
 }
