@@ -376,7 +376,6 @@ module.exports = {
   getUserCount,
   storeOTP,
   verifyOTP,
-  verifyAndCleanupOTP,
   cleanupExpiredOTPs,
   getUserByUsername,
   getUserByEmail,
