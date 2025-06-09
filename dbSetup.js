@@ -23,16 +23,38 @@ function initDB(dbPath) {
         // Ensure the directory exists
         const dbDir = path.dirname(dbPath);
         if (!fs.existsSync(dbDir)) {
-            fs.mkdirSync(dbDir, { recursive: true });
+            console.log('Creating database directory:', dbDir);
+            fs.mkdirSync(dbDir, { recursive: true, mode: 0o777 });
+        }
+
+        // Check directory permissions
+        try {
+            fs.accessSync(dbDir, fs.constants.R_OK | fs.constants.W_OK);
+            console.log('Directory permissions OK:', dbDir);
+        } catch (err) {
+            console.error('Directory permission error:', err);
+            throw new Error(`Cannot access directory ${dbDir}: ${err.message}`);
         }
 
         console.log('Initializing database at:', dbPath);
+        
+        // Check if database file exists and is writable
+        if (fs.existsSync(dbPath)) {
+            try {
+                fs.accessSync(dbPath, fs.constants.R_OK | fs.constants.W_OK);
+                console.log('Database file permissions OK:', dbPath);
+            } catch (err) {
+                console.error('Database file permission error:', err);
+                throw new Error(`Cannot access database file ${dbPath}: ${err.message}`);
+            }
+        }
+
         const db = new sqlite3.Database(dbPath, (err) => {
             if (err) {
                 console.error('Error opening database:', err);
                 throw err;
             }
-            console.log('Database initialized');
+            console.log('Database initialized successfully');
         });
 
         // Create users table if it doesn't exist
@@ -61,7 +83,13 @@ function initDB(dbPath) {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-        `);
+        `, (err) => {
+            if (err) {
+                console.error('Error creating users table:', err);
+                throw err;
+            }
+            console.log('Users table created/verified successfully');
+        });
 
         // Create password_reset_otps table
         db.run(`
@@ -74,13 +102,27 @@ function initDB(dbPath) {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (email) REFERENCES users(email)
             )
-        `);
+        `, (err) => {
+            if (err) {
+                console.error('Error creating password_reset_otps table:', err);
+                throw err;
+            }
+            console.log('Password reset OTPs table created/verified successfully');
+        });
 
         // Create indexes
-        db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
-        db.run(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
-        db.run(`CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`);
-        db.run(`CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`, (err) => {
+            if (err) console.error('Error creating email index:', err);
+        });
+        db.run(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`, (err) => {
+            if (err) console.error('Error creating username index:', err);
+        });
+        db.run(`CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`, (err) => {
+            if (err) console.error('Error creating OTP email index:', err);
+        });
+        db.run(`CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`, (err) => {
+            if (err) console.error('Error creating OTP code index:', err);
+        });
 
         return db;
     } catch (error) {
@@ -92,12 +134,21 @@ function initDB(dbPath) {
 // Function to get database connection
 function getDB() {
     const dbPath = path.join(process.env.DATA_DIR || __dirname, 'users.db');
-    return new sqlite3.Database(dbPath, (err) => {
-        if (err) {
-            console.error('Error connecting to database:', err);
-            throw err;
-        }
-    });
+    console.log('Connecting to database at:', dbPath);
+    
+    try {
+        const db = new sqlite3.Database(dbPath, (err) => {
+            if (err) {
+                console.error('Error connecting to database:', err);
+                throw err;
+            }
+            console.log('Database connection established');
+        });
+        return db;
+    } catch (error) {
+        console.error('Error in getDB:', error);
+        throw error;
+    }
 }
 
 // Function to check if user profile is completed
