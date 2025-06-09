@@ -18,6 +18,9 @@ const xlsx = require('xlsx');
 const { execFile } = require('child_process');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
+// Import session store
+const SQLiteStore = require('connect-sqlite3')(session);
+
 // Import utility modules
 const dbSetup = require('./dbSetup');
 const emailService = require('./emailService');
@@ -166,9 +169,12 @@ app.use(session({
     sameSite: 'strict',
     maxAge: 1 * 60 * 60 * 1000 // 1 hour instead of 24 hours to save memory
   },
-  // Clear old sessions to prevent memory leaks
-  store: new session.MemoryStore({
-    checkPeriod: 30 * 60 * 1000 // Prune expired entries every 30 mins
+  // Use SQLiteStore for production
+  store: new SQLiteStore({
+    db: 'sessions.db',
+    table: 'sessions',
+    dir: process.env.RENDER_STORAGE_PATH || '.',
+    concurrentDB: true // Enable concurrent connections
   })
 }));
 
