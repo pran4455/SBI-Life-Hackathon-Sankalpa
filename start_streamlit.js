@@ -9,6 +9,7 @@ function startStreamlitServer() {
         path.join(__dirname, 'dashboard.py'),
         '--server.port', process.env.STREAMLIT_PORT || '8501',
         '--server.address', '0.0.0.0',
+        '--server.baseUrlPath', '/dashboard',
         '--server.maxUploadSize', '50',
         '--server.maxMessageSize', '50',
         '--server.enableCORS', 'true',
