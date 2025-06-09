@@ -1380,7 +1380,22 @@ const streamlitProxy = createProxyMiddleware({
 });
 
 // Add Streamlit proxy to Express app
-app.use('/dashboard', streamlitProxy);
+// Proxy Streamlit requests (including WebSockets)
+app.use(
+  '/dashboard',
+  createProxyMiddleware({
+    target: `http://localhost:${process.env.STREAMLIT_PORT || 8501}`,
+    changeOrigin: true,
+    ws: true,
+    pathRewrite: {
+      '^/dashboard': '', // Remove /dashboard prefix when forwarding
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
+    }
+  })
+);
+
 
 const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
   console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
