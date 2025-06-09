@@ -17,107 +17,132 @@ const getDBPath = () => {
   return path.join(__dirname, 'users.db');
 };
 
-// Database initialization
-const initDB = () => {
-  const dbPath = getDBPath();
-  console.log('Initializing database at:', dbPath);
-  
-  try {
-    const db = new sqlite3.Database(dbPath, (err) => {
-      if (err) {
-        console.error('Error opening database:', err);
-        throw err;
-      }
-      console.log('Database connection established');
-    });
-    
-    db.serialize(() => {
-      // Create users table with additional fields
-      db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          username TEXT UNIQUE NOT NULL,
-          password TEXT NOT NULL,
-          email TEXT UNIQUE NOT NULL,
-          totp_secret TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          
-          -- New fields for user information
-          credit_score INTEGER,
-          geography TEXT,
-          gender TEXT,
-          age INTEGER,
-          marital_status TEXT,
-          salary REAL,
-          tenure INTEGER,
-          balance REAL,
-          num_products INTEGER,
-          has_credit_card BOOLEAN,
-          is_active BOOLEAN,
-          exited BOOLEAN,
-          profile_completed BOOLEAN DEFAULT FALSE
-        )
-      `, (err) => {
+// Function to initialize database
+function initDB(dbPath) {
+    try {
+        // Ensure the directory exists
+        const dbDir = path.dirname(dbPath);
+        if (!fs.existsSync(dbDir)) {
+            fs.mkdirSync(dbDir, { recursive: true });
+        }
+
+        console.log('Initializing database at:', dbPath);
+        const db = new sqlite3.Database(dbPath, (err) => {
+            if (err) {
+                console.error('Error opening database:', err);
+                throw err;
+            }
+            console.log('Database initialized');
+        });
+
+        // Create users table if it doesn't exist
+        db.run(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                totp_secret TEXT,
+                credit_score INTEGER,
+                geography TEXT,
+                gender TEXT,
+                age INTEGER,
+                marital_status TEXT,
+                salary REAL,
+                tenure INTEGER,
+                balance REAL,
+                num_products INTEGER,
+                has_credit_card BOOLEAN,
+                is_active BOOLEAN,
+                exited BOOLEAN,
+                selected_policy TEXT,
+                upselling_policy TEXT,
+                profile_completed BOOLEAN DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        return db;
+    } catch (error) {
+        console.error('Database initialization error:', error);
+        throw error;
+    }
+}
+
+// Function to get database connection
+function getDB() {
+    const dbPath = path.join(process.env.DATA_DIR || __dirname, 'users.db');
+    return new sqlite3.Database(dbPath, (err) => {
         if (err) {
-          console.error('Error creating users table:', err);
-        } else {
-          console.log('Users table created or already exists');
+            console.error('Error connecting to database:', err);
+            throw err;
         }
-      });
-
-      // Create password_reset_otps table for OTP functionality
-      db.run(`
-        CREATE TABLE IF NOT EXISTS password_reset_otps (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          email TEXT NOT NULL,
-          otp_code TEXT NOT NULL,
-          expires_at DATETIME NOT NULL,
-          used BOOLEAN DEFAULT FALSE,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (email) REFERENCES users(email)
-        )
-      `, (err) => {
-        if (err) {
-          console.error('Error creating password_reset_otps table:', err);
-        } else {
-          console.log('Password reset OTPs table created or already exists');
-        }
-      });
-
-      // Add this in your database initialization
-      db.run(`ALTER TABLE users ADD COLUMN selected_policy TEXT`, (err) => {
-        if (err && !err.message.includes('duplicate column name')) {
-          console.error('Error adding selected_policy column:', err);
-        }
-      });
-
-      db.run(`ALTER TABLE users ADD COLUMN upselling_policy TEXT`, (err) => {
-        if (err && !err.message.includes('duplicate column name')) {
-          console.error('Error adding upselling_policy column:', err);
-        }
-      });
-      
-      // Create indexes
-      db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
-      db.run(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
-      db.run(`CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`);
-      db.run(`CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`);
     });
-    
-    db.close((err) => {
-      if (err) {
-        console.error('Error closing database:', err);
-      }
+}
+
+// Function to check if user profile is completed
+function isProfileCompleted(username) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+        db.get(
+            "SELECT profile_completed FROM users WHERE username = ?",
+            [username],
+            (err, row) => {
+                db.close();
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row ? row.profile_completed === 1 : false);
+                }
+            }
+        );
     });
-    
-    console.log('Database initialized');
-    return dbPath;
-  } catch (error) {
-    console.error('Database initialization failed:', error);
-    throw error;
-  }
-};
+}
+
+// Function to update user profile
+function updateUserProfile(username, profileData) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+        const fields = Object.keys(profileData);
+        const values = Object.values(profileData);
+        
+        const setClause = fields.map(field => `${field} = ?`).join(', ');
+        const query = `
+            UPDATE users 
+            SET ${setClause}, profile_completed = 1, updated_at = CURRENT_TIMESTAMP 
+            WHERE username = ?
+        `;
+        
+        db.run(query, [...values, username], function(err) {
+            db.close();
+            if (err) {
+                reject(err);
+            } else {
+                resolve(this.changes);
+            }
+        });
+    });
+}
+
+// Function to update user password
+function updateUserPassword(email, hashedPassword) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+        db.run(
+            "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE email = ?",
+            [hashedPassword, email],
+            function(err) {
+                db.close();
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(this.changes);
+                }
+            }
+        );
+    });
+}
 
 // Delete database if exists
 const deleteDB = () => {
@@ -135,17 +160,6 @@ const deleteDB = () => {
     console.error('Error deleting database:', error);
     return false;
   }
-};
-
-// Get database connection
-const getDB = () => {
-  const dbPath = path.join(__dirname, 'users.db');
-  return new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-      console.error('Error connecting to database:', err);
-      throw err;
-    }
-  });
 };
 
 // Test database connection
@@ -286,160 +300,6 @@ const getUserByEmail = (email) => {
   });
 };
 
-// Update user password
-const updateUserPassword = (email, hashedPassword) => {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    const updatedAt = new Date().toISOString();
-    
-    db.run(
-      "UPDATE users SET password = ?, updated_at = ? WHERE email = ?",
-      [hashedPassword, updatedAt, email],
-      function(err) {
-        if (err) {
-          console.error('Error updating password:', err);
-          reject(err);
-        } else {
-          console.log(`Password updated for email: ${email}, rows affected: ${this.changes}`);
-          resolve(this.changes); // Returns number of rows affected
-        }
-        db.close();
-      }
-    );
-  });
-};
-
-// NEW FUNCTION: Update user profile information
-const updateUserProfile = (username, profileData) => {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    const updatedAt = new Date().toISOString();
-    
-    const {
-      credit_score,
-      geography,
-      gender,
-      age,
-      marital_status,
-      salary,
-      tenure,
-      balance,
-      num_products,
-      has_credit_card,
-      is_active,
-      exited
-    } = profileData;
-    
-    db.run(
-      `UPDATE users SET 
-        credit_score = ?, 
-        geography = ?, 
-        gender = ?, 
-        age = ?, 
-        marital_status = ?, 
-        salary = ?, 
-        tenure = ?, 
-        balance = ?, 
-        num_products = ?, 
-        has_credit_card = ?, 
-        is_active = ?, 
-        exited = ?, 
-        profile_completed = TRUE,
-        updated_at = ?
-      WHERE username = ?`,
-      [
-        credit_score,
-        geography,
-        gender,
-        age,
-        marital_status,
-        salary,
-        tenure,
-        balance,
-        num_products,
-        has_credit_card,
-        is_active,
-        exited,
-        updatedAt,
-        username
-      ],
-      function(err) {
-        if (err) {
-          console.error('Error updating user profile:', err);
-          reject(err);
-        } else {
-          console.log(`Profile updated for user: ${username}, rows affected: ${this.changes}`);
-          resolve(this.changes);
-        }
-        db.close();
-      }
-    );
-  });
-};
-
-// NEW FUNCTION: Check if user profile is completed
-const isProfileCompleted = (username) => {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    db.get(
-      "SELECT profile_completed FROM users WHERE username = ?",
-      [username],
-      (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row ? row.profile_completed : false);
-        }
-        db.close();
-      }
-    );
-  });
-};
-
-// Enhanced OTP verification that also handles cleanup
-const verifyAndCleanupOTP = (email, otp) => {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    const now = new Date().toISOString();
-    
-    db.get(
-      `SELECT * FROM password_reset_otps 
-       WHERE email = ? AND otp_code = ? AND used = FALSE AND expires_at > ?
-       ORDER BY created_at DESC LIMIT 1`,
-      [email, otp, now],
-      (err, row) => {
-        if (err) {
-          reject(err);
-          db.close();
-          return;
-        }
-        
-        if (row) {
-          // Mark OTP as used
-          db.run(
-            "UPDATE password_reset_otps SET used = TRUE WHERE id = ?",
-            [row.id],
-            function(updateErr) {
-              if (updateErr) {
-                console.error('Error marking OTP as used:', updateErr);
-                reject(updateErr);
-              } else {
-                console.log(`OTP verified and marked as used for email: ${email}`);
-                resolve(true);
-              }
-              db.close();
-            }
-          );
-        } else {
-          console.log(`Invalid or expired OTP for email: ${email}`);
-          resolve(false);
-          db.close();
-        }
-      }
-    );
-  });
-};
-
 module.exports = {
   initDB,
   deleteDB,
@@ -452,6 +312,6 @@ module.exports = {
   cleanupExpiredOTPs,
   getUserByEmail,
   updateUserPassword,
-  updateUserProfile,      // NEW
-  isProfileCompleted      // NEW
+  updateUserProfile,
+  isProfileCompleted
 };

@@ -157,9 +157,9 @@ app.set('views', path.join(__dirname, 'views'));
 // Session configuration
 app.use(session({
   store: new SQLiteStore({
-    db: path.join(__dirname, 'sessions.db'),
+    db: path.join(process.env.DATA_DIR || __dirname, 'sessions.db'),
     table: 'sessions',
-    dir: __dirname
+    dir: process.env.DATA_DIR || __dirname
   }),
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
@@ -189,10 +189,18 @@ app.use((req, res, next) => {
 
 // Initialize database when server starts
 try {
-  dbSetup.initDB();
+  // Create data directory if it doesn't exist
+  const dataDir = process.env.DATA_DIR || __dirname;
+  if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+  }
+  
+  // Initialize database with correct path
+  dbSetup.initDB(path.join(dataDir, 'users.db'));
   console.log('Database initialized successfully');
 } catch (err) {
   console.error('Failed to initialize database:', err);
+  process.exit(1); // Exit if database initialization fails
 }
 
 // ========================================
