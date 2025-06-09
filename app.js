@@ -1369,9 +1369,9 @@ app.get('/healthz', (req, res) => {
 const streamlitProxy = createProxyMiddleware({
   target: `http://localhost:${process.env.STREAMLIT_PORT || 8501}`,
   changeOrigin: true,
-  pathRewrite: {
-      '^/dashboard': '', // Remove /dashboard prefix when forwarding to Streamlit
-  },
+  // pathRewrite: {
+  //     '^/dashboard': '', // Remove /dashboard prefix when forwarding to Streamlit
+  // },
   ws: true, // Enable WebSocket proxying
   onError: (err, req, res) => {
       console.error('Streamlit proxy error:', err);
@@ -1389,12 +1389,11 @@ const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
   // Start Streamlit server in production
   if (process.env.NODE_ENV === 'production') {
     console.log('Starting Streamlit dashboard...');
-    startStreamlitServer();
     const used = process.memoryUsage();
-        console.log('Memory usage after startup:');
-        for (let key in used) {
-            console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
-        }
+    console.log('Memory usage after startup:');
+    for (let key in used) {
+        console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+    }
   }
 });
   server.on('error', (error) => {
