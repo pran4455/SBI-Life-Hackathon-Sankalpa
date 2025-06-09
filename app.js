@@ -116,7 +116,7 @@ if (process.env.NODE_ENV === 'production') {
   // Strict security headers
   app.use((req, res, next) => {
       res.set({
-          'X-Frame-Options': 'SAMEORIGIN',
+          // 'X-Frame-Options': 'SAMEORIGIN', // Temporarily commented out for testing Streamlit embedding
           'X-Content-Type-Options': 'nosniff',
           'X-XSS-Protection': '1; mode=block',
           'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
