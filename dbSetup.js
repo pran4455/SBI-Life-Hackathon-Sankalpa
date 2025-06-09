@@ -8,146 +8,134 @@ let dbInstance = null;
 
 // Get the database path based on environment
 const getDBPath = () => {
-  const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  return path.join(dataDir, 'users.db');
+    const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
+    console.log('Using data directory:', dataDir);
+    
+    // Ensure data directory exists with proper permissions
+    if (!fs.existsSync(dataDir)) {
+        console.log('Creating data directory:', dataDir);
+        fs.mkdirSync(dataDir, { recursive: true, mode: 0o777 });
+    }
+    
+    const dbPath = path.join(dataDir, 'users.db');
+    console.log('Database path:', dbPath);
+    return dbPath;
 };
 
-function initDB(dbPath) {
-  const dbDir = path.dirname(dbPath);
+// Function to initialize database
+function initDB() {
+    const dbPath = getDBPath();
+    
+    try {
+        // Create a new database connection with verbose mode
+        dbInstance = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+            if (err) {
+                console.error('Error opening database:', err.message);
+                throw err;
+            }
+            console.log('Database initialized successfully');
+        });
 
-  try {
-      // Ensure the directory exists
-      if (!fs.existsSync(dbDir)) {
-          console.log('Creating database directory:', dbDir);
-          fs.mkdirSync(dbDir, { recursive: true, mode: 0o777 });
-      }
+        // Enable foreign keys and other optimizations
+        dbInstance.serialize(() => {
+            dbInstance.run('PRAGMA foreign_keys = ON');
+            dbInstance.run('PRAGMA journal_mode = WAL');
+            dbInstance.run('PRAGMA synchronous = NORMAL');
+            dbInstance.run('PRAGMA temp_store = MEMORY');
+            dbInstance.run('PRAGMA mmap_size = 30000000000');
+            dbInstance.run('PRAGMA page_size = 4096');
+            dbInstance.run('PRAGMA cache_size = -2000');
 
-      // Check directory permissions
-      fs.accessSync(dbDir, fs.constants.R_OK | fs.constants.W_OK);
-      console.log('Directory permissions OK:', dbDir);
+            // Create users table
+            dbInstance.run(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    totp_secret TEXT,
+                    credit_score INTEGER,
+                    geography TEXT,
+                    gender TEXT,
+                    age INTEGER,
+                    marital_status TEXT,
+                    salary REAL,
+                    tenure INTEGER,
+                    balance REAL,
+                    num_products INTEGER,
+                    has_credit_card BOOLEAN,
+                    is_active BOOLEAN,
+                    exited BOOLEAN,
+                    selected_policy TEXT,
+                    upselling_policy TEXT,
+                    profile_completed BOOLEAN DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `, (err) => {
+                if (err) {
+                    console.error('Error creating users table:', err.message);
+                    throw err;
+                }
+                console.log('Users table created/verified successfully');
+            });
 
-      // Check if database file exists and is writable
-      if (fs.existsSync(dbPath)) {
-          fs.accessSync(dbPath, fs.constants.R_OK | fs.constants.W_OK);
-          console.log('Database file permissions OK:', dbPath);
-      }
+            // Create password_reset_otps table
+            dbInstance.run(`
+                CREATE TABLE IF NOT EXISTS password_reset_otps (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT NOT NULL,
+                    otp_code TEXT NOT NULL,
+                    expires_at DATETIME NOT NULL,
+                    used BOOLEAN DEFAULT FALSE,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (email) REFERENCES users(email)
+                )
+            `, (err) => {
+                if (err) {
+                    console.error('Error creating password_reset_otps table:', err.message);
+                    throw err;
+                }
+                console.log('Password reset OTPs table created/verified successfully');
+            });
 
-      console.log('Initializing database at:', dbPath);
+            // Create indexes
+            const indexQueries = [
+                `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
+                `CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`,
+                `CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`,
+                `CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`
+            ];
 
-      // Create a new database connection
-      dbInstance = new sqlite3.Database(dbPath, (err) => {
-          if (err) {
-              console.error('Error opening database:', err.message);
-              throw err;
-          }
+            indexQueries.forEach((query) => {
+                dbInstance.run(query, (err) => {
+                    if (err) console.error(`Error creating index: ${query}`, err.message);
+                });
+            });
+        });
 
-          console.log('Database initialized successfully');
-
-          // Enable foreign keys
-          dbInstance.run('PRAGMA foreign_keys = ON');
-
-          // Create users table
-          dbInstance.run(`
-              CREATE TABLE IF NOT EXISTS users (
-                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  username TEXT UNIQUE NOT NULL,
-                  password TEXT NOT NULL,
-                  email TEXT UNIQUE NOT NULL,
-                  totp_secret TEXT,
-                  credit_score INTEGER,
-                  geography TEXT,
-                  gender TEXT,
-                  age INTEGER,
-                  marital_status TEXT,
-                  salary REAL,
-                  tenure INTEGER,
-                  balance REAL,
-                  num_products INTEGER,
-                  has_credit_card BOOLEAN,
-                  is_active BOOLEAN,
-                  exited BOOLEAN,
-                  selected_policy TEXT,
-                  upselling_policy TEXT,
-                  profile_completed BOOLEAN DEFAULT 0,
-                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-              )
-          `, (err) => {
-              if (err) {
-                  console.error('Error creating users table:', err.message);
-                  throw err;
-              }
-              console.log('Users table created/verified successfully');
-          });
-
-          // Create password_reset_otps table
-          dbInstance.run(`
-              CREATE TABLE IF NOT EXISTS password_reset_otps (
-                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  email TEXT NOT NULL,
-                  otp_code TEXT NOT NULL,
-                  expires_at DATETIME NOT NULL,
-                  used BOOLEAN DEFAULT FALSE,
-                  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                  FOREIGN KEY (email) REFERENCES users(email)
-              )
-          `, (err) => {
-              if (err) {
-                  console.error('Error creating password_reset_otps table:', err.message);
-                  throw err;
-              }
-              console.log('Password reset OTPs table created/verified successfully');
-          });
-
-          // Create indexes
-          const indexQueries = [
-              `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
-              `CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`,
-              `CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`,
-              `CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`
-          ];
-
-          indexQueries.forEach((query) => {
-              dbInstance.run(query, (err) => {
-                  if (err) console.error(`Error creating index: ${query}`, err.message);
-              });
-          });
-      });
-
-      return dbInstance;
-
-  } catch (error) {
-      console.error('Database initialization error:', error.message);
-      throw error;
-  }
+        return dbInstance;
+    } catch (error) {
+        console.error('Database initialization error:', error.message);
+        throw error;
+    }
 }
 
 // Function to get database connection
 function getDB() {
-  const dbPath = getDBPath();
-  console.log('Connecting to database at:', dbPath);
-
-  const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-      console.error('Error connecting to database:', err);
-      throw err;
+    if (!dbInstance) {
+        console.log('No database instance found, initializing...');
+        return initDB();
     }
-  });
-
-  db.run('PRAGMA foreign_keys = ON');
-  return db;
+    return dbInstance;
 }
-
 
 // Function to close database connection
 function closeDB() {
     if (dbInstance) {
         dbInstance.close((err) => {
             if (err) {
-                console.error('Error closing database:', err);
+                console.error('Error closing database:', err.message);
             } else {
                 console.log('Database connection closed');
                 dbInstance = null;
@@ -166,6 +154,14 @@ process.on('SIGTERM', () => {
     closeDB();
     process.exit(0);
 });
+
+// Initialize database on module load
+try {
+    initDB();
+} catch (error) {
+    console.error('Failed to initialize database:', error.message);
+    process.exit(1);
+}
 
 // Function to check if user profile is completed
 function isProfileCompleted(username) {
