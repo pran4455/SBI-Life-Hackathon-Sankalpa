@@ -81,6 +81,7 @@ if [ "$NODE_ENV" = "production" ]; then
     streamlit run dashboard.py \
         --server.port $STREAMLIT_PORT \
         --server.address 0.0.0.0 \
+        --server.baseUrlPath "/dashboard" \
         --server.headless true \
         --server.maxUploadSize 50 \
         --server.maxMessageSize 50 \
@@ -93,6 +94,8 @@ if [ "$NODE_ENV" = "production" ]; then
     wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
 
     echo "All services launched. start.sh script exiting."
+    # Finally, replace the current shell with the main Node.js application
+    exec node app.js
 else
     # Development mode
     node app.js
