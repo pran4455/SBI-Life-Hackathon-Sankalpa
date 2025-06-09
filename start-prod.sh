@@ -27,6 +27,6 @@ export STREAMLIT_SERVER_ENABLE_CORS=true
 export STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
 export STREAMLIT_SERVER_MAX_UPLOAD_SIZE=50
 export STREAMLIT_SERVER_MAX_MESSAGE_SIZE=50
-export DATA_DIR=/opt/render/project/src/data
+
 # Start the application
 node app.js

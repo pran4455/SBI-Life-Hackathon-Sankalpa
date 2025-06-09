@@ -3,17 +3,15 @@ import multiprocessing
 import os
 
 # Server socket
-bind = "0.0.0.0:8001"
+bind = f"0.0.0.0:{os.environ.get('CHATBOT_PORT', '8001')}"
 backlog = 2048
 
 # Worker processes
-workers = 2  # Reduced from default
-worker_class = "sync"
-timeout = 120
-keepalive = 5
-max_requests = 1000
-max_requests_jitter = 50
+workers = multiprocessing.cpu_count() * 2 + 1
+worker_class = 'sync'
 worker_connections = 1000
+timeout = 120
+keepalive = 2
 
 # Process naming
 proc_name = 'sankalpa-chatbot'

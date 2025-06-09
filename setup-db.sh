@@ -1,15 +1,16 @@
 #!/bin/bash
 
-# Use persistent path
-DATA_DIR=${RENDER_EXTERNAL_STORAGE_MOUNT_PATH:-/data}
-mkdir -p "$DATA_DIR"
+# Ensure the data directory exists
+mkdir -p /data
 
-if [ ! -f "$DATA_DIR/users.db" ]; then
+# Copy SQLite database if it doesn't exist in persistent storage
+if [ ! -f "/data/users.db" ]; then
     echo "Initializing database in persistent storage..."
-    node -e "require('./dbsetup.js').initDB('$DATA_DIR/users.db')"
+    node -e "require('./dbsetup.js').initDB()"
 fi
 
-if [ ! -f "$DATA_DIR/sbilife.xlsx" ]; then
+# Copy Excel file to persistent storage
+if [ ! -f "/data/sbilife.xlsx" ]; then
     echo "Copying Excel file to persistent storage..."
-    cp sbilife.xlsx "$DATA_DIR/"
+    cp sbilife.xlsx /data/
 fi

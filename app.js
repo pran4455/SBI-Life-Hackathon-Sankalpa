@@ -17,7 +17,6 @@ const exec = promisify(require('child_process').exec);
 const xlsx = require('xlsx');
 const { execFile } = require('child_process');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const SQLiteStore = require('connect-sqlite3')(session);
 
 // Import utility modules
 const dbSetup = require('./dbSetup');
@@ -154,34 +153,24 @@ app.get('/sw.js', (req, res) => {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Session configuration
+// Session configuration with memory optimization
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(24).toString('hex');
 app.use(session({
-  store: new SQLiteStore({
-    db: path.join(process.env.DATA_DIR || __dirname, 'sessions.db'),
-    table: 'sessions',
-    dir: process.env.DATA_DIR || __dirname
-  }),
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: sessionSecret,
   resave: false,
-  saveUninitialized: false,
-  cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+  saveUninitialized: false, // Only create session when data is stored
+  rolling: true, // Refresh session with each request
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'strict',
+    maxAge: 1 * 60 * 60 * 1000 // 1 hour instead of 24 hours to save memory
+  },
+  // Clear old sessions to prevent memory leaks
+  store: new session.MemoryStore({
+    checkPeriod: 30 * 60 * 1000 // Prune expired entries every 30 mins
+  })
 }));
-
-// Add middleware to ensure session is saved
-app.use((req, res, next) => {
-  res.on('finish', () => {
-      if (req.session) {
-          req.session.save((err) => {
-              if (err) console.error('Session save error:', err);
-          });
-      }
-  });
-  next();
-});
 
 // ========================================
 // DATABASE INITIALIZATION
@@ -189,18 +178,10 @@ app.use((req, res, next) => {
 
 // Initialize database when server starts
 try {
-  // Create data directory if it doesn't exist
-  const dataDir = process.env.DATA_DIR || __dirname;
-  if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
-  }
-  
-  // Initialize database with correct path
-  dbSetup.initDB(path.join(dataDir, 'users.db'));
+  dbSetup.initDB();
   console.log('Database initialized successfully');
 } catch (err) {
   console.error('Failed to initialize database:', err);
-  process.exit(1); // Exit if database initialization fails
 }
 
 // ========================================
@@ -459,7 +440,7 @@ app.post('/setup_totp', async (req, res) => {
 
 // Login routes
 app.get('/login', (req, res) => {
-  res.render('login', { error: null });
+  res.render('login', { error: null, success: null });
 });
 
 app.post('/login', async (req, res) => {
@@ -473,7 +454,7 @@ app.post('/login', async (req, res) => {
     
     if (!user) {
       console.log('User not found:', username);
-      return res.render('login', { error: 'Invalid username or password' });
+      return res.render('login', { error: 'Invalid username or password', success: null });
     }
     
     console.log('User found:', user.email);
@@ -489,11 +470,11 @@ app.post('/login', async (req, res) => {
       res.redirect('/verify_totp');
     } else {
       console.log('Password verification failed for user:', username);
-      res.render('login', { error: 'Invalid username or password' });
+      res.render('login', { error: 'Invalid username or password', success: null });
     }
   } catch (error) {
     console.error('Login error:', error);
-    res.render('login', { error: 'Login failed. Please try again.' });
+    res.render('login', { error: 'Login failed. Please try again.', success: null });
   }
 });
 
@@ -1028,12 +1009,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
       JSON.stringify(userData),
       username  // Pass username as second argument
     ], {
-      cwd: __dirname,
-      env: {
-        ...process.env,
-        PYTHONPATH: __dirname,
-        PYTHONUNBUFFERED: '1'
-      }
+      cwd: __dirname
     });
 
     let pythonOutput = '';
