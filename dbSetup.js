@@ -63,6 +63,25 @@ function initDB(dbPath) {
             )
         `);
 
+        // Create password_reset_otps table
+        db.run(`
+            CREATE TABLE IF NOT EXISTS password_reset_otps (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL,
+                otp_code TEXT NOT NULL,
+                expires_at DATETIME NOT NULL,
+                used BOOLEAN DEFAULT FALSE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (email) REFERENCES users(email)
+            )
+        `);
+
+        // Create indexes
+        db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`);
+
         return db;
     } catch (error) {
         console.error('Database initialization error:', error);
@@ -132,6 +151,74 @@ function updateUserPassword(email, hashedPassword) {
         db.run(
             "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE email = ?",
             [hashedPassword, email],
+            function(err) {
+                db.close();
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(this.changes);
+                }
+            }
+        );
+    });
+}
+
+// Function to get user by username
+function getUserByUsername(username) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+        db.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
+            db.close();
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row);
+            }
+        });
+    });
+}
+
+// Function to get user by email
+function getUserByEmail(email) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+        db.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
+            db.close();
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row);
+            }
+        });
+    });
+}
+
+// Function to insert new user
+function insertUser(username, password, email, totp_secret) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+        db.run(
+            "INSERT INTO users (username, password, email, totp_secret) VALUES (?, ?, ?, ?)",
+            [username, password, email, totp_secret],
+            function(err) {
+                db.close();
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(this.lastID);
+                }
+            }
+        );
+    });
+}
+
+// Function to update TOTP secret
+function updateTotpSecret(email, totp_secret) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+        db.run(
+            "UPDATE users SET totp_secret = ? WHERE email = ?",
+            [totp_secret, email],
             function(err) {
                 db.close();
                 if (err) {
@@ -281,25 +368,6 @@ const cleanupExpiredOTPs = () => {
   });
 };
 
-// Get user by email
-const getUserByEmail = (email) => {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    db.get(
-      "SELECT * FROM users WHERE email = ?",
-      [email],
-      (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row || null);
-        }
-        db.close();
-      }
-    );
-  });
-};
-
 module.exports = {
   initDB,
   deleteDB,
@@ -310,7 +378,10 @@ module.exports = {
   verifyOTP,
   verifyAndCleanupOTP,
   cleanupExpiredOTPs,
+  getUserByUsername,
   getUserByEmail,
+  insertUser,
+  updateTotpSecret,
   updateUserPassword,
   updateUserProfile,
   isProfileCompleted
