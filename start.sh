@@ -73,7 +73,7 @@ if [ "$NODE_ENV" = "production" ]; then
 
     # Start Flask chatbot with Gunicorn in the background
     echo "Starting chatbot server on port $CHATBOT_PORT..."
-    gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT &
+    gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT > /tmp/chatbot_stdout.log 2> /tmp/chatbot_stderr.log &
     CHATBOT_PID=$!
 
     # Start Streamlit dashboard in the background
@@ -86,11 +86,13 @@ if [ "$NODE_ENV" = "production" ]; then
         --server.maxMessageSize 50 \
         --browser.gatherUsageStats false \
         --server.enableCORS true \
-        --server.enableXsrfProtection false &
+        --server.enableXsrfProtection false > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
     STREAMLIT_PID=$!
 
-    # Wait for all processes
-#    wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
+    # Wait for all processes (COMMENTED OUT - crucial for Render)
+    wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
+
+    echo "All services launched. start.sh script exiting."
 else
     # Development mode
     node app.js
