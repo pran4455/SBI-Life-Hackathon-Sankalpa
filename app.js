@@ -1388,10 +1388,14 @@ app.use(
     changeOrigin: true,
     ws: true,
     pathRewrite: {
-      '^/dashboard': '', // Remove /dashboard prefix when forwarding
+      '^/dashboard/?': '',  // support both /dashboard and /dashboard/
     },
     onProxyReq: (proxyReq, req, res) => {
       proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
+    },
+    onError: (err, req, res) => {
+      console.error('Streamlit proxy error:', err);
+      res.status(500).send('Error connecting to Streamlit dashboard');
     }
   })
 );
