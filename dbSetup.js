@@ -4,6 +4,8 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
+let dbInstance = null;
+
 // Get the database path based on environment
 const getDBPath = () => {
   if (process.env.RENDER_STORAGE_PATH) {
@@ -49,7 +51,8 @@ function initDB(dbPath) {
             }
         }
 
-        const db = new sqlite3.Database(dbPath, (err) => {
+        // Create a new database connection
+        dbInstance = new sqlite3.Database(dbPath, (err) => {
             if (err) {
                 console.error('Error opening database:', err);
                 throw err;
@@ -57,8 +60,11 @@ function initDB(dbPath) {
             console.log('Database initialized successfully');
         });
 
+        // Enable foreign keys
+        dbInstance.run('PRAGMA foreign_keys = ON');
+
         // Create users table if it doesn't exist
-        db.run(`
+        dbInstance.run(`
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
@@ -92,7 +98,7 @@ function initDB(dbPath) {
         });
 
         // Create password_reset_otps table
-        db.run(`
+        dbInstance.run(`
             CREATE TABLE IF NOT EXISTS password_reset_otps (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL,
@@ -111,20 +117,20 @@ function initDB(dbPath) {
         });
 
         // Create indexes
-        db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`, (err) => {
+        dbInstance.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`, (err) => {
             if (err) console.error('Error creating email index:', err);
         });
-        db.run(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`, (err) => {
+        dbInstance.run(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`, (err) => {
             if (err) console.error('Error creating username index:', err);
         });
-        db.run(`CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`, (err) => {
+        dbInstance.run(`CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`, (err) => {
             if (err) console.error('Error creating OTP email index:', err);
         });
-        db.run(`CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`, (err) => {
+        dbInstance.run(`CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`, (err) => {
             if (err) console.error('Error creating OTP code index:', err);
         });
 
-        return db;
+        return dbInstance;
     } catch (error) {
         console.error('Database initialization error:', error);
         throw error;
@@ -133,23 +139,56 @@ function initDB(dbPath) {
 
 // Function to get database connection
 function getDB() {
+    if (dbInstance) {
+        return dbInstance;
+    }
+
     const dbPath = path.join(process.env.DATA_DIR || __dirname, 'users.db');
     console.log('Connecting to database at:', dbPath);
     
     try {
-        const db = new sqlite3.Database(dbPath, (err) => {
+        dbInstance = new sqlite3.Database(dbPath, (err) => {
             if (err) {
                 console.error('Error connecting to database:', err);
                 throw err;
             }
             console.log('Database connection established');
         });
-        return db;
+
+        // Enable foreign keys
+        dbInstance.run('PRAGMA foreign_keys = ON');
+        
+        return dbInstance;
     } catch (error) {
         console.error('Error in getDB:', error);
         throw error;
     }
 }
+
+// Function to close database connection
+function closeDB() {
+    if (dbInstance) {
+        dbInstance.close((err) => {
+            if (err) {
+                console.error('Error closing database:', err);
+            } else {
+                console.log('Database connection closed');
+                dbInstance = null;
+            }
+        });
+    }
+}
+
+// Handle process termination
+process.on('SIGINT', () => {
+    closeDB();
+    process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+    closeDB();
+    process.exit(0);
+});
 
 // Function to check if user profile is completed
 function isProfileCompleted(username) {
@@ -434,5 +473,6 @@ module.exports = {
   updateTotpSecret,
   updateUserPassword,
   updateUserProfile,
-  isProfileCompleted
+  isProfileCompleted,
+  closeDB
 };
