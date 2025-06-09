@@ -8,15 +8,11 @@ let dbInstance = null;
 
 // Get the database path based on environment
 const getDBPath = () => {
-  if (process.env.RENDER_STORAGE_PATH) {
-    const storagePath = process.env.RENDER_STORAGE_PATH;
-    // Ensure storage directory exists
-    if (!fs.existsSync(storagePath)) {
-      fs.mkdirSync(storagePath, { recursive: true });
-    }
-    return path.join(storagePath, 'users.db');
+  const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
   }
-  return path.join(__dirname, 'users.db');
+  return path.join(dataDir, 'users.db');
 };
 
 // Function to initialize database
@@ -143,7 +139,7 @@ function getDB() {
         return dbInstance;
     }
 
-    const dbPath = path.join(process.env.DATA_DIR || __dirname, 'users.db');
+    const dbPath = getDBPath();
     console.log('Connecting to database at:', dbPath);
     
     try {

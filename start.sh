@@ -1,14 +1,12 @@
 #!/bin/bash
 
-# Create data directory if it doesn't exist
-mkdir -p /opt/render/project/src/data
+# Use Render's persistent storage
+export DATA_DIR=${RENDER_EXTERNAL_STORAGE_MOUNT_PATH:-/opt/render/project/src/data}
 
-# Set proper permissions and ownership
-chmod -R 777 /opt/render/project/src/data
-chown -R $USER:$USER /opt/render/project/src/data
+mkdir -p "$DATA_DIR"
+chmod -R 777 "$DATA_DIR"
 
 # Set environment variables
-export DATA_DIR=/opt/render/project/src/data
 export NODE_ENV=production
 
 # Start the application
