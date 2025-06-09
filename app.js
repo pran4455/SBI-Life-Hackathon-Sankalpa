@@ -1384,8 +1384,6 @@ const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
   if (process.env.NODE_ENV === 'production') {
     console.log('Starting Streamlit dashboard...');
     startStreamlitServer();
-    console.log('Starting Chainlit server...');
-    startChainlitServer();
     const used = process.memoryUsage();
         console.log('Memory usage after startup:');
         for (let key in used) {
