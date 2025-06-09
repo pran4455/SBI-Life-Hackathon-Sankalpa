@@ -7,7 +7,9 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #667eea;
@@ -19,78 +21,58 @@
             --light-bg: #f7fafc;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             background: var(--primary-gradient);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--dark-color);
-            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
 
         .header {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            animation: slideDown 0.5s ease forwards;
+            padding: 1rem 0;
         }
 
         .header-content {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 1rem;
         }
 
         .logo {
             color: white;
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: translateY(-2px);
-            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .user-section {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .welcome-text {
             color: white;
             font-weight: 500;
-            font-size: 1.15rem;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .logout-btn {
             background: rgba(255, 255, 255, 0.2);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 0.5rem 1rem;
             border-radius: 25px;
             text-decoration: none;
-            font-weight: 500;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -98,62 +80,47 @@
 
         .logout-btn:hover {
             background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
         }
 
         .main-container {
-            max-width: 1400px;
-            margin: 1rem auto;
-            padding: 3rem 2rem;
-            min-height: calc(100vh - 80px);
-            animation: fadeIn 0.8s ease forwards;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
         }
 
         .page-header {
             text-align: center;
             margin-bottom: 3rem;
-            animation: fadeInUp 0.5s ease forwards;
         }
 
         .back-btn {
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
         }
 
         .back-btn:hover {
             color: white;
-            transform: translateX(-5px);
+            text-decoration: none;
         }
 
         .page-title {
             color: white;
             font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, #ffffff, #e0e7ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .page-description {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.2rem;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
         }
 
         .content-grid {
@@ -161,33 +128,26 @@
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
-            animation: fadeInUp 0.5s ease forwards;
-            animation-delay: 0.2s;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .card {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
         }
 
         .card-header {
             padding: 1.5rem;
-            font-weight: 600;
+            font-weight: bold;
             color: white;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
         .card-header.primary {
@@ -213,40 +173,35 @@
             font-weight: 600;
             color: var(--dark-color);
             margin-bottom: 0.5rem;
-            font-size: 1.1rem;
         }
 
         .form-control {
             border: 2px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 0.75rem 1rem;
             font-size: 1rem;
             transition: all 0.3s ease;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.9);
         }
 
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             outline: none;
-            background: white;
         }
 
         .form-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #718096;
-            margin-top: 0.5rem;
-            line-height: 1.4;
+            margin-top: 0.25rem;
         }
 
         .btn-primary {
             background: var(--primary-gradient);
             color: white;
             border: none;
-            padding: 1rem 2rem;
+            padding: 0.75rem 2rem;
             border-radius: 25px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -255,8 +210,6 @@
             justify-content: center;
             gap: 0.5rem;
             width: 100%;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .btn-primary:hover:not(:disabled) {
@@ -270,11 +223,9 @@
         }
 
         .alert {
-            border-radius: 12px;
+            border-radius: 10px;
             border: none;
-            padding: 1.2rem;
-            margin-bottom: 1.5rem;
-            animation: fadeIn 0.5s ease forwards;
+            padding: 1rem;
         }
 
         .alert-success {
@@ -293,130 +244,198 @@
         }
 
         .recommendation-content {
-            margin-top: 1.5rem;
-            animation: fadeIn 0.5s ease forwards;
+            margin-top: 1rem;
         }
 
         .recommendation-text {
             background: #f7fafc;
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 10px;
             border-left: 4px solid var(--primary-color);
+            font-size: 0.95rem;
             line-height: 1.6;
-            font-size: 1.1rem;
-            color: var(--dark-color);
         }
 
-        .recommendation-text p {
+        .placeholder-content {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+        }
+
+        .placeholder-icon {
+            font-size: 3rem;
+            color: #cbd5e0;
             margin-bottom: 1rem;
         }
 
-        .recommendation-text p:last-child {
+        .info-section {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .examples-section {
+            margin-top: 3rem;
+        }
+
+        .examples-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .examples-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem;
+            font-weight: bold;
+        }
+
+        .examples-body {
+            padding: 2rem;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .example-goal {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .example-goal:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .example-goal.border-primary {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .example-goal h6 {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .example-goal p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .examples-note {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            margin-top: 1rem;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            animation: spinner-border 0.75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-success {
+            color: var(--success-color) !important;
+        }
+
+        .text-warning {
+            color: var(--warning-color) !important;
+        }
+
+        .text-danger {
+            color: var(--danger-color) !important;
+        }
+
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .mr-3 {
+            margin-right: 1rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mb-0 {
             margin-bottom: 0;
         }
 
-        .loading-spinner {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            margin: 2rem 0;
+        .mb-3 {
+            margin-bottom: 1rem;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .user-section {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .welcome-text {
-                text-align: center;
-            }
-
-            .main-container {
-                padding: 2rem 1rem;
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .page-description {
-                font-size: 1.1rem;
-                padding: 0 1rem;
-            }
-
-            .card-body {
-                padding: 1.5rem;
-            }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="header-content">
-            <a href="/home" class="logo">
-                <i class="fas fa-robot"></i>
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
                 Financial AI Hub
-            </a>
+            </div>
             <div class="user-section">
-                <span class="welcome-text">Welcome, <%= username %></span>
+                <span class="welcome-text">Welcome, <%= username %>!</span>
+                <a href="/games" class="logout-btn">
+                    <i class="fas fa-gamepad"></i> Games
+                </a>
                 <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
         </div>
@@ -424,75 +443,52 @@
 
     <div class="main-container">
         <div class="page-header">
-            <a href="/home" class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-                Back to Dashboard
-            </a>
             <h1 class="page-title">
-                <i class="fas fa-bullseye"></i>
-                Goal GPS
+                <i class="fas fa-compass"></i>Goal GPS
             </h1>
-            <p class="page-description">
-                Set your financial goals and let our AI guide you towards achieving them. 
-                Get personalized recommendations based on your goals, timeline, and risk tolerance.
-            </p>
+            <p class="page-description">Navigate your financial goals with AI-powered recommendations</p>
         </div>
 
         <div class="content-grid">
             <div class="card">
                 <div class="card-header primary">
-                    <i class="fas fa-bullseye"></i>
-                    Set Your Goal
+                    <h4>
+                        <i class="fas fa-target"></i>Set Your Financial Goal
+                    </h4>
                 </div>
                 <div class="card-body">
                     <form id="goalForm">
                         <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-flag"></i>
-                                Financial Goal
+                            <label for="goal" class="form-label">
+                                <i class="fas fa-bullseye"></i>What is your financial goal?
                             </label>
-                            <select class="form-control" id="goal" required>
-                                <option value="">Select your goal</option>
-                                <option value="retirement">Retirement Planning</option>
-                                <option value="education">Education Fund</option>
-                                <option value="house">House Down Payment</option>
-                                <option value="emergency">Emergency Fund</option>
-                                <option value="investment">Investment Growth</option>
-                            </select>
-                            <small class="form-text">Choose your primary financial objective</small>
+                            <input type="text" class="form-control" id="goal" placeholder="e.g., Buy a house, Child's education, Retirement planning" required>
+                            <div class="form-text">Be specific about your financial objective</div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-clock"></i>
-                                Time Horizon
+                            <label for="duration" class="form-label">
+                                <i class="fas fa-calendar-alt"></i>Duration (in months)
                             </label>
-                            <select class="form-control" id="duration" required>
-                                <option value="">Select time frame</option>
-                                <option value="short">Short Term (1-3 years)</option>
-                                <option value="medium">Medium Term (3-7 years)</option>
-                                <option value="long">Long Term (7+ years)</option>
-                            </select>
-                            <small class="form-text">How long do you plan to work towards this goal?</small>
+                            <input type="number" class="form-control" id="duration" min="1" max="600" placeholder="e.g., 60" required>
+                            <div class="form-text">How many months do you have to achieve this goal?</div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-chart-line"></i>
-                                Risk Tolerance
+                            <label for="risk" class="form-label">
+                                <i class="fas fa-chart-bar"></i>Risk Appetite
                             </label>
                             <select class="form-control" id="risk" required>
-                                <option value="">Select risk level</option>
-                                <option value="low">Conservative</option>
-                                <option value="medium">Moderate</option>
-                                <option value="high">Aggressive</option>
+                                <option value="">Select your risk preference</option>
+                                <option value="Low">Low Risk - Conservative approach</option>
+                                <option value="Medium">Medium Risk - Balanced approach</option>
+                                <option value="High">High Risk - Aggressive approach</option>
                             </select>
-                            <small class="form-text">How comfortable are you with investment risk?</small>
+                            <div class="form-text">Choose based on your comfort with investment risk</div>
                         </div>
 
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-magic"></i>
-                            Get AI Recommendations
+                        <button type="submit" class="btn-primary" id="analyzeBtn">
+                            <i class="fas fa-search"></i>Analyze My Goal
                         </button>
                     </form>
                 </div>
@@ -500,79 +496,229 @@
 
             <div class="card">
                 <div class="card-header success">
-                    <i class="fas fa-lightbulb"></i>
-                    AI Recommendations
+                    <h4>
+                        <i class="fas fa-lightbulb"></i>AI Recommendation
+                    </h4>
                 </div>
                 <div class="card-body">
-                    <div id="loadingSpinner" class="loading-spinner">
-                        <div class="spinner"></div>
+                    <!-- Loading State -->
+                    <div id="loadingDiv" style="display: none;">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p class="mt-2">Analyzing your goal...</p>
+                        </div>
                     </div>
-                    <div id="recommendationContent" class="recommendation-content" style="display: none;">
-                        <div class="recommendation-text" id="recommendationText"></div>
+
+                    <!-- Result State -->
+                    <div id="resultDiv" style="display: none;">
+                        <div id="statusIndicator" class="alert mb-3">
+                            <div class="d-flex align-items-center">
+                                <div id="statusIcon" class="mr-3"></div>
+                                <div>
+                                    <h6 id="statusText" class="mb-0"></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="recommendation-content">
+                            <h6><i class="fas fa-robot"></i> AI Analysis:</h6>
+                            <div id="recommendationText" class="recommendation-text"></div>
+                        </div>
                     </div>
-                    <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+
+                    <!-- Placeholder State -->
+                    <div id="placeholderDiv" class="placeholder-content">
+                        <div class="placeholder-icon">
+                            <i class="fas fa-compass"></i>
+                        </div>
+                        <p>Enter your financial goal details to get personalized AI recommendations</p>
+                        <div class="info-section">
+                            <h6><i class="fas fa-info-circle"></i>How it works:</h6>
+                            <ul class="info-list">
+                                <li><i class="fas fa-check text-success"></i>Enter your specific financial goal</li>
+                                <li><i class="fas fa-check text-success"></i>Set your timeline in months</li>
+                                <li><i class="fas fa-check text-success"></i>Choose your risk preference</li>
+                                <li><i class="fas fa-check text-success"></i>Get AI-powered recommendations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="examples-section">
+            <div class="examples-card">
+                <div class="examples-header">
+                    <h5>
+                        <i class="fas fa-lightbulb"></i>Example Financial Goals
+                    </h5>
+                </div>
+                <div class="examples-body">
+                    <div class="examples-grid">
+                        <div class="example-goal" data-goal="Buy a house worth 50 lakhs" data-duration="120" data-risk="Medium">
+                            <h6><i class="fas fa-home"></i>Home Purchase</h6>
+                            <p>Goal: Buy a house worth 50 lakhs</p>
+                            <p>Duration: 120 months</p>
+                            <p>Risk: Medium</p>
+                        </div>
+                        <div class="example-goal" data-goal="Child's higher education expenses" data-duration="180" data-risk="Low">
+                            <h6><i class="fas fa-graduation-cap"></i>Child's Education</h6>
+                            <p>Goal: Child's higher education expenses</p>
+                            <p>Duration: 180 months</p>
+                            <p>Risk: Low</p>
+                        </div>
+                        <div class="example-goal" data-goal="Retirement corpus of 2 crores" data-duration="240" data-risk="High">
+                            <h6><i class="fas fa-umbrella-beach"></i>Retirement Planning</h6>
+                            <p>Goal: Retirement corpus of 2 crores</p>
+                            <p>Duration: 240 months</p>
+                            <p>Risk: High</p>
+                        </div>
+                    </div>
+                    <p class="examples-note">
+                        <i class="fas fa-hand-pointer"></i>Click on any example to auto-fill the form
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Register service worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+        // Example goal click handlers
+        document.querySelectorAll('.example-goal').forEach(example => {
+            example.addEventListener('click', function() {
+                document.getElementById('goal').value = this.dataset.goal;
+                document.getElementById('duration').value = this.dataset.duration;
+                document.getElementById('risk').value = this.dataset.risk;
+                
+                // Highlight the selected example
+                document.querySelectorAll('.example-goal').forEach(ex => ex.classList.remove('border-primary'));
+                this.classList.add('border-primary');
             });
-        }
+        });
 
-        document.getElementById('goalForm').addEventListener('submit', async (e) => {
+        // Form submission handler
+        document.getElementById('goalForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const goal = document.getElementById('goal').value;
+            const goal = document.getElementById('goal').value.trim();
             const duration = document.getElementById('duration').value;
             const risk = document.getElementById('risk').value;
             
-            // Show loading spinner
-            document.getElementById('loadingSpinner').style.display = 'flex';
-            document.getElementById('recommendationContent').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'none';
+            if (!goal || !duration || !risk) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Show loading, hide others
+            showLoading();
             
             try {
                 const response = await fetch('/api/goal-gps', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ goal, duration, risk })
                 });
                 
                 const data = await response.json();
+                console.log('Response data:', data); // Debug log
                 
                 if (response.ok) {
-                    // Hide loading spinner and show recommendation
-                    document.getElementById('loadingSpinner').style.display = 'none';
-                    document.getElementById('recommendationContent').style.display = 'block';
-                    
-                    // Format and display recommendation
-                    const recommendationText = document.getElementById('recommendationText');
-                    recommendationText.innerHTML = data.recommendation
-                        .split('\n')
-                        .map(paragraph => `<p>${paragraph}</p>`)
-                        .join('');
+                    displayResult(data);
                 } else {
-                    throw new Error(data.error || 'Failed to get recommendations');
+                    throw new Error(data.error || 'Failed to get recommendation');
                 }
             } catch (error) {
-                // Hide loading spinner and show error
-                document.getElementById('loadingSpinner').style.display = 'none';
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').textContent = error.message;
+                console.error('Error:', error);
+                displayError(error.message);
             }
+        });
+
+        function showLoading() {
+            document.getElementById('loadingDiv').style.display = 'block';
+            document.getElementById('resultDiv').style.display = 'none';
+            document.getElementById('placeholderDiv').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingDiv').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = false;
+        }
+
+        function displayResult(data) {
+            hideLoading();
+            
+            console.log('Displaying result:', data); // Debug log
+            
+            // Handle both 'color' and 'Color' properties for compatibility
+            const color = data.color || data.Color;
+            const reason = data.reason || data.Reason;
+            
+            if (!color || !reason) {
+                console.error('Missing color or reason in response:', data);
+                displayError('Invalid response format from server');
+                return;
+            }
+            
+            // Update status indicator
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            
+            if (color === 'Green') {
+                statusIndicator.className = 'alert alert-success mb-3';
+                statusIcon.innerHTML = '<i class="fas fa-check-circle fa-2x text-success"></i>';
+                statusText.textContent = 'Goal Achievable!';
+            } else if (color === 'Red') {
+                statusIndicator.className = 'alert alert-danger mb-3';
+                statusIcon.innerHTML = '<i class="fas fa-times-circle fa-2x text-danger"></i>';
+                statusText.textContent = 'Goal Needs Major Adjustment';
+            } else {
+                statusIndicator.className = 'alert alert-warning mb-3';
+                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle fa-2x text-warning"></i>';
+                statusText.textContent = 'Goal Needs Adjustment';
+            }
+            
+            // Update recommendation text
+            document.getElementById('recommendationText').innerHTML = reason.replace(/\n/g, '<br>');
+            
+            // Show result
+            document.getElementById('resultDiv').style.display = 'block';
+            document.getElementById('placeholderDiv').style.display = 'none';
+        }
+
+        function displayError(message) {
+            hideLoading();
+            
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            
+            statusIndicator.className = 'alert alert-danger mb-3';
+            statusIcon.innerHTML = '<i class="fas fa-times-circle fa-2x text-danger"></i>';
+            statusText.textContent = 'Analysis Failed';
+            
+            document.getElementById('recommendationText').innerHTML = `Error: ${message}`;
+            document.getElementById('resultDiv').style.display = 'block';
+            document.getElementById('placeholderDiv').style.display = 'none';
+        }
+
+        // Add hover effects to example goals
+        document.querySelectorAll('.example-goal').forEach(example => {
+            example.addEventListener('mouseenter', function() {
+                if (!this.style.backgroundColor || this.style.backgroundColor === '') {
+                    this.style.backgroundColor = '#f8f9fa';
+                }
+            });
+            
+            example.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('border-primary')) {
+                    this.style.backgroundColor = '';
+                }
+            });
         });
     </script>
 </body>

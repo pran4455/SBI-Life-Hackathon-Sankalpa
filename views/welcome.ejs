@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Financial AI Hub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -252,51 +252,79 @@
             }
             
             .btn {
-                width: 100%;
-                max-width: 300px;
+                min-width: 200px;
             }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero h2 {
+                font-size: 1.1rem;
+            }
+            
+            .other-links a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .nav-links img {
+                height: 35px;
+            }
+        }
+
+        /* Additional Effects */
+        .nav-bar {
+            animation: slideDown 0.5s ease forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Glassmorphism effect for better visual appeal */
+        .nav-bar, .other-links a, .btn-secondary {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
 <body>
-    <nav class="nav-bar">
+    <div class="nav-bar">
         <div class="nav-links">
-            <img src="/icons/logo.png" alt="Financial AI Hub Logo">
+            <img src="/static/sankalpa.png" alt="Logo">
         </div>
         <div class="other-links">
-            <a href="/about" class="about">About</a>
+            <a href="/about" class="about">About us</a>
             <a href="/login" class="login">Login</a>
             <a href="/register" class="signup">Sign Up</a>
         </div>
-    </nav>
+    </div>
 
-    <section class="hero">
-        <h1>Welcome to Financial AI Hub</h1>
-        <h2>Your Personal Financial Intelligence Assistant</h2>
-        <p>Experience the future of financial planning with our AI-powered platform. Get personalized recommendations, track your goals, and make informed decisions with confidence.</p>
+    <div class="hero">
+        <h1>Financial AI Hub</h1>
+        <h2>Welcome to the Future of Financial Intelligence.</h2>
+        <p>InsureInsights is your next-generation AI-powered platform designed to revolutionize financial services. From personalized policy recommendations to real-time fraud detection, our suite of tools empowers users to make smarter, faster, and more secure financial decisions.</p>
+    
         <div class="cta-buttons">
             <a href="/register" class="btn btn-primary">Get Started</a>
-            <a href="/about" class="btn btn-secondary">Learn More</a>
+            <a href="/login" class="btn btn-primary">Sign In</a>
+            <a href="" class="btn btn-primary">Get App</a>
         </div>
-    </section>
-
-    <footer class="footer">
-        <p>&copy; 2024 Financial AI Hub. All rights reserved.</p>
-    </footer>
-
-    <script>
-        // Register service worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
-    </script>
+    </div>
 </body>
 </html>

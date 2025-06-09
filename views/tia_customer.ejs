@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial AI Chatbot | Financial AI Hub</title>
+    <title>Chat with TIA | TIA Support</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
@@ -39,8 +39,9 @@
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--primary-gradient);
-            min-height: 100vh;
+            height: 100vh;
             line-height: 1.6;
+            overflow: hidden; /* Ensures entire screen is fixed and not scrollable */
         }
 
         /* ===== IMPROVED HEADER ===== */
@@ -53,6 +54,7 @@
             top: 0;
             z-index: 100;
             transition: var(--transition);
+            height: 5rem;
         }
 
         .header-content {
@@ -108,23 +110,51 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
+        .call-btn {
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .call-btn:hover {
+            background: rgba(76, 175, 80, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
         /* ===== OPTIMIZED CONTAINER & LAYOUT ===== */
         .container {
             max-width: 1000px;
-            margin: 20px auto;
+            margin: 0 auto;
             padding: 0 20px;
+            height: 89vh; /* Full height of viewport */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .chatbot-header {
             text-align: center;
-            margin-bottom: 10px;
-            padding: 0.5rem 0.5rem;
+            margin-top: 20px;
+            margin-bottom: 5px;
+            padding: 1rem 1rem;
             background: var(--primary-gradient);
             border-radius: var(--border-radius);
             color: white;
             box-shadow: var(--shadow-medium);
             position: relative;
             overflow: hidden;
+            height: 15vh;
         }
 
         .chatbot-header::before {
@@ -139,8 +169,8 @@
         }
 
         .chatbot-header h2 {
-            margin: 0 0 0.4rem 0;
-            font-size: 1.4rem;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
             font-weight: 700;
             position: relative;
             z-index: 1;
@@ -148,11 +178,11 @@
 
         .chatbot-header p {
             margin: 0;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             opacity: 0.95;
-            font-weight: 600;
+            font-weight: 500;
             line-height: 1.6;
-            max-width: 500px;
+            max-width: 600px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
@@ -160,15 +190,16 @@
 
         /* ===== ENHANCED CHATBOT CONTAINER ===== */
         .chatbot-container {
+            flex-grow: 1;
             background: var(--background-white);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-heavy);
             overflow: hidden;
-            height: 500px;
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border-light);
             position: relative;
+            height: 300px; /* You can adjust this if needed */
         }
 
         /* ===== IMPROVED CHAT MESSAGES ===== */
@@ -179,6 +210,7 @@
             background: var(--background-light);
             scroll-behavior: smooth;
             position: relative;
+            max-height: calc(500px - 100px); /* Adjust based on your input height/header */
         }
 
         /* Custom Scrollbar */
@@ -266,48 +298,17 @@
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         }
 
-        /* ===== IMPROVED STREAMING & LOADING STATES ===== */
-        .streaming .message-content::after {
-            content: '●';
-            animation: pulse 1.5s infinite;
-            color: var(--primary-color);
-            margin-left: 4px;
-            font-size: 1.2em;
+        /* ===== ERROR MESSAGE STYLES ===== */
+        .error-message {
+            justify-content: center;
         }
 
-        @keyframes pulse {
-            0%, 100% { 
-                opacity: 0.3; 
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 1; 
-                transform: scale(1.1);
-            }
-        }
-
-        .loading .message-content {
-            background: var(--background-white);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-light);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .loading .message-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.15), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+        .error-message .message-content {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            max-width: 85%;
+            text-align: center;
         }
 
         /* ===== ENHANCED INPUT SECTION ===== */
@@ -449,7 +450,7 @@
                 gap: 0.5rem;
             }
             
-            .logout-btn {
+            .call-btn {
                 padding: 0.5rem 0.75rem;
                 font-size: 0.85rem;
             }
@@ -489,9 +490,6 @@
             }
         }
 
-        .chat-input button:focus,
-        .logout-btn:focus,
-
         /* ===== PERFORMANCE OPTIMIZATIONS ===== */
         .chatbot-container,
         .message-content,
@@ -509,17 +507,20 @@
         }
     </style>
 </head>
-<body>
-    <!-- ===== Header Bar ===== -->
-
-    <header class="header">
+<body> 
+    <!-- Header Section -->
+    <div class="header">
         <div class="header-content">
             <div class="logo">
                 <i class="fas fa-chart-line"></i>
                 Financial AI Hub
             </div>
             <div class="user-section">
-                <span class="welcome-text">Welcome, <%= username %>!</span>
+                <div class="welcome-text">Welcome, <%= username %>!</div>
+                <a href="tel:+13613710668" class="call-btn" title="Call TIA Support">
+                    <i class="fas fa-phone"></i>
+                    Call Support
+                </a>
                 <a href="/home" class="logout-btn">
                     <i class="fas fa-home"></i> Home
                 </a>
@@ -528,125 +529,82 @@
                 </a>
             </div>
         </div>
-    </header>
+    </div>
 
-    <!-- ===== Chatbot Container ===== -->
+    <!-- Main Container -->
     <div class="container">
+        <!-- Chat Header -->
         <div class="chatbot-header">
-            <h2>FinChat</h2>
-            <p>Hi there! I'm FinChat. Ask me anything about savings, investments, loans, insurance, or money matters in general!</p>
+            <h2>Chat with TIA</h2>
+            <p>Get instant support and answers to your questions. Our AI assistant is here to help you 24/7.</p>
         </div>
-        
+
+        <!-- Chat Container -->
         <div class="chatbot-container">
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot-message">
-                    <div class="message-content">Welcome to Financial Assistant! How can I assist you today?</div>
-                </div>
+            <div class="chat-messages" id="messages">
+                <!-- Messages will be populated here -->
             </div>
+            
             <div class="chat-input-container">
                 <div class="chat-input">
-                    <input type="text" id="messageInput" placeholder="Type your financial question here..." />
-                    <button id="sendButton">Send</button>
+                    <input id="m" type="text" placeholder="Type your message here...">
+                    <button class="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                        Send
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            // Add user message to chat
-            addMessage(message, 'user');
-            input.value = '';
-            
-            // Create bot message container for streaming
-            const botMessageId = addMessage('', 'bot', true);
-            const botMessageElement = document.getElementById(botMessageId);
-            const messageContent = botMessageElement.querySelector('.message-content');
-            
-            try {
-                const response = await fetch('http://localhost:8001/chat/stream', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let botResponse = '';
-                
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\n');
-                    
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const data = line.slice(6);
-                            if (data === '[DONE]') {
-                                return;
-                            } else if (data === '[ERROR]') {
-                                messageContent.textContent = 'Sorry, I encountered an error. Please try again.';
-                                return;
-                            } else if (data.trim()) {
-                                botResponse += data;
-                                messageContent.textContent = botResponse;
-                                scrollToBottom();
-                            }
-                        }
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                messageContent.textContent = 'Sorry, I cannot connect to the chatbot service. Please try again later.';
-            }
-        }
-        
-        function addMessage(text, type, isStreaming = false) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            const messageId = 'msg-' + Date.now();
-            messageDiv.id = messageId;
-            messageDiv.className = `message ${type}-message`;
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            messageContent.textContent = text;
-            
-            messageDiv.appendChild(messageContent);
-            messagesContainer.appendChild(messageDiv);
-            scrollToBottom();
-            
-            return messageId;
-        }
-        
-        function scrollToBottom() {
-            const messagesContainer = document.getElementById('chatMessages');
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Event listeners
-        document.getElementById('sendButton').addEventListener('click', sendMessage);
-        document.getElementById('messageInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-    </script>
+    <script src="/socket.io/socket.io.js"></script> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> 
+    <script> 
+        $(function () { 
+            var socket = io('/tia_customer'); 
+ 
+            // Function to send message 
+            function sendMessage() { 
+                var messageText = $('#m').val().trim(); 
+                if (messageText !== "") { 
+                    $('#messages').append($('<div class="message user-message"><div class="message-content">' + messageText + '</div></div>')); 
+                    socket.emit('customer message', messageText); 
+                    $('#m').val(''); 
+                     
+                    // Auto-scroll to bottom 
+                    $('.chat-messages').scrollTop($('.chat-messages')[0].scrollHeight); 
+                } 
+            } 
+ 
+            // Send message on button click 
+            $('.send-button').click(function(){ 
+                sendMessage(); 
+            }); 
+ 
+            // Send message on Enter key press 
+            $('#m').keypress(function(event) { 
+                if (event.which === 13) { // 13 is Enter key code 
+                    event.preventDefault(); // Prevent new line in input 
+                    sendMessage(); 
+                } 
+            }); 
+ 
+            // Receive and display messages (including agent responses)   
+            socket.on('customer message', function(msg){ 
+                $('#messages').append($('<div class="message bot-message"><div class="message-content">' + msg + '</div></div>')); 
+                // Auto-scroll to bottom 
+                $('.chat-messages').scrollTop($('.chat-messages')[0].scrollHeight); 
+            }); 
+ 
+            // Handle system errors 
+            socket.on('system error', function(error) { 
+                var errorText = error.type + ' - ' + error.message; 
+                console.log(errorText); 
+                $('#messages').append($('<div class="message error-message"><div class="message-content">' + errorText + '</div></div>')); 
+                // Auto-scroll to bottom 
+                $('.chat-messages').scrollTop($('.chat-messages')[0].scrollHeight); 
+            }); 
+        }); 
+    </script> 
 </body>
 </html>

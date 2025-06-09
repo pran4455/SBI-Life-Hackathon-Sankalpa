@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Financial AI Hub</title>
+    <title>Financial AI Hub</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -20,7 +20,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             overflow-x: hidden;
-            color: white;
         }
 
         /* Header */
@@ -32,7 +31,6 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            animation: slideDown 0.5s ease forwards;
         }
 
         .header-content {
@@ -50,19 +48,12 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: translateY(-2px);
-            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .user-section {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .welcome-text {
@@ -71,7 +62,6 @@
             font-size: 1.15rem;
             margin-right: 20px;
             margin-bottom: 2px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .logout-btn {
@@ -84,15 +74,11 @@
             font-weight: 500;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
         .logout-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         /* Main Content */
@@ -100,69 +86,131 @@
             max-width: 1400px;
             margin: 1rem auto;
             padding: 3rem 2rem;
-            min-height: calc(100vh - 80px);
-            animation: fadeIn 0.8s ease forwards;
+            height: 90vh;
+            overflow: hidden;
         }
 
         .page-title {
             text-align: center;
             color: white;
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, #ffffff, #e0e7ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         /* Features Grid */
-        .dashboard-grid {
+        .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
-            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .dashboard-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .feature-card {
+            position: relative;
+            height: 250px;
             border-radius: 20px;
-            padding: 2rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-decoration: none;
-            color: #2d3748;
-            transition: all 0.3s ease;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.3;
+            transition: all 0.4s ease;
+            z-index: 1;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+            z-index: 2;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.6;
+            transform: scale(1.1);
+        }
+
+        .feature-card:hover::after {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.6), rgba(118, 75, 162, 0.6));
+        }
+
+        .feature-content {
+            position: relative;
+            z-index: 3;
+            height: 100%;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
             text-align: center;
-            gap: 1rem;
+            padding: 2rem;
+            color: white;
         }
 
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .dashboard-card i {
-            font-size: 2.5rem;
-            color: #667eea;
+        .feature-icon {
+            font-size: 3rem;
             margin-bottom: 1rem;
+            transition: all 0.4s ease;
         }
 
-        .dashboard-card h2 {
-            font-size: 1.5rem;
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2) rotate(5deg);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
             font-weight: 600;
-            margin: 0;
+            margin-bottom: 0.5rem;
+            transition: all 0.4s ease;
         }
 
-        .dashboard-card p {
-            font-size: 1rem;
-            color: #4a5568;
-            margin: 0;
+        .feature-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.4;
+            transition: all 0.4s ease;
         }
+
+        .feature-card:hover .feature-title,
+        .feature-card:hover .feature-description {
+            transform: translateY(-5px);
+        }
+
+        /* Background images for each card */
+        .card-policy::before { background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500'); }
+        .card-analytics::before { background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500'); }
+        .card-chatbot::before { background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500'); }
+        .card-upselling::before { background-image: url('https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500'); }
+        .card-fraud::before { background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500'); }
+        .card-tools::before { background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500'); }
+        .card-finchat::before { background-image: url('https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=500'); }
 
         /* Language Dropdown */
         .language-dropdown {
@@ -178,13 +226,6 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .language-dropdown:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .language-dropdown img {
@@ -211,181 +252,286 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            border: none;
-            border-radius: 50%;
             width: 60px;
             height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             z-index: 1000;
+            transition: all 0.3s ease;
         }
 
         .chat-button:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        .chat-button img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+            
+            .page-title {
+                font-size: 2.5rem;
+            }
+            
+            .main-container {
+                padding: 2rem 1rem;
+            }
+            
             .header {
                 padding: 1rem;
             }
-
+            
             .header-content {
                 flex-direction: column;
                 gap: 1rem;
             }
-
-            .user-section {
-                flex-direction: column;
-                gap: 1rem;
+            
+            .language-dropdown {
+                top: 8rem;
             }
+        }
 
-            .welcome-text {
-                margin-right: 0;
-                text-align: center;
+        @media (max-width: 480px) {
+            .feature-card {
+                height: 200px;
             }
-
-            .main-container {
-                padding: 2rem 1rem;
+            
+            .feature-icon {
+                font-size: 2.5rem;
             }
-
+            
+            .feature-title {
+                font-size: 1.1rem;
+            }
+            
             .page-title {
                 font-size: 2rem;
             }
+        }
 
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
+        /* Dialogflow Messenger Styling */
+        df-messenger {
+            position: fixed;
+            right: 2rem;
+            bottom: 2rem;
+            z-index: 999;
+            --df-messenger-button-border-radius: 50%;
+            --df-messenger-button-width: 60px;
+            --df-messenger-button-height: 60px;
+            display: none;
+            --df-messenger-chat-window-height: 500px;
+            --df-messenger-chat-window-width: 350px;
+            --df-messenger-chat-window-border-radius: 20px;
+            --df-messenger-chat-window-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Loading Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-
-            .language-dropdown {
-                top: auto;
-                bottom: 2rem;
-                left: 2rem;
-                right: auto;
-            }
-
-            .chat-button {
-                bottom: 5rem;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
+
+        .feature-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .feature-card:nth-child(6) { animation-delay: 0.6s; }
+        .feature-card:nth-child(7) { animation-delay: 0.7s; }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <a href="/home" class="logo">
-                <i class="fas fa-robot"></i>
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
                 Financial AI Hub
-            </a>
+            </div>
             <div class="user-section">
-                <span class="welcome-text">Welcome, <%= username %></span>
+                <span class="welcome-text">Welcome, <%= username %>!</span>
                 <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
+                    <i class="fas fa-sign-out-alt"> </i> Logout
                 </a>
             </div>
         </div>
     </header>
 
+    <!-- Main Content -->
     <div class="main-container">
-        <h1 class="page-title">Your Financial AI Dashboard</h1>
-        
-        <div class="dashboard-grid">
-            <a href="/policy-recommend" class="dashboard-card">
-                <i class="fas fa-file-invoice"></i>
-                <h2>Policy Recommendations</h2>
-                <p>Get personalized policy recommendations based on your needs</p>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <a href="/policy-recommendation" class="feature-card card-upselling">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="feature-title">SmartPolicy Recommender</h3>
+                    <p class="feature-description">AI-driven policy suggestions with explainable insights and AI-based policy upselling</p>
+                </div>
             </a>
 
-            <a href="/financial-chatbot" class="dashboard-card">
-                <i class="fas fa-robot"></i>
-                <h2>AI Chatbot</h2>
-                <p>Chat with our AI assistant for financial guidance</p>
+            <a href="/tia-chatbot" class="feature-card card-chatbot">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">TIA Assistant</h3>
+                    <p class="feature-description">Intelligent conversational AI for instant support</p>
+                </div>
             </a>
 
-            <a href="/goal-gps" class="dashboard-card">
-                <i class="fas fa-bullseye"></i>
-                <h2>Goal GPS</h2>
-                <p>Plan and track your financial goals</p>
+            <a href="/fraud-detection" class="feature-card card-fraud">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 class="feature-title">LifeReminder AI</h3>
+                    <p class="feature-description">An AI-powered reminder system that tracks tasks, due dates, and follow-ups.</p>
+                </div>
             </a>
 
-            <a href="/analytics-dashboard" class="dashboard-card">
-                <i class="fas fa-chart-line"></i>
-                <h2>Analytics</h2>
-                <p>View your financial analytics and insights</p>
+            <a href="analytics-dashboard" class="feature-card card-analytics">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="feature-icon"></div>
+                    <h3 class="feature-title">Analytics Dashboard</h3>
+                    <p class="feature-description">Real-time data visualization and performance metrics</p>
+                </div>
             </a>
 
-            <a href="/games" class="dashboard-card">
-                <i class="fas fa-dice"></i>
-                <h2>Games</h2>
-                <p>Learn finance through interactive games</p>
+            <a href="/financial-chatbot" class="feature-card card-finchat">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="feature-title">FinChat Bot</h3>
+                    <p class="feature-description">Your financial assistant offering guidance and support across banking and insurance services.</p>
+                </div>
+            </a>
+
+            <a href="/games" class="feature-card card-tools">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3 class="feature-title">Interactive Financial Tools</h3>
+                    <p class="feature-description">Interactive games related to finance and money management</p>
+                </div>
             </a>
         </div>
     </div>
 
+    <!-- Language Selection -->
     <div class="language-dropdown">
-        <img src="/icons/language.png" alt="Language">
-        <select id="languageSelect">
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-            <option value="de">Deutsch</option>
+        <img src="https://cdn-icons-png.flaticon.com/512/484/484531.png" alt="Language">
+        <select id="language-selector">
+            <option value="en" selected>English</option>
+            <option value="ta">தமிழ்</option>
         </select>
     </div>
 
-    <button class="chat-button" onclick="window.location.href='/tia-chatbot'">
-        <i class="fas fa-comments"></i>
-    </button>
+    <!-- Chat Button -->
+    <div class="chat-button" id="chat-btn">
+        <img src="https://sbilife-chatbot.allincall.in/files/f9443504-0ae6-4ba2-9d1e-075f9207927b_compressed.png" alt="Chat">
+    </div>
+
+    <!-- Dialogflow Messenger -->
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+        id="chatbot"
+        intent="WELCOME"
+        chat-title="Chat with TIA!"
+        agent-id="f1dd1169-3f26-46be-a02c-0a202af1d420"
+        language-code="en">
+    </df-messenger>
 
     <script>
-        // Register service worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
+        // Chat button functionality
+        document.getElementById("chat-btn").addEventListener("click", function() {
+            const chatbox = document.querySelector("df-messenger");
+            chatbox.style.display = "block";
+            
+            setTimeout(() => {
+                const dfButton = document.querySelector("df-messenger").shadowRoot.querySelector("df-messenger-button");
+                if (dfButton) {
+                    dfButton.style.display = "none";
+                }
+            }, 500);
+        });
 
-        // Language selection handler
-        document.getElementById('languageSelect').addEventListener('change', function(e) {
-            const language = e.target.value;
-            // Implement language change logic here
-            console.log('Language changed to:', language);
+        // Hide default Dialogflow button
+        const observer = new MutationObserver(() => {
+            const dfButton = document.querySelector("df-messenger").shadowRoot.querySelector("df-messenger-button");
+            if (dfButton) {
+                dfButton.style.display = "none";
+            }
+        });
+
+        observer.observe(document.querySelector("df-messenger"), { 
+            childList: true, 
+            subtree: true 
+        });
+
+        // Language change functionality
+        document.getElementById("language-selector").addEventListener("change", function() {
+            const selectedLang = this.value;
+            const chatbot = document.getElementById("chatbot");
+            const chatTitle = selectedLang === "ta" ? "TIA உடன் அரட்டை!" : "Chat with TIA!";
+            
+            chatbot.remove();
+            
+            const newChatbot = document.createElement("df-messenger");
+            newChatbot.setAttribute("id", "chatbot");
+            newChatbot.setAttribute("intent", "WELCOME");
+            newChatbot.setAttribute("chat-title", chatTitle);
+            newChatbot.setAttribute("agent-id", "f1dd1169-3f26-46be-a02c-0a202af1d420");
+            newChatbot.setAttribute("language-code", selectedLang);
+            
+            document.body.appendChild(newChatbot);
+        });
+
+        // Add smooth scrolling and entrance animations
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.feature-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
         });
     </script>
 </body>

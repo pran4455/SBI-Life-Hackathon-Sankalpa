@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Setup Two-Factor Authentication - Financial AI Hub</title>
+    <title>Setup 2FA - Financial AI Hub</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -15,6 +15,7 @@
             box-sizing: border-box;
         }
 
+        /* Body */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -76,9 +77,9 @@
         }
 
         /* Container Styles */
-        .container {
+        .container, .setup-container {
             max-width: 600px;
-            margin: 60px auto 40px;
+            margin: 60px auto 40px; /* increased top margin to add space from nav-bar */
             padding: 3rem;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
@@ -86,13 +87,14 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             animation: fadeInUp 0.8s ease forwards;
+            min-height: 90vh; /* fills most of the page */
         }
 
         .title {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             background: linear-gradient(135deg, #ffffff, #e0e7ff);
             -webkit-background-clip: text;
@@ -100,100 +102,61 @@
             background-clip: text;
         }
 
-        .description {
-            font-size: 1.1rem;
+        .subtitle, .description {
+            font-size: 1rem;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             opacity: 0.9;
             color: rgba(255, 255, 255, 0.8);
             line-height: 1.5;
         }
 
-        /* Steps Container */
-        .steps-container {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .step {
-            display: flex;
-            align-items: flex-start;
+        /* Form Styling */
+        .form-group, .mb-4 {
             margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            transition: all 0.3s ease;
         }
 
-        .step:hover {
-            transform: translateX(10px);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .step-number {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            margin-right: 1rem;
-            flex-shrink: 0;
-        }
-
-        .step-content {
-            flex: 1;
-        }
-
-        .step-title {
+        .form-group label, .form-label {
+            display: block;
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
         }
 
-        .step-description {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        /* QR Code Container */
-        .qr-container {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 2rem 0;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .qr-code {
-            max-width: 200px;
-            margin: 0 auto;
+        .form-group input, .form-control {
+            width: 100%;
             padding: 1rem;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Secret Key Display */
-        .secret-key {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 15px;
-            padding: 1rem;
-            margin: 1rem 0;
-            font-family: monospace;
-            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-lg {
+            padding: 1.2rem;
+            font-size: 1.2rem;
+        }
+
+        .text-center input {
             text-align: center;
-            letter-spacing: 0.1em;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3rem;
+            letter-spacing: 0.2rem;
+        }
+
+        .form-group input::placeholder, .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input:focus, .form-control:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         /* Button Styling */
@@ -213,6 +176,8 @@
             color: white;
             box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
             margin-top: 1rem;
+            display: inline-block;
+            text-align: center;
         }
 
         .btn::before {
@@ -236,8 +201,46 @@
             background: linear-gradient(135deg, #5b52f0, #8b46f7);
         }
 
-        /* Error Message */
-        .error {
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        }
+
+        .btn-lg {
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .btn-outline-light {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: auto;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        /* Alert and Message Styling */
+        .error, .alert-danger {
             background: rgba(220, 53, 69, 0.2);
             border: 1px solid rgba(220, 53, 69, 0.5);
             color: #ff6b6b;
@@ -247,6 +250,225 @@
             text-align: center;
             backdrop-filter: blur(10px);
             font-weight: 500;
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #4ade80;
+            padding: 1rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+
+        /* Form Footer */
+        .form-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-footer p {
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-footer a {
+            color: #e0e7ff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .form-footer a:hover {
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* QR Code Specific Styles */
+        .qr-container, .qr-code-container {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .qr-code, .qr-code-image {
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Instructions and Steps */
+        .instructions {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .instructions h3 {
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+        }
+
+        .steps {
+            margin: 2rem 0;
+        }
+
+        .steps > div {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        /* Secret Key */
+        .secret-key {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 1rem 0;
+        }
+
+        /* Actions */
+        .actions {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-white {
+            color: white;
+        }
+
+        .opacity-75 {
+            opacity: 0.75;
+        }
+
+        .text-decoration-none {
+            text-decoration: none;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-4 {
+            margin-top: 1.5rem;
+        }
+
+        .me-1 {
+            margin-right: 0.25rem;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem;
+        }
+
+        .d-grid {
+            display: grid;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        /* FontAwesome Icons Support */
+        .fas, .fa {
+            margin-right: 0.5rem;
+        }
+
+        .fa-3x {
+            font-size: 3rem;
         }
 
         /* Animations */
@@ -280,151 +502,87 @@
                 gap: 1rem;
             }
             
-            .other-links {
+            .other-links, .nav-links {
                 gap: 1rem;
             }
             
-            .container {
+            .container, .setup-container {
                 margin: 40px 1rem;
                 padding: 2rem;
             }
             
             .title {
-                font-size: 1.75rem;
+                font-size: 2rem;
             }
             
-            .step {
-                padding: 0.75rem;
+            .qr-code, .qr-code-image {
+                max-width: 200px;
             }
             
-            .step-number {
-                width: 25px;
-                height: 25px;
+            .steps > div {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .other-links a, .nav-links a {
+                padding: 0.4rem 0.8rem;
                 font-size: 0.9rem;
             }
             
-            .qr-code {
-                max-width: 150px;
+            .nav-bar img {
+                height: 35px;
             }
             
-            .secret-key {
-                font-size: 0.9rem;
-                padding: 0.75rem;
+            .container, .setup-container {
+                padding: 1.5rem;
             }
+            
+            .qr-code, .qr-code-image {
+                max-width: 180px;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
 <body>
-    <nav class="nav-bar">
-        <div class="nav-links">
-            <img src="/icons/logo.png" alt="Financial AI Hub Logo">
-        </div>
-        <div class="other-links">
-            <a href="/about" class="about">About</a>
-            <a href="/login" class="login">Login</a>
-        </div>
-    </nav>
 
-    <div class="container">
-        <h1 class="title">Setup Two-Factor Authentication</h1>
-        <p class="description">Follow these steps to enable two-factor authentication for your account.</p>
-        
-        <% if (error) { %>
-            <div class="error"><%= error %></div>
-        <% } %>
-
-        <div class="steps-container">
-            <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                    <div class="step-title">Install an Authenticator App</div>
-                    <div class="step-description">
-                        Download and install an authenticator app like Google Authenticator, Authy, or Microsoft Authenticator on your phone.
-                    </div>
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                    <div class="step-title">Scan the QR Code</div>
-                    <div class="step-description">
-                        Open your authenticator app and scan the QR code below. This will automatically set up your account.
-                    </div>
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                    <div class="step-title">Enter the Code</div>
-                    <div class="step-description">
-                        Enter the 6-digit code shown in your authenticator app to verify the setup.
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="qr-container">
-            <% if (qr_code_image) { %>
-                <img src="data:image/png;base64,<%= qr_code_image %>" alt="TOTP QR Code" class="qr-code">
-            <% } else { %>
-                <div class="error">Failed to generate QR code. Please try again.</div>
-            <% } %>
-        </div>
-
-        <div class="secret-key">
-            <p>Manual Entry Key:</p>
-            <code><%= secret %></code>
-        </div>
-
-        <form action="/setup_totp" method="POST">
-            <div class="form-group">
-                <label for="totp">Enter the 6-digit code from your authenticator app</label>
-                <input type="text" 
-                       id="totp" 
-                       name="totp" 
-                       placeholder="000000" 
-                       maxlength="6" 
-                       pattern="[0-9]{6}" 
-                       required>
-            </div>
-            
-            <button type="submit" class="btn">Verify and Complete Setup</button>
-        </form>
+    <div class="nav-bar">
+        <img src="/static/sankalpa.png" alt="Logo">
     </div>
 
-    <script>
-        // Register service worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
+    <div class="container">
+        <h1 class="title">Set up Two-Factor Authentication</h1>
+        <p class="subtitle">Secure your account by scanning the QR code using any authenticator app.</p>
 
-        // Auto-format TOTP input
-        const totpInput = document.getElementById('totp');
-        totpInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
-        });
+        <% if (locals.qr_code_image) { %>
+            <div class="qr-container">
+                <img src="data:image/png;base64,<%= qr_code_image %>" alt="QR Code" class="qr-code">
+            </div>
 
-        // Auto-submit when 6 digits are entered
-        totpInput.addEventListener('input', (e) => {
-            if (e.target.value.length === 6) {
-                // Small delay to let user see the complete code
-                setTimeout(() => {
-                    if (e.target.value.length === 6) {
-                        e.target.form.submit();
-                    }
-                }, 500);
-            }
-        });
-    </script>
+            <div class="instructions">
+                <h3>Steps:</h3>
+                <ol>
+                    <li>Open your authenticator app (Google Authenticator, Authy, etc).</li>
+                    <li>Scan the QR code shown above.</li>
+                    <li>Enter the generated code in the next step.</li>
+                </ol>
+            </div>
+
+            <a href="/verify_totp" class="btn">Continue to Verification</a>
+        <% } else if (locals.error) { %>
+            <p class="error"><%= error %></p>
+            <a href="/login" class="btn">Return to Login</a>
+        <% } %>
+    </div>
 </body>
 </html>

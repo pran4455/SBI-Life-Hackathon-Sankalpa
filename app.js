@@ -840,9 +840,13 @@ app.get('/policy-recommendation', isAuthenticated, (req, res) => {
 // Route for policy upselling recommendations page
 app.get('/policy-upselling-recommendations', isAuthenticated, (req, res) => {
   if (!req.session.userProfileData) {
-    return res.redirect('/policy-recommend');
+    return res.redirect('/policy-recommendation');
   }
-  res.render('policy_upselling_recommendations');
+  res.render('policy_upselling_recommendations', {
+    username: req.session.username,
+    userProfileData: req.session.userProfileData,
+    acceptedPolicy: req.session.acceptedPolicy
+  });
 });
 
 // TIA - Conversational AI Bot

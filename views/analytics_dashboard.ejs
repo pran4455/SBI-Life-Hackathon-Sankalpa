@@ -3,118 +3,612 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Dashboard - Financial AI Hub</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>InsureInsights Dashboard - Financial AI Hub</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ===== CORE LAYOUT & VARIABLES ===== */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --background-light: #f8fafc;
+            --background-white: #ffffff;
+            --border-light: #e2e8f0;
+            --text-primary: #2d3748;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 10px 30px rgba(102, 126, 234, 0.3);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.1);
+            --border-radius: 20px;
+            --border-radius-small: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ===== IMPROVED HEADER ===== */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .welcome-text {
+            color: white;
+            font-weight: 500;
+            font-size: 1.15rem;
+            margin-right: 20px;
+            margin-bottom: 2px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== OPTIMIZED CONTAINER & LAYOUT ===== */
+        .container {
+            max-width: 100%;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 2rem;
+            background: var(--primary-gradient);
+            border-radius: var(--border-radius);
+            color: white;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .dashboard-header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-header p {
+            margin: 0;
+            font-size: 1.1rem;
+            opacity: 0.95;
+            font-weight: 400;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== DASHBOARD CONTAINER ===== */
+        .dashboard-container {
+            background: var(--background-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            overflow: hidden;
+            height: 80vh;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        /* ===== LOADING STATE ===== */
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--background-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading::before {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-light);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== IFRAME STYLES ===== */
+        .dashboard-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: var(--background-white);
+            transition: var(--transition);
+        }
+
+        .dashboard-iframe:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: -2px;
+        }
+
+        /* ===== STATUS INDICATORS ===== */
+        .status-bar {
+            background: var(--background-light);
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            animation: none;
+        }
+
+        /* ===== ERROR STATE ===== */
+        .error-state {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--background-white);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            z-index: 20;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: #ef4444;
+            margin-bottom: 1rem;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .error-message {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 400px;
+        }
+
+        .retry-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 0 15px;
+            }
+            
+            .dashboard-container {
+                height: 70vh;
+                min-height: 500px;
+            }
+            
+            .dashboard-header {
+                padding: 1.5rem;
+                margin-bottom: 20px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard-header p {
+                font-size: 1rem;
+            }
+            
+            .header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .user-section {
+                gap: 0.5rem;
+            }
+            
+            .logout-btn,
+            .back-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+            
+            .welcome-text {
+                font-size: 0.9rem;
+            }
+
+            .status-bar {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .user-section {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .dashboard-container {
+                height: 65vh;
+            }
+        }
+
+        /* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .logout-btn:focus,
+        .back-btn:focus,
+        .retry-btn:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
+        }
+
+        /* ===== PERFORMANCE OPTIMIZATIONS ===== */
+        .dashboard-container,
+        .dashboard-iframe {
+            will-change: transform;
+        }
+
+        .loading {
+            contain: layout style paint;
+        }
+
+        /* ===== IFRAME LOADING ENHANCEMENT ===== */
+        .iframe-container {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .iframe-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .iframe-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <nav class="sidebar">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
             <div class="logo">
-                <a href="/home">
-                    <img src="/static/images/logo.png" alt="Financial AI Hub Logo">
-                </a>
+                <i class="fas fa-chart-line"></i>
+                Financial AI Hub
             </div>
             <div class="user-section">
-                <span class="welcome-text">Welcome, <%= username %></span>
+                <span class="welcome-text">Welcome, <%= username %>!</span>
+                <a href="/home" class="back-btn">
+                    <i class="fas fa-home"></i> Home
+                </a>
                 <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
-            <ul class="nav-links">
-                <li><a href="/home"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="/policy-recommend"><i class="fas fa-file-invoice"></i> Policy Recommendations</a></li>
-                <li><a href="/financial-chatbot"><i class="fas fa-robot"></i> AI Chatbot</a></li>
-                <li><a href="/goal-gps"><i class="fas fa-bullseye"></i> Goal GPS</a></li>
-                <li><a href="/analytics-dashboard" class="active"><i class="fas fa-chart-line"></i> Analytics</a></li>
-                <li><a href="/simulator"><i class="fas fa-gamepad"></i> Simulator</a></li>
-                <li><a href="/games"><i class="fas fa-dice"></i> Games</a></li>
-            </ul>
-        </nav>
-
-        <main class="main-content">
-            <header>
-                <h1>Analytics Dashboard</h1>
-            </header>
-
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <h2>Portfolio Performance</h2>
-                    <div id="portfolioChart"></div>
+        </div>
+    </header>
+    
+    <!-- Main Container -->
+    <div class="container">        
+        <!-- Dashboard Container -->
+        <div class="dashboard-container">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Connecting to dashboard...</span>
                 </div>
-
-                <div class="dashboard-card">
-                    <h2>Risk Analysis</h2>
-                    <div id="riskChart"></div>
-                </div>
-
-                <div class="dashboard-card">
-                    <h2>Investment Distribution</h2>
-                    <div id="distributionChart"></div>
-                </div>
-
-                <div class="dashboard-card">
-                    <h2>Market Trends</h2>
-                    <div id="marketChart"></div>
+                <div class="timestamp">
+                    <i class="fas fa-clock"></i>
+                    <span id="lastUpdated">Loading...</span>
                 </div>
             </div>
-        </main>
+
+            <!-- Iframe Container -->
+            <div class="iframe-container">
+                <!-- Loading Overlay -->
+                <div class="iframe-overlay" id="iframeOverlay">
+                    <div class="loading">
+                        <span>Loading InsureInsights Dashboard...</span>
+                    </div>
+                </div>
+
+                <!-- Streamlit Iframe -->
+                <iframe 
+                    id="streamlitIframe" 
+                    class="dashboard-iframe" 
+                    src="http://localhost:8501" 
+                    onload="handleIframeLoad()"
+                    onerror="handleIframeError()"
+                    title="InsureInsights Dashboard">
+                </iframe>
+            </div>
+
+            <!-- Error State -->
+            <div class="error-state" id="errorState">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="error-title">Dashboard Unavailable</div>
+                <div class="error-message">
+                    Unable to load the InsureInsights dashboard. Please check if the Streamlit service is running and try again.
+                </div>
+                <button class="retry-btn" onclick="retryDashboard()">
+                    <i class="fas fa-redo"></i> Retry Connection
+                </button>
+            </div>
+        </div>
     </div>
-
+    
     <script>
-        // Sample data for charts
-        const portfolioData = {
-            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            y: [10000, 10500, 10200, 10800, 11200, 11500],
-            type: 'scatter',
-            mode: 'lines+markers',
-            name: 'Portfolio Value'
-        };
+        let retryCount = 0;
+        const maxRetries = 3;
 
-        const riskData = {
-            labels: ['Low Risk', 'Medium Risk', 'High Risk'],
-            values: [40, 35, 25],
-            type: 'pie',
-            name: 'Risk Distribution'
-        };
+        function handleIframeLoad() {
+            // Hide loading overlay
+            const overlay = document.getElementById('iframeOverlay');
+            overlay.classList.add('hidden');
+            
+            // Update status
+            updateStatus('online', 'Dashboard loaded successfully');
+            updateTimestamp();
+            
+            // Reset retry count
+            retryCount = 0;
+        }
 
-        const distributionData = {
-            labels: ['Stocks', 'Bonds', 'Real Estate', 'Cash'],
-            values: [45, 25, 20, 10],
-            type: 'pie',
-            name: 'Asset Distribution'
-        };
+        function handleIframeError() {
+            console.error('Iframe failed to load');
+            
+            if (retryCount < maxRetries) {
+                retryCount++;
+                setTimeout(() => {
+                    document.getElementById('streamlitIframe').src = document.getElementById('streamlitIframe').src;
+                }, 2000);
+                updateStatus('offline', `Retrying connection... (${retryCount}/${maxRetries})`);
+            } else {
+                showErrorState();
+            }
+        }
 
-        const marketData = {
-            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            y: [100, 102, 101, 103, 105, 104],
-            type: 'scatter',
-            mode: 'lines',
-            name: 'Market Index'
-        };
+        function showErrorState() {
+            document.getElementById('iframeOverlay').style.display = 'none';
+            document.getElementById('errorState').style.display = 'flex';
+            updateStatus('offline', 'Connection failed');
+        }
 
-        // Create charts
-        Plotly.newPlot('portfolioChart', [portfolioData], {
-            title: 'Portfolio Value Over Time',
-            margin: { t: 30, b: 30, l: 50, r: 30 }
+        function retryDashboard() {
+            // Hide error state
+            document.getElementById('errorState').style.display = 'none';
+            
+            // Show loading overlay
+            const overlay = document.getElementById('iframeOverlay');
+            overlay.classList.remove('hidden');
+            
+            // Reset retry count and reload iframe
+            retryCount = 0;
+            updateStatus('offline', 'Reconnecting...');
+            
+            // Reload iframe
+            const iframe = document.getElementById('streamlitIframe');
+            iframe.src = iframe.src;
+        }
+
+        function updateStatus(status, message) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusDot.className = `status-dot ${status === 'offline' ? 'offline' : ''}`;
+            statusText.textContent = message;
+        }
+
+        function updateTimestamp() {
+            const timestamp = document.getElementById('lastUpdated');
+            const now = new Date();
+            timestamp.textContent = `Last updated: ${now.toLocaleTimeString()}`;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTimestamp();
+            
+            // Set up periodic timestamp updates
+            setInterval(updateTimestamp, 30000); // Update every 30 seconds
+            
+            // Handle iframe load timeout
+            setTimeout(() => {
+                const overlay = document.getElementById('iframeOverlay');
+                if (!overlay.classList.contains('hidden')) {
+                    handleIframeError();
+                }
+            }, 15000); // 15 second timeout
         });
 
-        Plotly.newPlot('riskChart', [riskData], {
-            title: 'Risk Distribution',
-            margin: { t: 30, b: 30, l: 30, r: 30 }
-        });
-
-        Plotly.newPlot('distributionChart', [distributionData], {
-            title: 'Asset Distribution',
-            margin: { t: 30, b: 30, l: 30, r: 30 }
-        });
-
-        Plotly.newPlot('marketChart', [marketData], {
-            title: 'Market Trends',
-            margin: { t: 30, b: 30, l: 50, r: 30 }
+        // Handle visibility change to refresh dashboard when tab becomes active
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateTimestamp();
+            }
         });
     </script>
 </body>
-</html> 
+</html>
