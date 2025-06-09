@@ -7,7 +7,7 @@ bind = f"0.0.0.0:{os.environ.get('CHATBOT_PORT', '8001')}"
 backlog = 2048
 
 # Worker processes
-workers = multiprocessing.cpu_count() * 2 + 1
+workers = 2
 worker_class = 'sync'
 worker_connections = 1000
 timeout = 120

@@ -78,11 +78,19 @@ if [ "$NODE_ENV" = "production" ]; then
 
     # Start Streamlit dashboard in the background
     echo "Starting Streamlit dashboard on port $STREAMLIT_PORT..."
-    streamlit run dashboard.py --server.port $STREAMLIT_PORT --server.address 0.0.0.0 &
+    streamlit run dashboard.py \
+        --server.port $STREAMLIT_PORT \
+        --server.address 0.0.0.0 \
+        --server.headless true \
+        --server.maxUploadSize 50 \
+        --server.maxMessageSize 50 \
+        --browser.gatherUsageStats false \
+        --server.enableCORS true \
+        --server.enableXsrfProtection false &
     STREAMLIT_PID=$!
 
     # Wait for all processes
-    wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
+#    wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
 else
     # Development mode
     node app.js

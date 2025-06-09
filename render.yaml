@@ -26,7 +26,7 @@ services:
       - key: UV_THREADPOOL_SIZE
         value: 1
       - key: NODE_OPTIONS
-        value: --optimize_for_size --max_old_space_size=460
+        value: --max-old-space-size=384
     disk:
       name: data
       mountPath: /data
