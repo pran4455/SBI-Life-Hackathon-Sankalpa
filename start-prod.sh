@@ -28,15 +28,16 @@ export STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
 export STREAMLIT_SERVER_MAX_UPLOAD_SIZE=50
 export STREAMLIT_SERVER_MAX_MESSAGE_SIZE=50
 
-# Function to check if a service is ready
+# Function to check if a service is ready with timeout
 check_service() {
     local url=$1
-    local max_attempts=30
+    local max_attempts=10  # Reduced from 30 to 10
     local attempt=1
+    local timeout=5  # 5 second timeout for each attempt
     
     while [ $attempt -le $max_attempts ]; do
         echo "Attempting to connect to $url (attempt $attempt/$max_attempts)..."
-        if curl -v "$url" 2>&1 | grep -q "HTTP/.* 200"; then
+        if curl -s --max-time $timeout "$url" > /dev/null; then
             echo "Successfully connected to $url"
             return 0
         fi
@@ -48,20 +49,11 @@ check_service() {
     return 1
 }
 
-# Start Streamlit first
+# Start all services in parallel
+echo "Starting all services..."
+
+# Start Streamlit
 echo "Starting Streamlit dashboard..."
-echo "Current directory: $(pwd)"
-echo "Python version: $(python3 --version)"
-echo "Streamlit version: $(streamlit --version)"
-
-# Check if dashboard.py exists
-if [ ! -f "dashboard.py" ]; then
-    echo "Error: dashboard.py not found in $(pwd)"
-    ls -la
-    exit 1
-fi
-
-# Start Streamlit with detailed logging
 streamlit run dashboard.py \
     --server.port $STREAMLIT_PORT \
     --server.address 0.0.0.0 \
@@ -72,48 +64,58 @@ streamlit run dashboard.py \
     --browser.gatherUsageStats false \
     --server.enableCORS true \
     --server.enableXsrfProtection false \
-    --logger.level=debug > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
+    --logger.level=error > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
 STREAMLIT_PID=$!
-
-# Wait a moment for Streamlit to initialize
-sleep 5
-
-# Check Streamlit logs
-echo "Streamlit stdout log:"
-cat /tmp/streamlit_stdout.log
-echo "Streamlit stderr log:"
-cat /tmp/streamlit_stderr.log
-
-# Wait for Streamlit to be ready
-if ! check_service "http://localhost:$STREAMLIT_PORT/healthz"; then
-    echo "Streamlit failed to start. Check logs above for details."
-    exit 1
-fi
-echo "Streamlit is ready"
 
 # Start Flask chatbot
 echo "Starting chatbot server..."
-gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT > /tmp/chatbot_stdout.log 2> /tmp/chatbot_stderr.log &
+gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT --workers 1 --threads 2 --timeout 30 > /tmp/chatbot_stdout.log 2> /tmp/chatbot_stderr.log &
 CHATBOT_PID=$!
 
-# Wait for chatbot to be ready
-if ! check_service "http://localhost:$CHATBOT_PORT/healthz"; then
-    echo "Chatbot failed to start"
-    exit 1
-fi
-echo "Chatbot is ready"
-
-# Start the main application
+# Start Node.js app
 echo "Starting Node.js server..."
 node app.js &
 APP_PID=$!
 
-# Wait for main app to be ready
-if ! check_service "http://localhost:$PORT/healthz"; then
-    echo "Main application failed to start"
-    exit 1
-fi
-echo "Main application is ready"
+# Wait for all services to be ready with a global timeout
+echo "Waiting for services to be ready..."
+timeout=60  # 60 second global timeout
+start_time=$(date +%s)
+
+while true; do
+    current_time=$(date +%s)
+    elapsed=$((current_time - start_time))
+    
+    if [ $elapsed -gt $timeout ]; then
+        echo "Global timeout reached. Some services may not be ready."
+        break
+    fi
+    
+    # Check all services
+    streamlit_ready=0
+    chatbot_ready=0
+    app_ready=0
+    
+    if curl -s --max-time 5 "http://localhost:$STREAMLIT_PORT/healthz" > /dev/null; then
+        streamlit_ready=1
+    fi
+    
+    if curl -s --max-time 5 "http://localhost:$CHATBOT_PORT/healthz" > /dev/null; then
+        chatbot_ready=1
+    fi
+    
+    if curl -s --max-time 5 "http://localhost:$PORT/healthz" > /dev/null; then
+        app_ready=1
+    fi
+    
+    if [ $streamlit_ready -eq 1 ] && [ $chatbot_ready -eq 1 ] && [ $app_ready -eq 1 ]; then
+        echo "All services are ready!"
+        break
+    fi
+    
+    echo "Waiting for services... ($elapsed/$timeout seconds)"
+    sleep 5
+done
 
 # Monitor processes
 while true; do
