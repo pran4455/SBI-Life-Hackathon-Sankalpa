@@ -1396,23 +1396,35 @@ app.use(
     onError: (err, req, res) => {
       console.error('Streamlit proxy error:', err);
       res.status(500).send('Error connecting to Streamlit dashboard');
-    }
+    },
+    // Add timeout and retry options
+    proxyTimeout: 30000,
+    timeout: 30000,
+    followRedirects: true,
+    secure: false,
+    xfwd: true
   })
 );
 
 
-const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, () => {
+const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, async () => {
   console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
   console.log('Server startup complete');
   
-  // Start Streamlit server in production
-  if (process.env.NODE_ENV === 'production') {
+  // Start Streamlit server
+  try {
     console.log('Starting Streamlit dashboard...');
-    const used = process.memoryUsage();
-    console.log('Memory usage after startup:');
-    for (let key in used) {
-        console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
-    }
+    await startStreamlitServer();
+    console.log('Streamlit server started successfully');
+  } catch (error) {
+    console.error('Failed to start Streamlit server:', error);
+  }
+  
+  // Log memory usage
+  const used = process.memoryUsage();
+  console.log('Memory usage after startup:');
+  for (let key in used) {
+      console.log(`${key}: ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
   }
 });
   server.on('error', (error) => {

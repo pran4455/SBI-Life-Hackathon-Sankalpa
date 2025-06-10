@@ -40,15 +40,42 @@ if [ "$NODE_ENV" = "production" ]; then
     # Install curl if not present
     which curl || { apt-get update && apt-get install -y curl; }
     
+    # Start Streamlit dashboard in the background
+    echo "Starting Streamlit dashboard on port $STREAMLIT_PORT..."
+    streamlit run dashboard.py \
+        --server.port $STREAMLIT_PORT \
+        --server.address 0.0.0.0 \
+        --server.baseUrlPath "/dashboard" \
+        --server.headless true \
+        --server.maxUploadSize 50 \
+        --server.maxMessageSize 50 \
+        --browser.gatherUsageStats false \
+        --server.enableCORS true \
+        --server.enableXsrfProtection false > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
+    STREAMLIT_PID=$!
+
+    # Wait for Streamlit to start
+    echo "Waiting for Streamlit to start..."
+    sleep 5
+
+    # Start Flask chatbot with Gunicorn in the background
+    echo "Starting chatbot server on port $CHATBOT_PORT..."
+    gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT > /tmp/chatbot_stdout.log 2> /tmp/chatbot_stderr.log &
+    CHATBOT_PID=$!
+
+    # Wait for chatbot to start
+    echo "Waiting for chatbot to start..."
+    sleep 5
+
     # Start the main application
     echo "Starting Node.js server on port $PORT..."
     node app.js &
     APP_PID=$!
     
-    # Wait for up to 120 seconds for the server to start
+    # Wait for up to 60 seconds for the server to start
     echo "Waiting for server to become available..."
     COUNTER=0
-    while [ $COUNTER -lt 120 ]; do
+    while [ $COUNTER -lt 30 ]; do
         echo "Attempt $COUNTER: Checking server health..."
         if curl -s "http://localhost:$PORT/healthz" > /dev/null; then
             echo "Server is up and running!"
@@ -65,37 +92,29 @@ if [ "$NODE_ENV" = "production" ]; then
         let COUNTER=COUNTER+1
     done
 
-    if [ $COUNTER -ge 120 ]; then
-        echo "Server failed to start within 240 seconds"
+    if [ $COUNTER -ge 30 ]; then
+        echo "Server failed to start within 60 seconds"
         kill -9 $APP_PID 2>/dev/null
         exit 1
     fi
 
-    # Start Flask chatbot with Gunicorn in the background
-    echo "Starting chatbot server on port $CHATBOT_PORT..."
-    gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT > /tmp/chatbot_stdout.log 2> /tmp/chatbot_stderr.log &
-    CHATBOT_PID=$!
-
-    # Start Streamlit dashboard in the background
-    echo "Starting Streamlit dashboard on port $STREAMLIT_PORT..."
-    streamlit run dashboard.py \
-        --server.port $STREAMLIT_PORT \
-        --server.address 0.0.0.0 \
-        --server.baseUrlPath "/dashboard" \
-        --server.headless true \
-        --server.maxUploadSize 50 \
-        --server.maxMessageSize 50 \
-        --browser.gatherUsageStats false \
-        --server.enableCORS true \
-        --server.enableXsrfProtection false > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
-    STREAMLIT_PID=$!
-
-    # Wait for all processes (COMMENTED OUT - crucial for Render)
-    wait $APP_PID $CHATBOT_PID $STREAMLIT_PID
-
-    echo "All services launched. start.sh script exiting."
-    # Finally, replace the current shell with the main Node.js application
-    exec node app.js
+    # Monitor all processes
+    while true; do
+        # Check if any process has died
+        if ! kill -0 $APP_PID 2>/dev/null; then
+            echo "Main application died unexpectedly"
+            exit 1
+        fi
+        if ! kill -0 $CHATBOT_PID 2>/dev/null; then
+            echo "Chatbot died unexpectedly"
+            exit 1
+        fi
+        if ! kill -0 $STREAMLIT_PID 2>/dev/null; then
+            echo "Streamlit died unexpectedly"
+            exit 1
+        fi
+        sleep 5
+    done
 else
     # Development mode
     node app.js
