@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+import os
 
 # Page Configuration
 st.set_page_config(
@@ -27,6 +28,18 @@ st.config.set_option('server.enableXsrfProtection', False)
 st.config.set_option('server.maxUploadSize', 50)
 st.config.set_option('server.maxMessageSize', 50)
 st.config.set_option('browser.gatherUsageStats', False)
+
+# Add health check endpoint
+@st.cache_resource
+def health_check():
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
+
+# Print debug information
+st.write("Debug Information:")
+st.write(f"Current working directory: {os.getcwd()}")
+st.write(f"Python version: {os.sys.version}")
+st.write(f"Streamlit version: {st.__version__}")
+st.write(f"Base URL path: {st.config.get_option('server.baseUrlPath')}")
 
 # Title and Description
 st.title("InsureInsights: Real-Time Analytics Dashboard")

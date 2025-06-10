@@ -1374,12 +1374,20 @@ const streamlitProxy = createProxyMiddleware({
     '^/dashboard/?': '',  // support both /dashboard and /dashboard/
   },
   onProxyReq: (proxyReq, req, res) => {
+    console.log(`Proxying request to Streamlit: ${req.method} ${req.url}`);
     proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    console.log(`Streamlit response: ${proxyRes.statusCode} ${req.url}`);
   },
   onError: (err, req, res) => {
     console.error('Streamlit proxy error:', err);
+    console.error('Request URL:', req.url);
+    console.error('Request method:', req.method);
+    console.error('Request headers:', req.headers);
     res.status(500).send('Error connecting to Streamlit dashboard');
-  }
+  },
+  logLevel: 'debug'
 });
 
 // Add proxy for chatbot
@@ -1391,12 +1399,20 @@ const chatbotProxy = createProxyMiddleware({
     '^/chat/?': '',  // support both /chat and /chat/
   },
   onProxyReq: (proxyReq, req, res) => {
+    console.log(`Proxying request to Chatbot: ${req.method} ${req.url}`);
     proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    console.log(`Chatbot response: ${proxyRes.statusCode} ${req.url}`);
   },
   onError: (err, req, res) => {
     console.error('Chatbot proxy error:', err);
+    console.error('Request URL:', req.url);
+    console.error('Request method:', req.method);
+    console.error('Request headers:', req.headers);
     res.status(500).send('Error connecting to chatbot');
-  }
+  },
+  logLevel: 'debug'
 });
 
 // Add Streamlit proxy to Express app

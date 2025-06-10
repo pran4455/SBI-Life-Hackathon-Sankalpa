@@ -35,18 +35,33 @@ check_service() {
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if curl -s "$url" > /dev/null; then
+        echo "Attempting to connect to $url (attempt $attempt/$max_attempts)..."
+        if curl -v "$url" 2>&1 | grep -q "HTTP/.* 200"; then
+            echo "Successfully connected to $url"
             return 0
         fi
-        echo "Waiting for service at $url (attempt $attempt/$max_attempts)..."
+        echo "Waiting for service at $url..."
         sleep 2
         attempt=$((attempt + 1))
     done
+    echo "Failed to connect to $url after $max_attempts attempts"
     return 1
 }
 
 # Start Streamlit first
 echo "Starting Streamlit dashboard..."
+echo "Current directory: $(pwd)"
+echo "Python version: $(python3 --version)"
+echo "Streamlit version: $(streamlit --version)"
+
+# Check if dashboard.py exists
+if [ ! -f "dashboard.py" ]; then
+    echo "Error: dashboard.py not found in $(pwd)"
+    ls -la
+    exit 1
+fi
+
+# Start Streamlit with detailed logging
 streamlit run dashboard.py \
     --server.port $STREAMLIT_PORT \
     --server.address 0.0.0.0 \
@@ -56,12 +71,22 @@ streamlit run dashboard.py \
     --server.maxMessageSize 50 \
     --browser.gatherUsageStats false \
     --server.enableCORS true \
-    --server.enableXsrfProtection false > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
+    --server.enableXsrfProtection false \
+    --logger.level=debug > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
 STREAMLIT_PID=$!
+
+# Wait a moment for Streamlit to initialize
+sleep 5
+
+# Check Streamlit logs
+echo "Streamlit stdout log:"
+cat /tmp/streamlit_stdout.log
+echo "Streamlit stderr log:"
+cat /tmp/streamlit_stderr.log
 
 # Wait for Streamlit to be ready
 if ! check_service "http://localhost:$STREAMLIT_PORT/healthz"; then
-    echo "Streamlit failed to start"
+    echo "Streamlit failed to start. Check logs above for details."
     exit 1
 fi
 echo "Streamlit is ready"
