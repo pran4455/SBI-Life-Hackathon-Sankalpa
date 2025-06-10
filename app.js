@@ -1369,43 +1369,41 @@ app.get('/healthz', (req, res) => {
 const streamlitProxy = createProxyMiddleware({
   target: `http://localhost:${process.env.STREAMLIT_PORT || 8501}`,
   changeOrigin: true,
-  // pathRewrite: {
-  //     '^/dashboard': '', // Remove /dashboard prefix when forwarding to Streamlit
-  // },
-  ws: true, // Enable WebSocket proxying
+  ws: true,
+  pathRewrite: {
+    '^/dashboard/?': '',  // support both /dashboard and /dashboard/
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
+  },
   onError: (err, req, res) => {
-      console.error('Streamlit proxy error:', err);
-      res.status(500).send('Error connecting to dashboard');
-    }
+    console.error('Streamlit proxy error:', err);
+    res.status(500).send('Error connecting to Streamlit dashboard');
+  }
+});
+
+// Add proxy for chatbot
+const chatbotProxy = createProxyMiddleware({
+  target: `http://localhost:${process.env.CHATBOT_PORT || 8001}`,
+  changeOrigin: true,
+  ws: true,
+  pathRewrite: {
+    '^/chat/?': '',  // support both /chat and /chat/
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
+  },
+  onError: (err, req, res) => {
+    console.error('Chatbot proxy error:', err);
+    res.status(500).send('Error connecting to chatbot');
+  }
 });
 
 // Add Streamlit proxy to Express app
-// Proxy Streamlit requests (including WebSockets)
-app.use(
-  '/dashboard',
-  createProxyMiddleware({
-    target: `http://localhost:${process.env.STREAMLIT_PORT || 8501}`,
-    changeOrigin: true,
-    ws: true,
-    pathRewrite: {
-      '^/dashboard/?': '',  // support both /dashboard and /dashboard/
-    },
-    onProxyReq: (proxyReq, req, res) => {
-      proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
-    },
-    onError: (err, req, res) => {
-      console.error('Streamlit proxy error:', err);
-      res.status(500).send('Error connecting to Streamlit dashboard');
-    },
-    // Add timeout and retry options
-    proxyTimeout: 30000,
-    timeout: 30000,
-    followRedirects: true,
-    secure: false,
-    xfwd: true
-  })
-);
+app.use('/dashboard', streamlitProxy);
 
+// Add chatbot proxy to Express app
+app.use('/chat', chatbotProxy);
 
 const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, async () => {
   console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);

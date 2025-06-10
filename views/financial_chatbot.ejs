@@ -569,7 +569,7 @@
             const messageContent = botMessageElement.querySelector('.message-content');
             
             try {
-                const response = await fetch('http://localhost:8001/chat/stream', {
+                const response = await fetch('/chat/stream', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

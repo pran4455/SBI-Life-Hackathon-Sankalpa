@@ -14,7 +14,19 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 # Page Configuration
-st.set_page_config(page_title="InsureInsights", layout="wide")
+st.set_page_config(
+    page_title="InsureInsights",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Configure Streamlit to work with proxy
+st.config.set_option('server.baseUrlPath', '/dashboard')
+st.config.set_option('server.enableCORS', True)
+st.config.set_option('server.enableXsrfProtection', False)
+st.config.set_option('server.maxUploadSize', 50)
+st.config.set_option('server.maxMessageSize', 50)
+st.config.set_option('browser.gatherUsageStats', False)
 
 # Title and Description
 st.title("InsureInsights: Real-Time Analytics Dashboard")
@@ -433,16 +445,16 @@ elif options == "Inspirational Success Stories":
     stories = {
         "Empowering Small Businesses with MSME Loans": 
             "Ramesh, a small business owner from Tamil Nadu, struggled to expand his textile shop due to a lack of funds. "
-            "SBI’s MSME loan under the Mudra scheme helped him secure ₹10 lakhs at a low interest rate. With this financial boost, "
+            "SBI's MSME loan under the Mudra scheme helped him secure ₹10 lakhs at a low interest rate. With this financial boost, "
             "he upgraded his machinery and increased production, doubling his revenue within a year. Today, his shop employs 15 workers "
             "and supplies textiles across India. He has also started an online store, increasing his customer base beyond his city. "
             "With increased profits, he reinvested in new fabric varieties, making his shop a one-stop solution for local traders. "
             "His business success has inspired many in his community to apply for MSME loans. Ramesh also conducts training sessions "
             "for budding entrepreneurs on financial literacy. His journey showcases how small businesses can thrive with the right financial support.",
         
-        "Farmer’s Growth with SBI Kisan Credit Card": 
+        "Farmer's Growth with SBI Kisan Credit Card": 
             "Meera, a farmer in Punjab, faced challenges due to unpredictable weather and rising input costs. "
-            "With SBI’s Kisan Credit Card, she received timely financial assistance for purchasing seeds, fertilizers, and irrigation equipment. "
+            "With SBI's Kisan Credit Card, she received timely financial assistance for purchasing seeds, fertilizers, and irrigation equipment. "
             "This helped her improve crop yield significantly, increasing her profits. Now, she not only sustains her farm but also educates her "
             "children in a reputed agricultural university. With better financial security, she has diversified into organic farming, "
             "tapping into a premium market. Meera also introduced drip irrigation on her farm, reducing water usage while maintaining high yields. "
@@ -451,14 +463,14 @@ elif options == "Inspirational Success Stories":
         
         "Dream Home Made Possible with SBI Home Loan": 
             "Arun and Priya, a young couple from Bangalore, always dreamed of owning a house but found it difficult to manage finances. "
-            "SBI’s Home Loan with affordable EMIs and a low-interest rate helped them buy their dream apartment. With expert guidance and quick loan approval, "
+            "SBI's Home Loan with affordable EMIs and a low-interest rate helped them buy their dream apartment. With expert guidance and quick loan approval, "
             "they moved into their new home within months. Today, they enjoy a secure and happy life with their two children. "
-            "With the burden of rent lifted, they have been able to save more for their children’s future. The loan also enabled them to furnish their home, "
+            "With the burden of rent lifted, they have been able to save more for their children's future. The loan also enabled them to furnish their home, "
             "creating a comfortable space for their family. Arun has now started a side business, using the financial security to pursue his passion. "
             "Priya has taken an SBI personal loan to start a small home bakery, adding to their income. Their success story is a testament to the power of well-structured financial planning.",
         
         "Digital Banking Empowering Senior Citizens": 
-            "Seema, a retired teacher from Mumbai, initially found online banking challenging. SBI’s YONO app transformed her banking experience by making "
+            "Seema, a retired teacher from Mumbai, initially found online banking challenging. SBI's YONO app transformed her banking experience by making "
             "transactions, bill payments, and pension tracking effortless. With guidance from the SBI team, she became confident in using digital banking. "
             "Today, she manages her finances independently and even teaches others how to use online banking safely. She has helped several other senior citizens "
             "open digital banking accounts. Seema also started an online investment portfolio with SBI, ensuring financial growth in her retirement years. "
@@ -466,7 +478,7 @@ elif options == "Inspirational Success Stories":
             "relies on cash transactions. Her story proves that technology, when made accessible, can empower every age group.",
         
         "Education Loan Changing Lives": 
-            "Ajay, a bright student from a small village in Uttar Pradesh, struggled to fund his engineering education. SBI’s Education Loan enabled him "
+            "Ajay, a bright student from a small village in Uttar Pradesh, struggled to fund his engineering education. SBI's Education Loan enabled him "
             "to study at a prestigious IIT without financial worries. With a successful career in an MNC today, he has repaid his loan and supports his family. "
             "His journey from financial struggles to professional success is an inspiration to many aspiring students. Ajay has now started mentoring students "
             "in rural areas, guiding them on scholarship and loan opportunities. He frequently donates to educational funds, ensuring others get the same opportunities "
@@ -475,26 +487,26 @@ elif options == "Inspirational Success Stories":
         
         "SBI Personal Loan for Medical Emergencies": 
             "Rajesh, a middle-class father from Hyderabad, faced a medical emergency when his son needed urgent heart surgery. "
-            "With SBI’s quick personal loan approval, he secured ₹5 lakhs within 24 hours. The funds ensured that his son received immediate medical care, "
-            "saving his life. The flexible EMI options allowed Rajesh to manage repayments without financial stress. Grateful for SBI’s support, "
+            "With SBI's quick personal loan approval, he secured ₹5 lakhs within 24 hours. The funds ensured that his son received immediate medical care, "
+            "saving his life. The flexible EMI options allowed Rajesh to manage repayments without financial stress. Grateful for SBI's support, "
             "he now advocates for financial planning among friends. The incident inspired him to start a small insurance consultancy to help others prepare for emergencies. "
             "His son, now fully recovered, excels in academics and dreams of becoming a doctor. Rajesh believes financial security during a crisis can change lives. "
-            "SBI’s swift response and customer-first approach gave him hope when he needed it the most.",
+            "SBI's swift response and customer-first approach gave him hope when he needed it the most.",
         
         "Women Entrepreneurs Thriving with SBI Business Loans": 
             "Pooja, a passionate entrepreneur from Jaipur, always dreamed of starting a handcrafted jewelry business. "
-            "However, limited capital and high initial costs discouraged her from taking the leap. SBI’s Business Loan for Women Entrepreneurs "
+            "However, limited capital and high initial costs discouraged her from taking the leap. SBI's Business Loan for Women Entrepreneurs "
             "helped her secure ₹8 lakhs at an affordable rate. She set up a small workshop and expanded her business online. "
             "Within two years, her brand gained popularity on social media and started exporting globally. She now employs 20 artisans, "
-            "preserving traditional Indian craftsmanship. The financial support also helped her attend international exhibitions, boosting her brand’s reputation. "
+            "preserving traditional Indian craftsmanship. The financial support also helped her attend international exhibitions, boosting her brand's reputation. "
             "Today, her business earns over ₹50 lakhs annually. She credits SBI for making her dream a reality and actively mentors other aspiring women entrepreneurs.",
         
         "Empowering Youth with SBI Start-Up Loan": 
             "Varun, a tech enthusiast from Bangalore, had an innovative AI-based app idea but lacked the capital to launch. "
-            "SBI’s Start-Up Loan under the Stand-Up India scheme provided him with ₹15 lakhs to build his product. With financial backing, "
+            "SBI's Start-Up Loan under the Stand-Up India scheme provided him with ₹15 lakhs to build his product. With financial backing, "
             "he hired a team of developers and launched his app within a year. The app, which simplifies financial planning for young professionals, "
             "quickly gained traction. Within two years, Varun secured venture funding, scaling his business to a national level. "
-            "His start-up now employs over 50 professionals and collaborates with top financial institutions. SBI’s support in the early stages "
+            "His start-up now employs over 50 professionals and collaborates with top financial institutions. SBI's support in the early stages "
             "was crucial in bringing his idea to life. Today, Varun actively invests in other budding entrepreneurs, paying forward the support he once received. "
             "His journey is an inspiration to every young innovator seeking financial backing."
     }

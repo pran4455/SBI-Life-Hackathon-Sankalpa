@@ -28,6 +28,23 @@ export STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
 export STREAMLIT_SERVER_MAX_UPLOAD_SIZE=50
 export STREAMLIT_SERVER_MAX_MESSAGE_SIZE=50
 
+# Function to check if a service is ready
+check_service() {
+    local url=$1
+    local max_attempts=30
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        if curl -s "$url" > /dev/null; then
+            return 0
+        fi
+        echo "Waiting for service at $url (attempt $attempt/$max_attempts)..."
+        sleep 2
+        attempt=$((attempt + 1))
+    done
+    return 1
+}
+
 # Start Streamlit first
 echo "Starting Streamlit dashboard..."
 streamlit run dashboard.py \
@@ -42,21 +59,36 @@ streamlit run dashboard.py \
     --server.enableXsrfProtection false > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
 STREAMLIT_PID=$!
 
-# Wait for Streamlit to start
-sleep 5
+# Wait for Streamlit to be ready
+if ! check_service "http://localhost:$STREAMLIT_PORT/healthz"; then
+    echo "Streamlit failed to start"
+    exit 1
+fi
+echo "Streamlit is ready"
 
 # Start Flask chatbot
 echo "Starting chatbot server..."
 gunicorn -c gunicorn.conf.py wsgi:app --bind 0.0.0.0:$CHATBOT_PORT > /tmp/chatbot_stdout.log 2> /tmp/chatbot_stderr.log &
 CHATBOT_PID=$!
 
-# Wait for chatbot to start
-sleep 5
+# Wait for chatbot to be ready
+if ! check_service "http://localhost:$CHATBOT_PORT/healthz"; then
+    echo "Chatbot failed to start"
+    exit 1
+fi
+echo "Chatbot is ready"
 
 # Start the main application
 echo "Starting Node.js server..."
 node app.js &
 APP_PID=$!
+
+# Wait for main app to be ready
+if ! check_service "http://localhost:$PORT/healthz"; then
+    echo "Main application failed to start"
+    exit 1
+fi
+echo "Main application is ready"
 
 # Monitor processes
 while true; do
