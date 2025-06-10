@@ -1392,7 +1392,7 @@ const streamlitProxy = createProxyMiddleware({
 
 // Add proxy for chatbot
 const chatbotProxy = createProxyMiddleware({
-  target: `http://localhost:${process.env.CHATBOT_PORT || 8001}`,
+  target: `http://localhost:${process.env.CHATBOT_PORT || 8000}`,
   changeOrigin: true,
   ws: true,
   pathRewrite: {

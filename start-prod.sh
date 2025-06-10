@@ -3,7 +3,7 @@
 # Set environment variables
 export NODE_ENV=production
 export PORT=10000
-export CHATBOT_PORT=8001
+export CHATBOT_PORT=8000
 export STREAMLIT_PORT=8501
 
 # Python optimizations for memory efficiency
