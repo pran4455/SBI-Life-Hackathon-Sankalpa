@@ -64,6 +64,8 @@ streamlit run dashboard.py \
     --browser.gatherUsageStats false \
     --server.enableCORS true \
     --server.enableXsrfProtection false \
+    --server.runOnSave false \
+    --server.enableStaticServing true \
     --logger.level=error > /tmp/streamlit_stdout.log 2> /tmp/streamlit_stderr.log &
 STREAMLIT_PID=$!
 

@@ -1370,9 +1370,6 @@ const streamlitProxy = createProxyMiddleware({
   target: `http://localhost:${process.env.STREAMLIT_PORT || 8501}`,
   changeOrigin: true,
   ws: true,
-  pathRewrite: {
-    '^/dashboard': '/',  // Changed from '^/dashboard/?' to '^/dashboard'
-  },
   onProxyReq: (proxyReq, req, res) => {
     console.log(`Proxying request to Streamlit: ${req.method} ${req.url}`);
     // Ensure proper headers for Streamlit
@@ -1401,9 +1398,6 @@ const chatbotProxy = createProxyMiddleware({
   target: `http://localhost:${process.env.CHATBOT_PORT || 8000}`,
   changeOrigin: true,
   ws: true,
-  pathRewrite: {
-    '^/chat': '/',  // Changed from '^/chat/?' to '^/chat'
-  },
   onProxyReq: (proxyReq, req, res) => {
     console.log(`Proxying request to Chatbot: ${req.method} ${req.url}`);
     // Ensure proper headers for chatbot
