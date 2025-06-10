@@ -1371,14 +1371,20 @@ const streamlitProxy = createProxyMiddleware({
   changeOrigin: true,
   ws: true,
   pathRewrite: {
-    '^/dashboard/?': '',  // support both /dashboard and /dashboard/
+    '^/dashboard': '/',  // Changed from '^/dashboard/?' to '^/dashboard'
   },
   onProxyReq: (proxyReq, req, res) => {
     console.log(`Proxying request to Streamlit: ${req.method} ${req.url}`);
+    // Ensure proper headers for Streamlit
     proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
+    proxyReq.setHeader('Host', `localhost:${process.env.STREAMLIT_PORT || 8501}`);
   },
   onProxyRes: (proxyRes, req, res) => {
     console.log(`Streamlit response: ${proxyRes.statusCode} ${req.url}`);
+    // Add CORS headers for Streamlit
+    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+    proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+    proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type';
   },
   onError: (err, req, res) => {
     console.error('Streamlit proxy error:', err);
@@ -1396,14 +1402,20 @@ const chatbotProxy = createProxyMiddleware({
   changeOrigin: true,
   ws: true,
   pathRewrite: {
-    '^/chat/?': '',  // support both /chat and /chat/
+    '^/chat': '/',  // Changed from '^/chat/?' to '^/chat'
   },
   onProxyReq: (proxyReq, req, res) => {
     console.log(`Proxying request to Chatbot: ${req.method} ${req.url}`);
+    // Ensure proper headers for chatbot
     proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
+    proxyReq.setHeader('Host', `localhost:${process.env.CHATBOT_PORT || 8000}`);
   },
   onProxyRes: (proxyRes, req, res) => {
     console.log(`Chatbot response: ${proxyRes.statusCode} ${req.url}`);
+    // Add CORS headers for chatbot
+    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+    proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+    proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type';
   },
   onError: (err, req, res) => {
     console.error('Chatbot proxy error:', err);
