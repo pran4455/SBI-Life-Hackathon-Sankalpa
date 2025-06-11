@@ -221,28 +221,25 @@
         }
 
         /* ===== TABLE STYLES ===== */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
         #recommendationsTable {
             width: 100%;
+            min-width: 600px;
             border-collapse: collapse;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
-            overflow-x: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            margin-bottom: 2rem;
-            display: block;
+            overflow: hidden;
         }
 
         #recommendationsTable thead {
             background: rgba(255, 255, 255, 0.2);
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        #recommendationsTable tbody {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
         }
 
         #recommendationsTable th {
@@ -252,10 +249,6 @@
             font-weight: 600;
             font-size: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            position: relative;
         }
 
         #recommendationsTable td {
@@ -263,37 +256,8 @@
             color: white;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             transition: background 0.3s ease;
-            white-space: normal;
-            word-wrap: break-word;
-            vertical-align: middle;
         }
 
-        /* Update column widths with more precise control */
-        #recommendationsTable th:nth-child(1),
-        #recommendationsTable td:nth-child(1) {
-            width: 8%;
-            text-align: center;
-        }
-
-        #recommendationsTable th:nth-child(2),
-        #recommendationsTable td:nth-child(2) {
-            width: 42%;
-            padding-right: 1.5rem;
-        }
-
-        #recommendationsTable th:nth-child(3),
-        #recommendationsTable td:nth-child(3) {
-            width: 20%;
-            text-align: center;
-        }
-
-        #recommendationsTable th:nth-child(4),
-        #recommendationsTable td:nth-child(4) {
-            width: 30%;
-            text-align: center;
-        }
-
-        /* Add hover effect back */
         #recommendationsTable tbody tr:hover {
             background: rgba(255, 255, 255, 0.1);
         }
@@ -309,9 +273,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 0.9rem;
-            white-space: nowrap;
-            display: inline-block;
-            min-width: 100px;
         }
 
         .btn-details {
@@ -568,35 +529,6 @@
             .welcome-text {
                 font-size: 1rem;
             }
-            
-            /* Adjust column widths for mobile */
-            #recommendationsTable th:nth-child(1),
-            #recommendationsTable td:nth-child(1) {
-                width: 10%;
-            }
-            
-            #recommendationsTable th:nth-child(2),
-            #recommendationsTable td:nth-child(2) {
-                width: 40%;
-            }
-            
-            #recommendationsTable th:nth-child(3),
-            #recommendationsTable td:nth-child(3) {
-                width: 20%;
-            }
-            
-            #recommendationsTable th:nth-child(4),
-            #recommendationsTable td:nth-child(4) {
-                width: 30%;
-            }
-            
-            .btn-details,
-            .btn-select {
-                font-size: 0.8rem;
-                padding: 0.4rem 0.8rem;
-                min-width: 80px;
-                margin: 0.2rem;
-            }
         }
 
         @media (max-width: 480px) {
@@ -610,28 +542,22 @@
                 padding: 1rem;
             }
             
-            #recommendationsTable th {
-                font-size: 0.8rem;
-                padding: 0.5rem 0.3rem;
-            }
-            
-            #recommendationsTable td {
-                font-size: 0.8rem;
-                padding: 0.5rem 0.3rem;
-            }
-            
-            #recommendationsTable td:nth-child(4) {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
             .btn-details,
             .btn-select {
-                width: 100%;
-                margin: 0.1rem 0;
-                font-size: 0.75rem;
-                padding: 0.3rem 0.6rem;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+            
+            .policy-card {
+                padding: 1rem;
+            }
+            
+            #recommendationsTable {
+                font-size: 0.8rem;
+            }
+            
+            .modal-content {
+                padding: 1rem;
             }
         }
     </style>
@@ -688,18 +614,20 @@
             <div id="recommendationsSection" style="display: none;">
                 <h2>All Upsell Recommendations (Ranked by Confidence)</h2>
                 
-                <table id="recommendationsTable">
-                    <thead>
-                        <tr>
-                            <th>RANK</th>
-                            <th>RECOMMENDATION</th>
-                            <th>CONFIDENCE</th>
-                            <th>ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recommendationsBody">
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table id="recommendationsTable">
+                        <thead>
+                            <tr>
+                                <th>RANK</th>
+                                <th>RECOMMENDATION</th>
+                                <th>CONFIDENCE</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recommendationsBody">
+                        </tbody>
+                    </table>
+                </div>
                 
                 <!-- Top 3 Policies Section -->
                 <div id="topPoliciesSection">
