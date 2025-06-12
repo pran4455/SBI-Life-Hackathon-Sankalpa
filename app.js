@@ -1557,7 +1557,7 @@ app.use('/dashboard', streamlitProxy);
 app.use('/chat', chatbotProxy);
 
 // Admin routes for user management
-app.get('/admin/users', requireRole('agent'), async (req, res) => {
+app.get('/admin/users', async (req, res) => {
   try {
     const db = dbSetup.getDB();
     db.all("SELECT username, email, role, created_at FROM users", [], (err, users) => {
@@ -1573,24 +1573,23 @@ app.get('/admin/users', requireRole('agent'), async (req, res) => {
   }
 });
 
-app.post('/admin/users/delete/:username', requireRole('agent'), async (req, res) => {
+// Admin route to edit user role
+app.post('/admin/users/:username/role', async (req, res) => {
   try {
     const { username } = req.params;
-    const result = await dbSetup.deleteUser(username);
-    res.json({ success: true, message: `User ${username} deleted successfully` });
+    const { role } = req.body;
+    
+    const db = dbSetup.getDB();
+    db.run("UPDATE users SET role = ? WHERE username = ?", [role, username], function(err) {
+      if (err) {
+        console.error('Error updating user role:', err);
+        return res.status(500).json({ error: 'Failed to update user role' });
+      }
+      res.json({ success: true, message: 'User role updated successfully' });
+    });
   } catch (error) {
-    console.error('Delete user error:', error);
-    res.status(500).json({ error: 'Failed to delete user' });
-  }
-});
-
-app.post('/admin/users/clear', requireRole('agent'), async (req, res) => {
-  try {
-    const result = await dbSetup.clearAllUsers();
-    res.json({ success: true, message: `Cleared ${result} users successfully` });
-  } catch (error) {
-    console.error('Clear users error:', error);
-    res.status(500).json({ error: 'Failed to clear users' });
+    console.error('Admin role update error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
