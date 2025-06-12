@@ -399,25 +399,34 @@ app.get('/about', (req, res) => {
 // AUTHENTICATION ROUTES
 // ========================================
 
-// Register routes
-app.get('/register', (req, res) => {
-  res.render('register', { error: null });
+// Role-based registration routes
+app.get('/register/:role', (req, res) => {
+  const role = req.params.role;
+  if (role !== 'customer' && role !== 'agent') {
+    return res.redirect('/register');
+  }
+  res.render('register', { error: null, role: role });
 });
 
-app.post('/register', async (req, res) => {
+app.post('/register/:role', async (req, res) => {
   try {
-    const { username, password, email, role = 'customer' } = req.body;
+    const role = req.params.role;
+    if (role !== 'customer' && role !== 'agent') {
+      return res.redirect('/register');
+    }
+
+    const { username, password, email } = req.body;
     
     // Check if user already exists
     const existingUser = await getUserByUsername(username);
     const existingEmail = await getUserByEmail(email);
     
     if (existingUser) {
-      return res.render('register', { error: 'Username already exists' });
+      return res.render('register', { error: 'Username already exists', role: role });
     }
     
     if (existingEmail) {
-      return res.render('register', { error: 'Email already exists' });
+      return res.render('register', { error: 'Email already exists', role: role });
     }
     
     // Hash password
@@ -439,9 +448,79 @@ app.post('/register', async (req, res) => {
     
   } catch (error) {
     console.error('Registration error:', error);
-    res.render('register', { error: 'Registration failed. Please try again.' });
+    res.render('register', { error: 'Registration failed. Please try again.', role: req.params.role });
   }
 });
+
+// Role-based login routes
+app.get('/login/:role', (req, res) => {
+  const role = req.params.role;
+  if (role !== 'customer' && role !== 'agent') {
+    return res.redirect('/login');
+  }
+  res.render('login', { error: null, success: null, role: role });
+});
+
+app.post('/login/:role', async (req, res) => {
+  try {
+    const role = req.params.role;
+    if (role !== 'customer' && role !== 'agent') {
+      return res.redirect('/login');
+    }
+
+    const { username, password } = req.body;
+    
+    console.log('Login attempt for username:', username);
+
+    // Get user from database
+    const user = await getUserByUsername(username);
+    
+    if (!user) {
+      console.log('User not found:', username);
+      return res.render('login', { error: 'Invalid username or password', success: null, role: role });
+    }
+    
+    // Check role
+    if (user.role !== role) {
+      console.log('Role mismatch:', user.role, role);
+      return res.render('login', { error: 'Invalid role for this user', success: null, role: role });
+    }
+    
+    console.log('User found:', user.email);
+    console.log('Stored password hash length:', user.password ? user.password.length : 'null');
+    console.log('Input password length:', password ? password.length : 'null');
+    
+    // Check if password is correct
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match result:', passwordMatch);
+    
+    if (passwordMatch) {
+      req.session.username = username;
+      req.session.role = user.role;
+      res.redirect('/verify_totp');
+    } else {
+      console.log('Password verification failed for user:', username);
+      res.render('login', { error: 'Invalid username or password', success: null, role: role });
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.render('login', { error: 'Login failed. Please try again.', success: null, role: req.params.role });
+  }
+});
+
+// Default registration route (redirects to customer registration)
+app.get('/register', (req, res) => {
+  res.redirect('/register/customer');
+});
+
+// Default login route (redirects to customer login)
+app.get('/login', (req, res) => {
+  res.redirect('/login/customer');
+});
+
+// ========================================
+// TOTP SETUP ROUTES
+// ========================================
 
 // TOTP Setup routes
 app.get('/setup_totp', (req, res) => {
@@ -536,53 +615,6 @@ app.post('/setup_totp', async (req, res) => {
       error: 'Verification failed. Please try again.',
       username: req.session.tempUsername || ''
     });
-  }
-});
-
-// Login routes
-app.get('/login', (req, res) => {
-  res.render('login', { error: null, success: null });
-});
-
-app.post('/login', async (req, res) => {
-  try {
-    const { username, password, role = 'customer' } = req.body;
-    
-    console.log('Login attempt for username:', username);
-
-    // Get user from database
-    const user = await getUserByUsername(username);
-    
-    if (!user) {
-      console.log('User not found:', username);
-      return res.render('login', { error: 'Invalid username or password', success: null });
-    }
-    
-    // Check role if specified
-    if (role && user.role !== role) {
-      console.log('Role mismatch:', user.role, role);
-      return res.render('login', { error: 'Invalid role for this user', success: null });
-    }
-    
-    console.log('User found:', user.email);
-    console.log('Stored password hash length:', user.password ? user.password.length : 'null');
-    console.log('Input password length:', password ? password.length : 'null');
-    
-    // Check if password is correct
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    console.log('Password match result:', passwordMatch);
-    
-    if (passwordMatch) {
-      req.session.username = username;
-      req.session.role = user.role;
-      res.redirect('/verify_totp');
-    } else {
-      console.log('Password verification failed for user:', username);
-      res.render('login', { error: 'Invalid username or password', success: null });
-    }
-  } catch (error) {
-    console.error('Login error:', error);
-    res.render('login', { error: 'Login failed. Please try again.', success: null });
   }
 });
 
