@@ -32,7 +32,7 @@ const initDB = () => {
     });
     
     db.serialize(() => {
-      // Create users table with additional fields
+      // Create users table with role column
       db.run(`
         CREATE TABLE IF NOT EXISTS users (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -93,6 +93,12 @@ const initDB = () => {
       db.run(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
       db.run(`CREATE INDEX IF NOT EXISTS idx_otp_email ON password_reset_otps(email)`);
       db.run(`CREATE INDEX IF NOT EXISTS idx_otp_code ON password_reset_otps(otp_code)`);
+
+      // Add role column to existing users if it doesn't exist
+      db.run("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'customer'");
+
+      // Update existing users to have the default role
+      db.run("UPDATE users SET role = 'customer' WHERE role IS NULL");
     });
     
     db.close((err) => {

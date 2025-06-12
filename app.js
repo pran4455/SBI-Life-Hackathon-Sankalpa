@@ -1560,7 +1560,7 @@ app.use('/chat', chatbotProxy);
 app.get('/admin/users', async (req, res) => {
   try {
     const db = dbSetup.getDB();
-    db.all("SELECT username, email, role, created_at FROM users", [], (err, users) => {
+    db.all("SELECT username, email, COALESCE(role, 'customer') as role, created_at FROM users", [], (err, users) => {
       if (err) {
         console.error('Error fetching users:', err);
         return res.status(500).json({ error: 'Failed to fetch users' });
