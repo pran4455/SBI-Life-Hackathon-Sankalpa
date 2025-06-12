@@ -19,58 +19,110 @@ class PolicyClassifierAndTrustCalculator:
         """Load policy data from Excel file"""
         try:
             print(f"[TRUST] Attempting to load Excel file from: {self.excel_path}", file=sys.stderr)
+            
+            # Check if file exists
             if not os.path.exists(self.excel_path):
                 print(f"[TRUST] Excel file not found at path: {self.excel_path}", file=sys.stderr)
-                self.policy_data = pd.DataFrame()
+                # Create default policy data
+                self.policy_data = pd.DataFrame({
+                    'Policies': ['Default Policy'],
+                    'transparency_score': [0.8],
+                    'suitability_score': [0.8],
+                    'financial_safety_score': [0.85],
+                    'compliance_score': [0.9],
+                    'Description': ['Default policy description'],
+                    'Combined_Text': ['Default policy combined text']
+                })
                 return
             
+            # Try to load Excel file
             self.policy_data = pd.read_excel(self.excel_path)
             print(f"[TRUST] Successfully loaded {len(self.policy_data)} policies from Excel", file=sys.stderr)
             print(f"[TRUST] Excel columns: {self.policy_data.columns.tolist()}", file=sys.stderr)
+            
+            # Ensure required columns exist
+            required_columns = ['Policies', 'transparency_score', 'suitability_score', 
+                              'financial_safety_score', 'compliance_score']
+            
+            missing_columns = [col for col in required_columns if col not in self.policy_data.columns]
+            if missing_columns:
+                print(f"[TRUST] Missing required columns: {missing_columns}", file=sys.stderr)
+                # Add missing columns with default values
+                for col in missing_columns:
+                    if col == 'Policies':
+                        self.policy_data[col] = ['Default Policy']
+                    else:
+                        self.policy_data[col] = 0.8  # Default score for missing columns
+        
         except Exception as e:
             print(f"[TRUST] Error loading Excel file: {e}", file=sys.stderr)
-            self.policy_data = pd.DataFrame()
+            # Create default policy data on error
+            self.policy_data = pd.DataFrame({
+                'Policies': ['Default Policy'],
+                'transparency_score': [0.8],
+                'suitability_score': [0.8],
+                'financial_safety_score': [0.85],
+                'compliance_score': [0.9],
+                'Description': ['Default policy description'],
+                'Combined_Text': ['Default policy combined text']
+            })
     
     def get_policy_scores_from_excel(self, policy_name):
         """Get policy scores from Excel file"""
-        if self.policy_data is None or self.policy_data.empty:
-            print(f"[TRUST] No policy data available", file=sys.stderr)
-            return None
-        
-        print(f"[TRUST] Searching for policy: {policy_name}", file=sys.stderr)
-        print(f"[TRUST] Available policies: {self.policy_data['Policies'].tolist() if 'Policies' in self.policy_data.columns else 'No Policies column found'}", file=sys.stderr)
-        
-        # Search for policy by name (case-insensitive partial match)
-        policy_name_lower = policy_name.lower()
-        
-        # Try exact match first
-        exact_match = self.policy_data[self.policy_data['Policies'].str.lower() == policy_name_lower]
-        if not exact_match.empty:
-            policy_row = exact_match.iloc[0]
-            print(f"[TRUST] Found exact match for policy: {policy_name}", file=sys.stderr)
-        else:
-            # Try partial match
-            partial_match = self.policy_data[self.policy_data['Policies'].str.lower().str.contains(policy_name_lower, na=False)]
-            if not partial_match.empty:
-                policy_row = partial_match.iloc[0]
-                print(f"[TRUST] Found partial match for policy: {policy_name}", file=sys.stderr)
+        try:
+            if self.policy_data is None or self.policy_data.empty:
+                print(f"[TRUST] No policy data available, using default scores", file=sys.stderr)
+                return self.get_default_scores(policy_name)
+            
+            print(f"[TRUST] Searching for policy: {policy_name}", file=sys.stderr)
+            
+            # Search for policy by name (case-insensitive partial match)
+            policy_name_lower = policy_name.lower()
+            
+            # Try exact match first
+            exact_match = self.policy_data[self.policy_data['Policies'].str.lower() == policy_name_lower]
+            if not exact_match.empty:
+                policy_row = exact_match.iloc[0]
+                print(f"[TRUST] Found exact match for policy: {policy_name}", file=sys.stderr)
             else:
-                print(f"[TRUST] Policy '{policy_name}' not found in Excel", file=sys.stderr)
-                return None
-        
-        # Extract scores from Excel
-        scores = {
-            'transparency_score': float(policy_row.get('transparency_score', 0.75)),
-            'suitability_score': float(policy_row.get('suitability_score', 0.70)),
-            'financial_safety_score': float(policy_row.get('financial_safety_score', 0.80)),
-            'compliance_score': float(policy_row.get('compliance_score', 0.85)),
-            'policy_name': policy_row.get('Policies', policy_name),
-            'description': policy_row.get('Description', ''),
-            'combined_text': policy_row.get('Combined_Text', '')
+                # Try partial match
+                partial_match = self.policy_data[self.policy_data['Policies'].str.lower().str.contains(policy_name_lower, na=False)]
+                if not partial_match.empty:
+                    policy_row = partial_match.iloc[0]
+                    print(f"[TRUST] Found partial match for policy: {policy_name}", file=sys.stderr)
+                else:
+                    print(f"[TRUST] Policy '{policy_name}' not found in Excel, using default scores", file=sys.stderr)
+                    return self.get_default_scores(policy_name)
+            
+            # Extract scores from Excel
+            scores = {
+                'transparency_score': float(policy_row.get('transparency_score', 0.8)),
+                'suitability_score': float(policy_row.get('suitability_score', 0.8)),
+                'financial_safety_score': float(policy_row.get('financial_safety_score', 0.85)),
+                'compliance_score': float(policy_row.get('compliance_score', 0.9)),
+                'policy_name': policy_row.get('Policies', policy_name),
+                'description': policy_row.get('Description', ''),
+                'combined_text': policy_row.get('Combined_Text', '')
+            }
+            
+            print(f"[TRUST] Found policy scores for '{policy_name}': {scores}", file=sys.stderr)
+            return scores
+            
+        except Exception as e:
+            print(f"[TRUST] Error getting policy scores: {e}", file=sys.stderr)
+            return self.get_default_scores(policy_name)
+    
+    def get_default_scores(self, policy_name):
+        """Get default scores for a policy"""
+        return {
+            'transparency_score': 0.8,
+            'suitability_score': 0.8,
+            'financial_safety_score': 0.85,
+            'compliance_score': 0.9,
+            'policy_name': policy_name,
+            'description': 'Default policy description',
+            'combined_text': 'Default policy combined text'
         }
-        
-        print(f"[TRUST] Found policy scores for '{policy_name}': {scores}", file=sys.stderr)
-        return scores
     
     def get_enhanced_trust_scores(self, policy_name, policy_description="", user_profile=None):
         """Get enhanced trust scores with policy classification - NEW METHOD"""
