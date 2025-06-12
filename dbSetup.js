@@ -430,6 +430,40 @@ const verifyAndCleanupOTP = (email, otp) => {
   });
 };
 
+// Add this function to clear all users
+const clearAllUsers = () => {
+  return new Promise((resolve, reject) => {
+    const db = getDB();
+    db.run("DELETE FROM users", function(err) {
+      if (err) {
+        console.error('Error clearing users:', err);
+        reject(err);
+      } else {
+        console.log(`Cleared ${this.changes} users from database`);
+        resolve(this.changes);
+      }
+      db.close();
+    });
+  });
+};
+
+// Add this function to clear specific user
+const deleteUser = (username) => {
+  return new Promise((resolve, reject) => {
+    const db = getDB();
+    db.run("DELETE FROM users WHERE username = ?", [username], function(err) {
+      if (err) {
+        console.error('Error deleting user:', err);
+        reject(err);
+      } else {
+        console.log(`Deleted user: ${username}, rows affected: ${this.changes}`);
+        resolve(this.changes);
+      }
+      db.close();
+    });
+  });
+};
+
 module.exports = {
   initDB,
   deleteDB,
@@ -442,6 +476,8 @@ module.exports = {
   cleanupExpiredOTPs,
   getUserByEmail,
   updateUserPassword,
-  updateUserProfile,      // NEW
-  isProfileCompleted      // NEW
+  updateUserProfile,
+  isProfileCompleted,
+  clearAllUsers,    // NEW
+  deleteUser        // NEW
 };

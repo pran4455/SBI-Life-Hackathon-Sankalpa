@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .user-table {
+            margin-top: 2rem;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .delete-btn {
+            color: #dc3545;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            color: #bb2d3b;
+        }
+        .clear-all-btn {
+            margin-bottom: 1rem;
+        }
+        .alert {
+            display: none;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mt-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/home">Admin Panel</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/home">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin/users">User Management</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <h2>User Management</h2>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="text-muted">Total Users: <span id="userCount"><%= users.length %></span></p>
+                    <button class="btn btn-danger clear-all-btn" onclick="clearAllUsers()">
+                        <i class="fas fa-trash"></i> Clear All Users
+                    </button>
+                </div>
+
+                <div class="alert alert-success" id="successAlert" role="alert"></div>
+                <div class="alert alert-danger" id="errorAlert" role="alert"></div>
+
+                <div class="table-responsive user-table">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(function(user) { %>
+                                <tr id="user-<%= user.username %>">
+                                    <td><%= user.username %></td>
+                                    <td><%= user.email %></td>
+                                    <td><span class="badge bg-<%= user.role === 'agent' ? 'primary' : 'success' %>"><%= user.role %></span></td>
+                                    <td><%= new Date(user.created_at).toLocaleString() %></td>
+                                    <td class="action-buttons">
+                                        <i class="fas fa-trash delete-btn" onclick="deleteUser('<%= user.username %>')" title="Delete User"></i>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showAlert(message, type) {
+            const alert = document.getElementById(type === 'success' ? 'successAlert' : 'errorAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        async function deleteUser(username) {
+            if (!confirm(`Are you sure you want to delete user ${username}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/users/delete/${username}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById(`user-${username}`).remove();
+                    const userCount = document.getElementById('userCount');
+                    userCount.textContent = parseInt(userCount.textContent) - 1;
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.error || 'Failed to delete user', 'error');
+                }
+            } catch (error) {
+                showAlert('An error occurred while deleting the user', 'error');
+            }
+        }
+
+        async function clearAllUsers() {
+            if (!confirm('Are you sure you want to delete ALL users? This action cannot be undone!')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/admin/users/clear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.querySelector('tbody').innerHTML = '';
+                    document.getElementById('userCount').textContent = '0';
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.error || 'Failed to clear users', 'error');
+                }
+            } catch (error) {
+                showAlert('An error occurred while clearing users', 'error');
+            }
+        }
+    </script>
+</body>
+</html> 

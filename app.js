@@ -1498,26 +1498,27 @@ const streamlitProxy = createProxyMiddleware({
   changeOrigin: true,
   ws: true,
   onProxyReq: (proxyReq, req, res) => {
-    console.log(`Proxying request to Streamlit: ${req.method} ${req.url}`);
-    // Ensure proper headers for Streamlit
+    // Only log in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`Proxying request to Streamlit: ${req.method} ${req.url}`);
+    }
     proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
     proxyReq.setHeader('Host', `localhost:${process.env.STREAMLIT_PORT || 8501}`);
   },
   onProxyRes: (proxyRes, req, res) => {
-    console.log(`Streamlit response: ${proxyRes.statusCode} ${req.url}`);
-    // Add CORS headers for Streamlit
+    // Only log errors in production
+    if (proxyRes.statusCode >= 400) {
+      console.error(`Streamlit error: ${proxyRes.statusCode} ${req.url}`);
+    }
     proxyRes.headers['Access-Control-Allow-Origin'] = '*';
     proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
     proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type';
   },
   onError: (err, req, res) => {
     console.error('Streamlit proxy error:', err);
-    console.error('Request URL:', req.url);
-    console.error('Request method:', req.method);
-    console.error('Request headers:', req.headers);
     res.status(500).send('Error connecting to Streamlit dashboard');
   },
-  logLevel: 'debug'
+  logLevel: process.env.NODE_ENV === 'production' ? 'error' : 'debug'
 });
 
 // Add proxy for chatbot
@@ -1526,26 +1527,27 @@ const chatbotProxy = createProxyMiddleware({
   changeOrigin: true,
   ws: true,
   onProxyReq: (proxyReq, req, res) => {
-    console.log(`Proxying request to Chatbot: ${req.method} ${req.url}`);
-    // Ensure proper headers for chatbot
+    // Only log in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`Proxying request to Chatbot: ${req.method} ${req.url}`);
+    }
     proxyReq.setHeader('Origin', req.protocol + '://' + req.get('host'));
     proxyReq.setHeader('Host', `localhost:${process.env.CHATBOT_PORT || 8000}`);
   },
   onProxyRes: (proxyRes, req, res) => {
-    console.log(`Chatbot response: ${proxyRes.statusCode} ${req.url}`);
-    // Add CORS headers for chatbot
+    // Only log errors in production
+    if (proxyRes.statusCode >= 400) {
+      console.error(`Chatbot error: ${proxyRes.statusCode} ${req.url}`);
+    }
     proxyRes.headers['Access-Control-Allow-Origin'] = '*';
     proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
     proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type';
   },
   onError: (err, req, res) => {
     console.error('Chatbot proxy error:', err);
-    console.error('Request URL:', req.url);
-    console.error('Request method:', req.method);
-    console.error('Request headers:', req.headers);
     res.status(500).send('Error connecting to chatbot');
   },
-  logLevel: 'debug'
+  logLevel: process.env.NODE_ENV === 'production' ? 'error' : 'debug'
 });
 
 // Add Streamlit proxy to Express app
@@ -1553,6 +1555,44 @@ app.use('/dashboard', streamlitProxy);
 
 // Add chatbot proxy to Express app
 app.use('/chat', chatbotProxy);
+
+// Admin routes for user management
+app.get('/admin/users', requireRole('agent'), async (req, res) => {
+  try {
+    const db = dbSetup.getDB();
+    db.all("SELECT username, email, role, created_at FROM users", [], (err, users) => {
+      if (err) {
+        console.error('Error fetching users:', err);
+        return res.status(500).json({ error: 'Failed to fetch users' });
+      }
+      res.render('admin_users', { users: users });
+    });
+  } catch (error) {
+    console.error('Admin users error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/admin/users/delete/:username', requireRole('agent'), async (req, res) => {
+  try {
+    const { username } = req.params;
+    const result = await dbSetup.deleteUser(username);
+    res.json({ success: true, message: `User ${username} deleted successfully` });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
+app.post('/admin/users/clear', requireRole('agent'), async (req, res) => {
+  try {
+    const result = await dbSetup.clearAllUsers();
+    res.json({ success: true, message: `Cleared ${result} users successfully` });
+  } catch (error) {
+    console.error('Clear users error:', error);
+    res.status(500).json({ error: 'Failed to clear users' });
+  }
+});
 
 const server = app.listen(SERVER_CONFIG.PORT, SERVER_CONFIG.HOST, async () => {
   console.log(`Server is running on http://${SERVER_CONFIG.HOST}:${SERVER_CONFIG.PORT}`);
