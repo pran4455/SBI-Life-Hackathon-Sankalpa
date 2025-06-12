@@ -47,6 +47,11 @@
         .nav-links img {
             height: 45px;
             width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links img:hover {
+            transform: scale(1.05);
         }
 
         .other-links {
@@ -65,6 +70,9 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .other-links a:hover {
@@ -84,20 +92,34 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             animation: fadeInUp 0.8s ease forwards;
-            height: 80vh;
-            overflow: hidden;
+            position: relative;
+        }
+
+        /* For register page with more content */
+        .container.register-container {
+            height: auto;
+            max-height: 85vh;
+            overflow-y: auto;
         }
 
         .title {
             font-size: 2rem;
             font-weight: 700;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             background: linear-gradient(135deg, #ffffff, #e0e7ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            font-weight: 400;
         }
 
         /* Form Styling */
@@ -135,6 +157,15 @@
             background: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Input validation styles */
+        .form-group input:valid {
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+
+        .form-group input:invalid:not(:placeholder-shown) {
+            border-color: rgba(239, 68, 68, 0.5);
         }
 
         /* Button Styling */
@@ -177,7 +208,11 @@
             background: linear-gradient(135deg, #5b52f0, #8b46f7);
         }
 
-        /* Error Message */
+        .btn:active {
+            transform: translateY(-1px) scale(1.01);
+        }
+
+        /* Error and Success Messages */
         .error {
             background: rgba(220, 53, 69, 0.2);
             border: 1px solid rgba(220, 53, 69, 0.5);
@@ -188,19 +223,34 @@
             text-align: center;
             backdrop-filter: blur(10px);
             font-weight: 500;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #4ade80;
+            padding: 1rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
         /* Form Footer */
         .form-footer {
             text-align: center;
-            margin-top: 1rem;
-            padding-top: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .form-footer p {
             margin-bottom: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
         }
 
         .form-footer a {
@@ -213,6 +263,12 @@
         .form-footer a:hover {
             color: white;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .role-switch {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* Animations */
@@ -238,6 +294,41 @@
             }
         }
 
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Loading state for buttons */
+        .btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .nav-bar {
@@ -251,18 +342,22 @@
             }
             
             .container {
-                margin: 20px 1rem;
+                margin: 40px 1rem;
                 padding: 2rem;
             }
             
             .title {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
             }
         }
 
         @media (max-width: 480px) {
             .title {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
             }
             
             .other-links a {
@@ -273,53 +368,131 @@
             .nav-links img {
                 height: 35px;
             }
+            
+            .container {
+                padding: 1.5rem;
+                margin: 20px 0.5rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            
+            .form-group input {
+                padding: 0.8rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Custom scrollbar for register container */
+        .container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         /* Smooth scrolling */
         html {
             scroll-behavior: smooth;
         }
+
+        /* Focus visible for accessibility */
+        .btn:focus-visible,
+        .form-group input:focus-visible,
+        .other-links a:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .container {
+                border: 2px solid rgba(255, 255, 255, 0.5);
+            }
+            
+            .form-group input {
+                border-width: 3px;
+            }
+            
+            .btn {
+                border: 2px solid rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
-<body>
-    <div class="nav-bar">
-        <div class="nav-links">
-            <img src="/static/sankalpa.png" alt="Logo">
-        </div>
-        <div class="other-links">
-            <a href="/login">Login</a>
-            <a href="/"><i class="fas fa-home"></i> Welcome</a>
-        </div>
-    </div>
+<body>     
+    <div class="nav-bar">         
+        <div class="nav-links">             
+            <img src="/static/sankalpa.png" alt="Logo">         
+        </div>         
+        <div class="other-links">             
+            <a href="/login/<%= role %>">Login</a>             
+            <a href="/"><i class="fas fa-home"></i> Welcome</a>         
+        </div>     
+    </div>      
 
-    <div class="container">
-        <h1 class="title">Create Your Account</h1>
-        <form action="/register" method="post">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            
-            <button type="submit" class="btn">Register</button>
-            
-            <% if (error) { %>
-                <p class="error"><%= error %></p>
-            <% } %>
-        </form>
+    <div class="container">         
+        <h1 class="title">Create Your <%= role.charAt(0).toUpperCase() + role.slice(1) %> Account</h1>
+        <p class="subtitle">Join Financial AI Hub as a <%= role %></p>
         
-        <div class="form-footer">
-            Already have an account? <a href="/login">Login here</a>
-        </div>
-    </div>
+        <form action="/register/<%= role %>" method="post">             
+            <div class="form-group">                 
+                <label for="username">Username</label>                 
+                <input type="text" id="username" name="username" required>             
+            </div>                          
+            
+            <div class="form-group">                 
+                <label for="email">Email Address</label>                 
+                <input type="email" id="email" name="email" required>             
+            </div>                          
+            
+            <div class="form-group">                 
+                <label for="password">Password</label>                 
+                <input type="password" id="password" name="password" required>             
+            </div>                          
+            
+            <button type="submit" class="btn">Register as <%= role.charAt(0).toUpperCase() + role.slice(1) %></button>                          
+            
+            <% if (error) { %>                 
+                <p class="error"><%= error %></p>             
+            <% } %>         
+        </form>                  
+        
+        <div class="form-footer">             
+            <p>Already have an account? <a href="/login/<%= role %>">Login as <%= role.charAt(0).toUpperCase() + role.slice(1) %></a></p>         
+            <div class="role-switch">
+                <% if (role === 'customer') { %>
+                    <p><a href="/register/agent">Register as Agent instead</a></p>
+                <% } else { %>
+                    <p><a href="/register/customer">Register as Customer instead</a></p>
+                <% } %>
+            </div>
+        </div>     
+    </div> 
 </body>
 </html>

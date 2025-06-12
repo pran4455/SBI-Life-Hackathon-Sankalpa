@@ -86,9 +86,9 @@
         /* Main Content */
         .main-container {
             max-width: 1400px;
-            margin: 1rem auto;
+            margin: 8rem auto;
             padding: 3rem 2rem;
-            height: 90vh;
+            height: 80vh;
             overflow: hidden;
         }
 
@@ -373,7 +373,7 @@
         <div class="header-content">
             <div class="logo">
                 <i class="fas fa-chart-line"></i>
-                Financial AI Hub
+                Financial AI Hub - Agent Dashboard
             </div>
             <div class="user-section">
                 <span class="welcome-text">Welcome, <%= username %>!</span>
@@ -389,34 +389,23 @@
 
         <!-- Features Grid -->
         <div class="features-grid">
-            <a href="/policy-recommendation" class="feature-card card-upselling">
-                <div class="feature-content">
-                    <div class="feature-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <h3 class="feature-title">SmartPolicy Recommender</h3>
-                    <p class="feature-description">AI-driven policy suggestions with explainable insights and AI-based policy upselling</p>
-                </div>
-            </a>
-
-            <a href="/tia-chatbot" class="feature-card card-chatbot">
-                <div class="feature-content">
-                    <div class="feature-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3 class="feature-title">TIA Assistant</h3>
-                    <p class="feature-description">Intelligent conversational AI for instant support</p>
-                </div>
-            </a>
-
-            <a href="analytics-dashboard" class="feature-card card-analytics">
+            <a href="/analytics-dashboard" class="feature-card card-analytics">
                 <div class="feature-content">
                     <div class="feature-icon">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <div class="feature-icon"></div>
                     <h3 class="feature-title">Analytics Dashboard</h3>
                     <p class="feature-description">Real-time data visualization and performance metrics</p>
+                </div>
+            </a>
+
+            <a href="/tia-operator" class="feature-card card-chatbot">
+                <div class="feature-content">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="feature-title">TIA Operator</h3>
+                    <p class="feature-description">Advanced operator interface for managing customer interactions</p>
                 </div>
             </a>
 
@@ -427,16 +416,6 @@
                     </div>
                     <h3 class="feature-title">Interactive Financial Tools</h3>
                     <p class="feature-description">Interactive games related to finance and money management</p>
-                </div>
-            </a>
-
-            <a href="/financial-chatbot" class="feature-card card-finchat">
-                <div class="feature-content">
-                    <div class="feature-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h3 class="feature-title">FinChat Bot</h3>
-                    <p class="feature-description">Your financial assistant offering guidance and support across banking and insurance services.</p>
                 </div>
             </a>
         </div>

@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recommend a Policy</title>
+    <title>Policy Recommendation - Financial AI Hub</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
         * {
             margin: 0;
@@ -118,6 +117,45 @@
             min-height: 600px;
         }
 
+        /* ===== TRUST AI HEADER SECTION ===== */
+        .trust-ai-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .trust-ai-header h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 0;
+        }
+
+        .trust-ai-shield {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(46, 125, 50, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+        }
+
+        .shield-icon {
+            font-size: 1.2rem;
+        }
+
+        .shield-text {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
         .recommend-box h1 {
             color: white;
             font-size: 2rem;
@@ -133,6 +171,47 @@
             font-weight: 600;
             margin-bottom: 1rem;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===== RECOMMENDATIONS HEADER WITH TRUST VERIFICATION ===== */
+        .recommendations-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .trust-verification-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(46, 125, 50, 0.8);
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            backdrop-filter: blur(10px);
+            font-size: 0.85rem;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(46, 125, 50, 0.3);
+        }
+
+        .verification-icon {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .verification-text {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .verification-timestamp {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            font-style: italic;
         }
 
         /* Textarea Styling */
@@ -228,6 +307,7 @@
             padding: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .policy-item:hover {
@@ -236,11 +316,18 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
+        .policy-item.selected-policy {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
         .policy-header {
             display: flex;
             align-items: center;
             gap: 1rem;
             margin-bottom: 1rem;
+            position: relative;
         }
 
         .policy-header input[type="radio"] {
@@ -258,6 +345,53 @@
             flex: 1;
         }
 
+        /* ===== TRUST AI BADGE STYLING ===== */
+        .trust-ai-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
+        }
+
+        .trust-ai-badge.HIGHLY_TRUSTED {
+            background: rgba(46, 125, 50, 0.9);
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .trust-ai-badge.TRUSTED {
+            background: rgba(56, 142, 60, 0.9);
+            color: white;
+            border-color: #66BB6A;
+        }
+
+        .trust-ai-badge.VERIFIED {
+            background: rgba(25, 118, 210, 0.9);
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .trust-ai-badge.NEEDS_REVIEW {
+            background: rgba(245, 124, 0, 0.9);
+            color: white;
+            border-color: #FF9800;
+        }
+
+        .trust-ai-badge.HIGH_RISK {
+            background: rgba(211, 47, 47, 0.9);
+            color: white;
+            border-color: #f44336;
+        }
+
         .policy-why-container {
             margin-left: 2rem;
         }
@@ -273,6 +407,82 @@
             color: rgba(255, 255, 255, 0.8);
             font-size: 0.95rem;
             line-height: 1.5;
+        }
+
+        /* ===== TRUST SCORE CONTAINER ===== */
+        .trust-score-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .trust-score {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .trust-policy-type {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .trust-explanation {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+        }
+
+        .score-breakdown {
+            margin: 0.8rem 0;
+        }
+
+        .breakdown-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .breakdown-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .breakdown-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: capitalize;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .trust-verification-stamp {
+            margin-top: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(46, 125, 50, 0.8);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: white;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
         }
 
         /* Action Buttons */
@@ -347,6 +557,7 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
             border: 2px solid;
+            margin-bottom: 1rem;
         }
 
         .message.success {
@@ -359,6 +570,20 @@
         .message.error {
             background: rgba(244, 67, 54, 0.9);
             border-color: #f44336;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .message.info {
+            background: rgba(33, 150, 243, 0.9);
+            border-color: #2196F3;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .message.warning {
+            background: rgba(255, 152, 0, 0.9);
+            border-color: #FF9800;
             color: #ffffff;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
@@ -411,6 +636,17 @@
             .chatbox-container iframe {
                 height: 500px;
             }
+            
+            .trust-ai-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .recommendations-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
 
         @media (max-width: 768px) {
@@ -428,8 +664,16 @@
                 min-height: auto;
             }
             
-            .recommend-box h1 {
+            .trust-ai-header h1 {
                 font-size: 1.5rem;
+            }
+            
+            .trust-ai-shield {
+                padding: 0.4rem 0.8rem;
+            }
+            
+            .shield-text {
+                font-size: 0.8rem;
             }
             
             .action-buttons {
@@ -452,6 +696,20 @@
             
             .welcome-text {
                 font-size: 1rem;
+            }
+            
+            .trust-ai-badge {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.6rem;
+            }
+            
+            .breakdown-items {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+            
+            .trust-score-container {
+                padding: 0.8rem;
             }
         }
 
@@ -481,6 +739,10 @@
                 gap: 0.5rem;
             }
             
+            .trust-ai-badge {
+                align-self: flex-start;
+            }
+            
             .policy-why-container {
                 margin-left: 0;
             }
@@ -491,6 +753,25 @@
             
             .chatbox-container iframe {
                 height: 400px;
+            }
+            
+            .trust-ai-header {
+                text-align: center;
+            }
+            
+            .trust-ai-header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .trust-score {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.3rem;
+            }
+            
+            .message {
+                font-size: 1rem;
+                padding: 1rem;
             }
         }
     </style>
@@ -517,13 +798,29 @@
     <div class="container">
         <!-- Left Panel: Recommendation UI -->
         <div class="recommend-box">
-            <h1>Policy Recommendation</h1>
-            <textarea id="userInput" placeholder="Describe your requirements..."></textarea>
+            <div class="trust-ai-header">
+                <h1>Policy Recommendation</h1>
+                <div class="trust-ai-shield">
+                    <span class="shield-icon">🛡️</span>
+                    <span class="shield-text">Trust AI Shield Enabled</span>
+                </div>
+            </div>
+            
+            <textarea id="userInput" placeholder="Describe your requirements (e.g., 'I need life insurance for my family', 'Looking for health coverage', etc.)..."></textarea>
             <button id="getRecommendationsBtn" onclick="getRecommendations()">Get Recommendations</button>
 
             <div id="recommendations" style="display: none;">
-                <h2>Recommended Policies:</h2>
+                <div class="recommendations-header">
+                    <h2>Recommended Policies:</h2>
+                    <div id="trustVerificationStatus" class="trust-verification-status" style="display: none;">
+                        <span class="verification-icon">✓</span>
+                        <span class="verification-text">Trust verification completed</span>
+                        <span class="verification-timestamp" id="verificationTimestamp"></span>
+                    </div>
+                </div>
+                
                 <ul id="policyList"></ul>
+                
                 <div class="action-buttons" style="display: none;" id="actionButtons">
                     <button class="accept-btn" id="acceptBtn" onclick="acceptPolicy()">Accept Policy</button>
                     <button class="decline-btn" id="declineBtn" onclick="declinePolicy()">Decline Policy</button>
@@ -544,13 +841,15 @@
 
     <script>
         let selectedPolicy = null;
+        let currentPolicies = [];
+        let trustVerificationEnabled = false;
 
         async function getRecommendations() {
             const userInput = document.getElementById("userInput").value;
             const getRecommendationsBtn = document.getElementById("getRecommendationsBtn");
             
             if (!userInput.trim()) {
-                showMessage("Please enter a description.", "error");
+                showMessage("Please enter a description of your insurance needs.", "error");
                 return;
             }
 
@@ -573,7 +872,10 @@
 
                 console.log('Response data:', responseData);
                 
-                // Handle multiple possible response structures
+                // Check if Trust AI verification is enabled
+                trustVerificationEnabled = responseData.trust_verification_enabled || false;
+                
+                // Handle response structure from your app.js
                 let policies = [];
                 
                 if (responseData.policies && Array.isArray(responseData.policies)) {
@@ -596,7 +898,13 @@
                 console.log('Processed policies:', policies);
                 
                 if (policies && policies.length > 0) {
-                    displayRecommendations(policies);
+                    currentPolicies = policies;
+                    displayRecommendations(policies, responseData.trust_verification_timestamp);
+                    
+                    // Show Trust AI verification status if enabled
+                    if (trustVerificationEnabled) {
+                        showTrustVerificationStatus(responseData.trust_verification_timestamp);
+                    }
                 } else {
                     showMessage("No policies found for your requirements. Please try with different criteria.", "error");
                 }
@@ -610,7 +918,7 @@
             }
         }
 
-        function displayRecommendations(policies) {
+        function displayRecommendations(policies, verificationTimestamp) {
             const policyList = document.getElementById("policyList");
             const recommendationsDiv = document.getElementById("recommendations");
             const actionButtons = document.getElementById("actionButtons");
@@ -620,19 +928,30 @@
             
             policies.forEach((policy, index) => {
                 const policyName = policy.name || policy;
-                const policyWhy = policy.why || policy.description || 'No description available';
+                const policyWhy = policy.why || policy.description || 'Policy recommendation based on your profile and requirements';
+                
+                // Handle trust score data from trust_policy.py integration
+                const trustScore = policy.trust_score || 0;
+                const trustConfidence = policy.trust_confidence || policy.confidence_level || 'Medium';
+                const trustInterpretation = policy.trust_interpretation || policy.interpretation || {
+                    level: 'Medium Trust',
+                    description: 'Standard policy assessment',
+                    recommendation: 'Review Carefully'
+                };
                 
                 const listItem = document.createElement("li");
                 listItem.innerHTML = `
                     <div class="policy-item">
                         <div class="policy-header">
-                            <input type="radio" name="selectedPolicy" value="${policyName}" id="policy_${index}" onchange="selectPolicy('${policyName}')">
+                            <input type="radio" name="selectedPolicy" value="${policyName}" id="policy_${index}" onchange="selectPolicy('${policyName}', ${index})">
                             <label for="policy_${index}" class="policy-name">${policyName}</label>
+                            ${generateTrustBadge(trustScore, trustInterpretation.level)}
                         </div>
                         <div class="policy-why-container">
                             <h3 class="policy-why-heading">Why choose this policy:</h3>
                             <div class="policy-description">${policyWhy}</div>
                         </div>
+                        ${generateTrustScoreContainer(policy)}
                     </div>
                 `;
                 policyList.appendChild(listItem);
@@ -641,15 +960,142 @@
             actionButtons.style.display = "flex";
         }
 
-        function selectPolicy(policyName) {
+        function generateTrustBadge(trustScore, trustLevel) {
+            const score = Math.round(trustScore * 100);
+            let badgeClass = 'NEEDS_REVIEW';
+            
+            if (score >= 80) {
+                badgeClass = 'HIGHLY_TRUSTED';
+            } else if (score >= 60) {
+                badgeClass = 'TRUSTED';
+            } else if (score >= 40) {
+                badgeClass = 'VERIFIED';
+            } else {
+                badgeClass = 'HIGH_RISK';
+            }
+            
+            return `
+                <div class="trust-ai-badge ${badgeClass}">
+                    ${trustLevel || 'Standard'} (${score}%)
+                </div>
+            `;
+        }
+
+        function generateTrustScoreContainer(policy) {
+            const trustScore = policy.trust_score || 0;
+            const trustConfidence = policy.trust_confidence || policy.confidence_level || 'Medium';
+            const trustInterpretation = policy.trust_interpretation || policy.interpretation || {
+                level: 'Medium Trust',
+                description: 'Standard policy assessment',
+                recommendation: 'Review Carefully'
+            };
+            const modelUsed = policy.trust_model_used || policy.model_used || 'Trust AI Model';
+            const timestamp = policy.trust_timestamp || policy.prediction_timestamp;
+            
+            return `
+                <div class="trust-score-container">
+                    <div class="trust-score">
+                        Trust Score: ${Math.round(trustScore * 100)}% 
+                        <span class="trust-confidence">(${trustConfidence} Confidence)</span>
+                    </div>
+                    <div class="trust-explanation">
+                        <strong>${trustInterpretation.level}:</strong> ${trustInterpretation.description}
+                    </div>
+                    <div class="trust-recommendation">
+                        <strong>Recommendation:</strong> ${trustInterpretation.recommendation}
+                    </div>
+                    <div class="trust-verification-stamp">
+                        Verified by ${modelUsed} 
+                        ${timestamp ? `at ${new Date(timestamp).toLocaleTimeString()}` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showTrustVerificationStatus(timestamp) {
+            const statusElement = document.getElementById("trustVerificationStatus");
+            const timestampElement = document.getElementById("verificationTimestamp");
+            
+            if (timestamp) {
+                const date = new Date(timestamp);
+                timestampElement.textContent = `at ${date.toLocaleTimeString()}`;
+            }
+            
+            statusElement.style.display = "flex";
+        }
+
+        function selectPolicy(policyName, index) {
             selectedPolicy = policyName;
             console.log('Selected policy:', selectedPolicy);
+            
+            // Highlight trust information for selected policy
+            const policyItems = document.querySelectorAll('.policy-item');
+            policyItems.forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('selected-policy');
+                } else {
+                    item.classList.remove('selected-policy');
+                }
+            });
+
+            // Show trust summary for selected policy if available
+            const selectedPolicyData = currentPolicies[index];
+            if (selectedPolicyData) {
+                showTrustSummary(selectedPolicyData);
+            }
+        }
+
+        function showTrustSummary(policyData) {
+            const trustScore = Math.round((policyData.trust_score || 0) * 100);
+            const trustInterpretation = policyData.trust_interpretation || policyData.interpretation || {
+                level: 'Medium Trust',
+                recommendation: 'Review Carefully'
+            };
+            
+            let summaryMessage = '';
+            let messageType = 'info';
+            
+            if (trustScore >= 80) {
+                summaryMessage = `✅ ${trustInterpretation.level} with ${trustScore}% confidence. ${trustInterpretation.recommendation}`;
+                messageType = 'success';
+            } else if (trustScore >= 60) {
+                summaryMessage = `✅ ${trustInterpretation.level} with ${trustScore}% confidence. ${trustInterpretation.recommendation}`;
+                messageType = 'success';
+            } else if (trustScore >= 40) {
+                summaryMessage = `ℹ️ ${trustInterpretation.level} with ${trustScore}% confidence. ${trustInterpretation.recommendation}`;
+                messageType = 'info';
+            } else if (trustScore >= 20) {
+                summaryMessage = `⚠️ ${trustInterpretation.level} with ${trustScore}% confidence. ${trustInterpretation.recommendation}`;
+                messageType = 'warning';
+            } else {
+                summaryMessage = `❌ ${trustInterpretation.level} with ${trustScore}% confidence. ${trustInterpretation.recommendation}`;
+                messageType = 'error';
+            }
+            
+            showMessage(summaryMessage, messageType, false);
         }
 
         async function acceptPolicy() {
             if (!selectedPolicy) {
                 showMessage("Please select a policy first.", "error");
                 return;
+            }
+
+            // Check if selected policy has trust verification and show warning for risky policies
+            const selectedPolicyData = currentPolicies.find(p => (p.name || p) === selectedPolicy);
+            if (trustVerificationEnabled && selectedPolicyData) {
+                const trustScore = Math.round((selectedPolicyData.trust_score || 0) * 100);
+                
+                // Show additional warning for high-risk policies
+                if (trustScore < 40) {
+                    const confirmed = confirm(
+                        `Trust AI Shield indicates this policy has a low trust score (${trustScore}%). ` +
+                        `Are you sure you want to proceed?`
+                    );
+                    if (!confirmed) {
+                        return;
+                    }
+                }
             }
 
             const acceptBtn = document.getElementById("acceptBtn");
@@ -660,7 +1106,10 @@
                 const res = await fetch('/api/accept-policy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ policy: selectedPolicy })
+                    body: JSON.stringify({ 
+                        policy: selectedPolicy,
+                        trust_verification: trustVerificationEnabled
+                    })
                 });
 
                 const result = await res.json();
@@ -707,8 +1156,11 @@
                     // Reset the form
                     setTimeout(() => {
                         document.getElementById("recommendations").style.display = "none";
+                        document.getElementById("trustVerificationStatus").style.display = "none";
                         document.getElementById("userInput").value = "";
                         selectedPolicy = null;
+                        currentPolicies = [];
+                        trustVerificationEnabled = false;
                         clearMessage();
                     }, 3000);
                     
@@ -725,18 +1177,44 @@
             }
         }
 
-        function showMessage(message, type) {
+        function showMessage(message, type, autoHide = true) {
             const messageContainer = document.getElementById("messageContainer");
             messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
             
             // Scroll to message for better visibility
             messageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Auto-hide informational messages after 5 seconds
+            if (autoHide && (type === 'info' || type === 'warning')) {
+                setTimeout(() => {
+                    clearMessage();
+                }, 5000);
+            }
         }
 
         function clearMessage() {
             const messageContainer = document.getElementById("messageContainer");
             messageContainer.innerHTML = '';
         }
+
+        // Initialize Trust AI Shield status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Trust AI Shield Policy Recommendation System Initialized');
+            
+            // Add some helpful placeholder text
+            const userInput = document.getElementById("userInput");
+            userInput.addEventListener('focus', function() {
+                if (this.placeholder.includes('Describe your requirements')) {
+                    this.placeholder = 'E.g., "I need comprehensive life insurance for a family of 4" or "Looking for health insurance with dental coverage"';
+                }
+            });
+            
+            userInput.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.placeholder = 'Describe your requirements (e.g., "I need life insurance for my family", "Looking for health coverage", etc.)...';
+                }
+            });
+        });
     </script>
 </body>
 </html>

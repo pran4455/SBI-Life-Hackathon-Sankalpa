@@ -4,23 +4,9 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-// Get the database path based on environment
-const getDBPath = () => {
-  if (process.env.RENDER_STORAGE_PATH) {
-    const storagePath = process.env.RENDER_STORAGE_PATH;
-    // Ensure storage directory exists
-    if (!fs.existsSync(storagePath)) {
-      fs.mkdirSync(storagePath, { recursive: true });
-    }
-    return path.join(storagePath, 'users.db');
-  }
-  return path.join(__dirname, 'users.db');
-};
-
 // Database initialization
 const initDB = () => {
-  const dbPath = getDBPath();
-  console.log('Initializing database at:', dbPath);
+  const dbPath = path.join(__dirname, 'users.db');
   
   try {
     const db = new sqlite3.Database(dbPath, (err) => {
@@ -28,7 +14,6 @@ const initDB = () => {
         console.error('Error opening database:', err);
         throw err;
       }
-      console.log('Database connection established');
     });
     
     db.serialize(() => {
@@ -87,6 +72,26 @@ const initDB = () => {
           console.log('Password reset OTPs table created or already exists');
         }
       });
+
+      // Add this in your database initialization
+      db.run(`ALTER TABLE users ADD COLUMN selected_policy TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding selected_policy column:', err);
+        }
+      });
+
+      db.run(`ALTER TABLE users ADD COLUMN upselling_policy TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding upselling_policy column:', err);
+        }
+      });
+
+      // Add this ALTER statement to add role column to existing databases
+      db.run(`ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'customer'`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding role column:', err);
+        }
+      });
       
       // Create indexes
       db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
@@ -135,36 +140,6 @@ const getDB = () => {
       console.error('Error connecting to database:', err);
       throw err;
     }
-  });
-};
-
-// Test database connection
-const testDB = async () => {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    db.get("SELECT 1", (err, row) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(true);
-      }
-    });
-    db.close();
-  });
-};
-
-// Get user count (for testing)
-const getUserCount = async () => {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    db.get("SELECT COUNT(*) as count FROM users", (err, row) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(row.count);
-      }
-    });
-    db.close();
   });
 };
 
@@ -434,8 +409,6 @@ module.exports = {
   initDB,
   deleteDB,
   getDB,
-  testDB,
-  getUserCount,
   storeOTP,
   verifyOTP,
   verifyAndCleanupOTP,
@@ -445,3 +418,4 @@ module.exports = {
   updateUserProfile,      // NEW
   isProfileCompleted      // NEW
 };
+  

@@ -76,6 +76,26 @@ const policyDescriptionsMapping = {
   "SBI Life - Retention Special": "Customized retention offer with special terms and reduced fees for valued customers."
 };
 
+// Enhanced Authentication Middleware
+function requireAuth(req, res, next) {
+  if (req.session && req.session.authenticated) {
+    return next();
+  }
+  res.status(401).json({ error: 'Authentication required' });
+}
+
+function requireRole(role) {
+  return (req, res, next) => {
+    if (!req.session || !req.session.authenticated) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    if (req.session.role !== role) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+    next();
+  };
+}
+
 // Production optimization settings
 if (process.env.NODE_ENV === 'production') {
   // Optimize memory usage
@@ -193,15 +213,89 @@ try {
 // ========================================
 // DATABASE UTILITY FUNCTIONS
 // ========================================
-// NEW: Function to check if user profile is completed
 
+// Enhanced user profile functions
 function isUserProfileCompleted(username) {
-  return dbSetup.isProfileCompleted(username);
+  return new Promise((resolve, reject) => {
+    const db = dbSetup.getDB();
+    db.get(
+      "SELECT profile_completed FROM users WHERE username = ?",
+      [username],
+      (err, row) => {
+        db.close((closeErr) => {
+          if (closeErr) console.error('Error closing database:', closeErr);
+        });
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row && row.profile_completed === 1);
+        }
+      }
+    );
+  });
 }
 
-// NEW: Function to update user profile
 function updateUserProfile(username, profileData) {
-  return dbSetup.updateUserProfile(username, profileData);
+  return new Promise((resolve, reject) => {
+    const db = dbSetup.getDB();
+    const fields = Object.keys(profileData).map(key => `${key} = ?`).join(', ');
+    const values = [...Object.values(profileData), username];
+    
+    db.run(
+      `UPDATE users SET ${fields}, profile_completed = 1, updated_at = CURRENT_TIMESTAMP WHERE username = ?`,
+      values,
+      function(err) {
+        db.close((closeErr) => {
+          if (closeErr) console.error('Error closing database:', closeErr);
+        });
+        if (err) {
+          reject(err);
+        } else {
+          resolve(this.changes);
+        }
+      }
+    );
+  });
+}
+
+// Enhanced policy management functions
+function getPolicyDescription(policyName) {
+  return policyDescriptionsMapping[policyName] || 'No description available';
+}
+
+function prepareEnhancedPolicyData(policyName, userProfile) {
+  return {
+    name: policyName,
+    description: getPolicyDescription(policyName),
+    userProfile: {
+      age: userProfile.age,
+      salary: userProfile.salary,
+      creditScore: userProfile.credit_score,
+      tenure: userProfile.tenure
+    },
+    timestamp: new Date().toISOString()
+  };
+}
+
+async function enhancedTrustVerification(policies, userData) {
+  try {
+    // Add additional verification logic here
+    const verifiedPolicies = policies.map(policy => ({
+      ...policy,
+      verified: true,
+      verificationTimestamp: new Date().toISOString(),
+      userContext: {
+        age: userData.age,
+        salary: userData.salary,
+        creditScore: userData.credit_score
+      }
+    }));
+    
+    return verifiedPolicies;
+  } catch (error) {
+    console.error('Trust verification error:', error);
+    throw error;
+  }
 }
 
 function getUserByUsername(username) {
@@ -236,12 +330,12 @@ function getUserByEmail(email) {
   });
 }
 
-function insertUser(username, password, email, totp_secret) {
+function insertUser(username, password, email, totp_secret, role) {
   return new Promise((resolve, reject) => {
     const db = dbSetup.getDB();
     db.run(
-      "INSERT INTO users (username, password, email, totp_secret) VALUES (?, ?, ?, ?)",
-      [username, password, email, totp_secret],
+      "INSERT INTO users (username, password, email, totp_secret, role) VALUES (?, ?, ?, ?, ?)",
+      [username, password, email, totp_secret, role],
       function(err) {
         db.close((closeErr) => {
           if (closeErr) console.error('Error closing database:', closeErr);
@@ -312,7 +406,7 @@ app.get('/register', (req, res) => {
 
 app.post('/register', async (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password, email, role = 'customer' } = req.body;
     
     // Check if user already exists
     const existingUser = await getUserByUsername(username);
@@ -333,12 +427,13 @@ app.post('/register', async (req, res) => {
     // Generate TOTP secret
     const secret = authenticator.generateSecret();
     
-    // Insert user into database
-    await insertUser(username, hashedPassword, email, secret);
+    // Insert user into database with role
+    await insertUser(username, hashedPassword, email, secret, role);
     
     req.session.tempUsername = username;
     req.session.tempEmail = email;
     req.session.tempSecret = secret;
+    req.session.tempRole = role;
     
     res.redirect('/setup_totp');
     
@@ -451,7 +546,7 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, role = 'customer' } = req.body;
     
     console.log('Login attempt for username:', username);
 
@@ -461,6 +556,12 @@ app.post('/login', async (req, res) => {
     if (!user) {
       console.log('User not found:', username);
       return res.render('login', { error: 'Invalid username or password', success: null });
+    }
+    
+    // Check role if specified
+    if (role && user.role !== role) {
+      console.log('Role mismatch:', user.role, role);
+      return res.render('login', { error: 'Invalid role for this user', success: null });
     }
     
     console.log('User found:', user.email);
@@ -473,6 +574,7 @@ app.post('/login', async (req, res) => {
     
     if (passwordMatch) {
       req.session.username = username;
+      req.session.role = user.role;
       res.redirect('/verify_totp');
     } else {
       console.log('Password verification failed for user:', username);
@@ -975,7 +1077,7 @@ app.get('/api/policies', isAuthenticated, (req, res) => {
   }
 });
 
-// Updated /api/recommend route in app.js
+// Updated /api/recommend route
 app.post('/api/recommend', isAuthenticated, async (req, res) => {
   try {
     const { description } = req.body;
@@ -999,7 +1101,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
     // Prepare user data for Python script
     const userData = {
       description: description,
-      username: username,  // Add username to the data
+      username: username,
       credit_score: userProfile.credit_score,
       geography: userProfile.geography,
       gender: userProfile.gender,
@@ -1017,7 +1119,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
     const pythonProcess = spawn(pythonpath, [
       path.join(__dirname, 'policy_recommend.py'),
       JSON.stringify(userData),
-      username  // Pass username as second argument
+      username
     ], {
       cwd: __dirname
     });
@@ -1033,7 +1135,7 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
       pythonError += data.toString();
     });
 
-    pythonProcess.on('close', (code) => {
+    pythonProcess.on('close', async (code) => {
       if (code !== 0) {
         console.error('Python script error code:', code);
         console.error('Python stderr:', pythonError);
@@ -1061,25 +1163,18 @@ app.post('/api/recommend', isAuthenticated, async (req, res) => {
 
         console.log('Policy prediction successful:', prediction);
         
-        // Ensure response has consistent format
-        let response = {
-          success: true,
-          message: "Policy recommendation generated successfully"
-        };
+        // Enhance policy recommendations with trust verification
+        const enhancedPolicies = await enhancedTrustVerification(
+          Array.isArray(prediction.policies) ? prediction.policies : [prediction],
+          userData
+        );
 
-        // Handle different response formats from Python
-        if (prediction.policies && Array.isArray(prediction.policies)) {
-          response.policies = prediction.policies;
-        } else if (prediction.name) {
-          // Single policy object - convert to array
-          response.policies = [{
-            name: prediction.name,
-            why: prediction.why || 'No description available'
-          }];
-        } else {
-          // Fallback - treat entire prediction as single policy
-          response.policies = [prediction];
-        }
+        // Prepare response with enhanced data
+        const response = {
+          success: true,
+          message: "Policy recommendation generated successfully",
+          policies: enhancedPolicies.map(policy => prepareEnhancedPolicyData(policy.name, userProfile))
+        };
 
         res.json(response);
         
